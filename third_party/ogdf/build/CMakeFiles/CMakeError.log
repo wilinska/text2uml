@@ -1,0 +1,90 @@
+Determining if the mallinfo2 exist failed with the following output:
+Change Dir: /home/ada/ogdf/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_ce5e3/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ce5e3.dir/build.make CMakeFiles/cmTC_ce5e3.dir/build
+gmake[1]: Entering directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ce5e3.dir/CheckSymbolExists.cxx.o
+/home/ada/emsdk/upstream/emscripten/em++   -march=native  -std=c++17 -MD -MT CMakeFiles/cmTC_ce5e3.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_ce5e3.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_ce5e3.dir/CheckSymbolExists.cxx.o -c /home/ada/ogdf/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+clang++: error: unsupported option '-march=' for target 'wasm32-unknown-emscripten'
+gmake[1]: *** [CMakeFiles/cmTC_ce5e3.dir/build.make:79: CMakeFiles/cmTC_ce5e3.dir/CheckSymbolExists.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_ce5e3/fast] Error 2
+
+
+File /home/ada/ogdf/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <malloc.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mallinfo2
+  return ((int*)(&mallinfo2))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Performing C++ SOURCE FILE Test has_sse3_pmmintrin failed with the following output:
+Change Dir: /home/ada/ogdf/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_65b36/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_65b36.dir/build.make CMakeFiles/cmTC_65b36.dir/build
+gmake[1]: Entering directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_65b36.dir/src.cxx.o
+/home/ada/emsdk/upstream/emscripten/em++ -Dhas_sse3_pmmintrin  -march=native  -std=c++17 -MD -MT CMakeFiles/cmTC_65b36.dir/src.cxx.o -MF CMakeFiles/cmTC_65b36.dir/src.cxx.o.d -o CMakeFiles/cmTC_65b36.dir/src.cxx.o -c /home/ada/ogdf/build/CMakeFiles/CMakeTmp/src.cxx
+clang++: error: unsupported option '-march=' for target 'wasm32-unknown-emscripten'
+gmake[1]: *** [CMakeFiles/cmTC_65b36.dir/build.make:79: CMakeFiles/cmTC_65b36.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_65b36/fast] Error 2
+
+
+Source file was:
+
+#include <pmmintrin.h>
+int main() {
+	__m128d a = _mm_set1_pd(42), b = _mm_set1_pd(23);
+	_mm_hadd_pd(a, b);
+	return 0;
+}
+Performing C++ SOURCE FILE Test has_sse3_intrin failed with the following output:
+Change Dir: /home/ada/ogdf/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_114f8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_114f8.dir/build.make CMakeFiles/cmTC_114f8.dir/build
+gmake[1]: Entering directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_114f8.dir/src.cxx.o
+/home/ada/emsdk/upstream/emscripten/em++ -Dhas_sse3_intrin  -march=native  -std=c++17 -MD -MT CMakeFiles/cmTC_114f8.dir/src.cxx.o -MF CMakeFiles/cmTC_114f8.dir/src.cxx.o.d -o CMakeFiles/cmTC_114f8.dir/src.cxx.o -c /home/ada/ogdf/build/CMakeFiles/CMakeTmp/src.cxx
+clang++: error: unsupported option '-march=' for target 'wasm32-unknown-emscripten'
+gmake[1]: *** [CMakeFiles/cmTC_114f8.dir/build.make:79: CMakeFiles/cmTC_114f8.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_114f8/fast] Error 2
+
+
+Source file was:
+
+#include <intrin.h>
+int main() {
+	__m128d a = _mm_set1_pd(42), b = _mm_set1_pd(23);
+	_mm_hadd_pd(a, b);
+	return 0;
+}
+Performing C++ SOURCE FILE Test has_linux_cpu_macros failed with the following output:
+Change Dir: /home/ada/ogdf/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_710b6/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_710b6.dir/build.make CMakeFiles/cmTC_710b6.dir/build
+gmake[1]: Entering directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_710b6.dir/src.cxx.o
+/home/ada/emsdk/upstream/emscripten/em++ -Dhas_linux_cpu_macros  -march=native  -std=c++17 -MD -MT CMakeFiles/cmTC_710b6.dir/src.cxx.o -MF CMakeFiles/cmTC_710b6.dir/src.cxx.o.d -o CMakeFiles/cmTC_710b6.dir/src.cxx.o -c /home/ada/ogdf/build/CMakeFiles/CMakeTmp/src.cxx
+clang++: error: unsupported option '-march=' for target 'wasm32-unknown-emscripten'
+gmake[1]: *** [CMakeFiles/cmTC_710b6.dir/build.make:79: CMakeFiles/cmTC_710b6.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/ada/ogdf/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_710b6/fast] Error 2
+
+
+Source file was:
+
+#include <sched.h>
+int main() {
+	cpu_set_t mask;
+	CPU_ZERO(&mask);
+	return 0;
+}

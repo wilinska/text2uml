@@ -1,0 +1,1 @@
+/home/ada/emsdk/upstream/emscripten/em++  -march=native -O3 -DNDEBUG @CMakeFiles/tests.dir/objects1.rsp -o tests.js @CMakeFiles/tests.dir/linklibs.rsp

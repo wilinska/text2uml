@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style/styles.css" />
+  <title>Text2UML</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+
+  <!-- Moduły aplikacji w odpowiedniej kolejności -->
+  <script src="scripts/config/layoutTemplates.js"></script>
+  <script src="scripts/utils/compressionBrowser.js"></script>
+  <script src="scripts/modules/svgInteractions.js"></script>
+  <script src="scripts/modules/configModal.js"></script>
+  <script src="scripts/modules/memento.js"></script>
+
+  <!-- Główny skrypt aplikacji -->
+  <script src="scripts/main.js"></script>
+</head>
+
+<body>
+  <form action="/" method="get" style="height: 100%; display: flex; flex-direction: column;">
+    <div id="top-bar">
+      <div>
+        <button id="lan-button">PlantUML</button>
+        <select id="diagram-type" name="diagramType">
+          <option value="auto" <%=diagramType==='auto' ? 'selected' : '' %>>Auto</option>
+          <option value="class" <%=diagramType==='class' ? 'selected' : '' %>>Class Diagram</option>
+          <option value="activity" <%=diagramType==='activity' ? 'selected' : '' %>>Activity Diagram</option>
+        </select>
+        <select id="layout-type" name="layoutType">
+          <option value="OptimalHierarchy" <%=layoutType==='OptimalHierarchy' ? 'selected' : '' %>>Optimal Hierarchy
+          </option>
+          <option value="Circular" <%=layoutType==='Circular' ? 'selected' : '' %>>Circular Layout</option>
+          <option value="FMMM" <%=layoutType==='FMMM' ? 'selected' : '' %>>FMMM Layout</option>
+          <option value="Orthogonal" <%=layoutType==='Orthogonal' ? 'selected' : '' %>>Orthogonal Layout</option>
+          <option value="Sugiyama" <%=layoutType==='Sugiyama' ? 'selected' : '' %>>Sugiyama Layout</option>
+          <option value="Tree" <%=layoutType==='Tree' ? 'selected' : '' %>>Tree Layout</option>
+        </select>
+        <!-- Dodaj wybór typu krawędzi -->
+        <select id="edge-type" name="edgeType">
+          <option value="Bends" <%=edgeType==='Bends' ? 'selected' : '' %>>Curved (Bézier on existing points)</option>
+          <option value="Polyline" <%=edgeType==='Polyline' ? 'selected' : '' %>>Polyline</option>
+          <option value="BendsNew" <%=edgeType==='BendsNew' ? 'selected' : '' %>>Curved (Bézier with new control points)
+          </option>
+        </select>
+        <button type="button" id="config-button">Config</button>
+      </div>
+      <div>
+        <button type="submit" id="render-button">Render</button>
+        <button type="button" id="save-button" title="Save SVG">
+          &#128190;
+        </button>
+        <button type="button" id="fix-position-button" title="Fix positions">&#128204;</button>
+      </div>
+    </div>
+    <div id="editor">
+      <textarea id="text-input" placeholder="Enter PlantUML here..." name="inputText" rows="4" cols="50">
+<%= text %></textarea>
+      <div id="svg-output">
+        <% if (svg && svg.trim() !=='' ) { %> <%- svg %>
+            <% } %>
+      </div>
+    </div>
+  <div id="config-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Configuration for <%= layoutType %>
+      </h3>
+      <div id="modal-fields-container">
+        <% if (typeof config_fields !=='undefined' ) { %>
+          <% config_fields.forEach(function(field) { %>
+            <label for="<%= field.id %>">
+              <%= field.label %>:
+            </label>
+            <% if (field.type==='number' ) { %>
+              <input type="number" id="<%= field.id %>" name="<%= field.name %>" min="<%= field.min %>"
+                step="<%= field.step %>"
+                value="<%= field.name in config ? config[field.name] : field.defaultValue %>" />
+              <% } else if (field.type==='select' ) { %>
+                <select id="<%= field.id %>" name="<%= field.name %>">
+                  <% field.options.forEach(function(option) { %>
+                    <option value="<%= option %>" <%=option===config[field.name] ? 'selected' : '' %>>
+                      <%= option %>
+                    </option>
+                    <% }); %>
+                </select>
+                <% } else if (field.type==='boolean' ) { %>
+                  <input type="checkbox" id="<%= field.id %>" name="<%= field.name %>" <%=(field.name in config &&
+                    config[field.name]==='on' || (!(field.name in config) && field.defaultValue)) ? 'checked' : '' %>
+                  />
+                  <% } %>
+                    <% }); %>
+                      <% } %>
+      </div>
+      <button type="button" id="apply-config">Apply</button>
+    </div>
+  </div>
+    </form>
+
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+cc_library(
+    name = "tinyxml2",
+    srcs = ["tinyxml2.cpp"],
+    hdrs = ["tinyxml2.h"],
+    copts = ["-std=c++17"],
+    features = ["c++17"],
+    visibility = ["//visibility:public"],
+)

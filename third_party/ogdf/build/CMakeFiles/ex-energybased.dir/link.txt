@@ -1,0 +1,1 @@
+/home/ada/emsdk/upstream/emscripten/em++  -march=native -O3 -DNDEBUG @CMakeFiles/ex-energybased.dir/objects1.rsp -o ../doc/examples/layout/ex-energybased.js @CMakeFiles/ex-energybased.dir/linklibs.rsp

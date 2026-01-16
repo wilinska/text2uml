@@ -1,0 +1,13 @@
+cc_library(
+    name = "ogdf",
+    srcs = glob([
+        "*.a",
+    ]),
+    hdrs = glob([
+        "include/ogdf/**/*.h",
+    ]),
+    copts = ["-std=c++17"],
+    features = ["c++17"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,3 @@
+build:opt --copt=-std=c++17
+build:opt --cxxopt=-std=c++17
+build:opt --linkopt=-std=c++17

@@ -1,0 +1,1 @@
+/home/ada/emsdk/upstream/emscripten/em++  -march=native -O3 -DNDEBUG @CMakeFiles/pack-resources.dir/objects1.rsp -o test/pack-resources.js 

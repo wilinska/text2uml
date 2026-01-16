@@ -1,0 +1,14 @@
+.DS_Store
+.idea/
+.vscode/
+.env
+.gdb_history
+bazel-bin
+bazel-bazel-emscripten
+bazel-out
+bazel-testlogs
+node_modules/
+bazel-test2uml
+*.diff
+package-lock.json
+bazel-text2uml

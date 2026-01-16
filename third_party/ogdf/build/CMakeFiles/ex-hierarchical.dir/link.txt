@@ -1,0 +1,1 @@
+/home/ada/emsdk/upstream/emscripten/em++  -march=native -O3 -DNDEBUG @CMakeFiles/ex-hierarchical.dir/objects1.rsp -o ../doc/examples/layout/ex-hierarchical.js @CMakeFiles/ex-hierarchical.dir/linklibs.rsp
