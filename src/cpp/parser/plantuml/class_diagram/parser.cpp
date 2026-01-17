@@ -106,6 +106,12 @@ Graph GeneratedParser::Parse(const std::string &input, const bool enable_output)
     }
     else
     {
+      if (graph.nodes.find(node.label) == graph.nodes.end())
+      {
+        std::cerr << "Failed to find node " << node.label << " in a map."
+                  << std::endl;
+        continue;
+      }
       auto &saved_node = graph.nodes.at(node.label);
 
       saved_node.attributes.insert(saved_node.attributes.end(),
@@ -138,12 +144,26 @@ Graph GeneratedParser::Parse(const std::string &input, const bool enable_output)
     edge.id = edge_id_ctr++;
     if (graph.nodes.count(edge.source) != 0)
     {
+      if (graph.nodes.find(edge.source) == graph.nodes.end())
+      {
+        std::cerr << "Failed to find source node " << edge.source
+                  << " in a map." << std::endl;
+        edges.pop();
+        continue;
+      }
       const auto source = graph.nodes.at(edge.source);
       edge.source = std::to_string(source.id);
     }
 
     if (graph.nodes.count(edge.target) != 0)
     {
+      if (graph.nodes.find(edge.target) == graph.nodes.end())
+      {
+        std::cerr << "Failed to find target node " << edge.target
+                  << " in a map." << std::endl;
+        edges.pop();
+        continue;
+      }
       const auto target = graph.nodes.at(edge.target);
       edge.target = std::to_string(target.id);
     }

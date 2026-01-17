@@ -44,6 +44,14 @@ void EdgeInjector::Inject(const Edge &edge,
     return;
   }
 
+  if (svg_graph_.nodes_map_.find(std::stoi(edge.source)) ==
+      svg_graph_.nodes_map_.end())
+  {
+    std::cerr << "Failed to find source node " << edge.source << " in a map."
+              << std::endl;
+    return;
+  }
+
   auto &svg_edge = svg_graph_.edges_map_.at(edge.id);
   auto &svg_node = svg_graph_.nodes_map_.at(std::stoi(edge.source));
   const auto path = svg_edge.line;

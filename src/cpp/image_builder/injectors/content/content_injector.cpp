@@ -17,6 +17,34 @@ void ContentInjector::Inject()
 {
   for (auto edge : graph_.edges)
   {
+    if (graph_.nodes_order.size() <= std::stoul(edge.source))
+    {
+      std::cerr << "ContentInjector::Inject: Source node index " << edge.source
+                << " out of bounds." << std::endl;
+      continue;
+    }
+    if (graph_.nodes_order.size() <= std::stoul(edge.target))
+    {
+      std::cerr << "ContentInjector::Inject: Target node index " << edge.target
+                << " out of bounds." << std::endl;
+      continue;
+    }
+    if (graph_.nodes.find(graph_.nodes_order.at(std::stoi(edge.source))) ==
+        graph_.nodes.end())
+    {
+      std::cerr << "ContentInjector::Inject: Source node "
+                << graph_.nodes_order.at(std::stoi(edge.source))
+                << " not found in graph nodes." << std::endl;
+      continue;
+    }
+    if (graph_.nodes.find(graph_.nodes_order.at(std::stoi(edge.target))) ==
+        graph_.nodes.end())
+    {
+      std::cerr << "ContentInjector::Inject: Target node "
+                << graph_.nodes_order.at(std::stoi(edge.target))
+                << " not found in graph nodes." << std::endl;
+      continue;
+    }
     edge_injector_.Inject(
         edge,
         edge_bends_,

@@ -46,6 +46,12 @@ void NodeInjector::Inject(const Node &node)
     return;
   }
 
+  if (svg_graph_.GetNodesMap().find(node.id) == svg_graph_.GetNodesMap().end())
+  {
+    std::cerr << "Failed to find node " << node.label << " with id: " << node.id
+              << " in a map." << std::endl;
+    return;
+  }
   const auto svg_node = svg_graph_.GetNodesMap().at(node.id);
   const auto label = node.type == NodeTypeEnum::Label
                          ? utils::text::removePrefix(node.label)

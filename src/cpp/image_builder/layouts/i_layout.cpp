@@ -43,8 +43,14 @@ ILayout::ILayout(Graph &graph)
     id_to_node_map[abstract_node.id] = v;
 
     GA.label(v) = std::to_string(abstract_node.id);
-    GA.width(v) = std::stod(abstract_node.graphics.at("w"));
-    GA.height(v) = std::stod(abstract_node.graphics.at("h"));
+    if (abstract_node.graphics.find("w") != abstract_node.graphics.end())
+    {
+      GA.width(v) = std::stod(abstract_node.graphics.at("w"));
+    }
+    if (abstract_node.graphics.find("h") != abstract_node.graphics.end())
+    {
+      GA.height(v) = std::stod(abstract_node.graphics.at("h"));
+    }
 
     if (swimlane_map.has_value() && abstract_node.swimlane.has_value())
     {

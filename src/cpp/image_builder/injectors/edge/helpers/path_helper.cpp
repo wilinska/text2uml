@@ -287,6 +287,10 @@ Point FindIntersecionWithRectangle(const std::string &path,
 {
   const auto points = GetFirstTwoPoints(path);
 
+  if (points.size() < 2)
+  {
+    return {};
+  }
   const auto path_start = points.at(0);
   const auto path_end = points.at(1);
 
