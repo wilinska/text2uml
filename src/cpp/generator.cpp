@@ -52,8 +52,6 @@ GenerateClassDiagram(const std::string &uml_text,
 
 std::pair<std::string, bool>
 GenerateActivityDiagram(const std::string &uml_text,
-                        const std::string &layout_type,
-                        const std::string &edge_type,
                         const std::string &config_json)
 {
   auto graph = DecoratedParserBuilder{}
@@ -66,7 +64,7 @@ GenerateActivityDiagram(const std::string &uml_text,
 
   ImageBuilder ib;
   const auto diagram_img =
-      ib.GenerateImage(edge_type, graph, layout, config_json);
+      ib.GenerateImage("Polyline", graph, layout, config_json);
 
   return std::make_pair(diagram_img, !graph.nodes.empty());
 }
@@ -81,8 +79,7 @@ std::string Generator::Generate(const std::string &uml_text,
 
   if (diagram_type == "activity")
   {
-    auto result =
-        GenerateActivityDiagram(uml_text, layout_type, edge_type, config_json);
+    auto result = GenerateActivityDiagram(uml_text, config_json);
     if (result.second)
     {
       return "activity " + result.first;
@@ -96,8 +93,7 @@ std::string Generator::Generate(const std::string &uml_text,
     return "class " + class_result.first;
   }
 
-  auto result =
-      GenerateActivityDiagram(uml_text, layout_type, edge_type, config_json);
+  auto result = GenerateActivityDiagram(uml_text, config_json);
   return "activity " + result.first;
 }
 
