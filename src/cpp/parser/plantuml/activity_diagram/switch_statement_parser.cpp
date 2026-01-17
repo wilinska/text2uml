@@ -10,6 +10,7 @@ void GeneratedParser::HandleSwitchStatement(
     Logs &logs,
     Graph &graph,
     std::optional<std::uint64_t> &node_parent,
+    const std::optional<std::string> &edge_label,
     std::uint64_t &node_id_ctr,
     std::uint64_t &edge_id_ctr,
     const std::string &label,
@@ -22,6 +23,7 @@ void GeneratedParser::HandleSwitchStatement(
   HandleNewActivity(logs,
                     graph,
                     node_parent,
+                    edge_label,
                     node_id_ctr,
                     edge_id_ctr,
                     condition_label.name,
@@ -36,11 +38,10 @@ void GeneratedParser::HandleSwitchStatement(
   const auto case_condition_label =
       logs.pop(TokenType::BRACE_CONTENT, enable_output);
 
-  std::ignore = case_condition_label;
-
   HandleNesting(logs,
                 graph,
                 node_parent,
+                case_condition_label.name,
                 node_id_ctr,
                 edge_id_ctr,
                 TokenType::CASE,
@@ -50,6 +51,7 @@ void GeneratedParser::HandleSwitchStatement(
   HandleNewActivity(logs,
                     graph,
                     node_parent,
+                    std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
                     "",
@@ -67,11 +69,10 @@ void GeneratedParser::HandleSwitchStatement(
     const auto cont_case_condition_label =
         logs.pop(TokenType::BRACE_CONTENT, enable_output);
 
-    std::ignore = cont_case_condition_label;
-
     HandleNesting(logs,
                   graph,
                   node_parent,
+                  cont_case_condition_label.name,
                   node_id_ctr,
                   edge_id_ctr,
                   TokenType::CASE,

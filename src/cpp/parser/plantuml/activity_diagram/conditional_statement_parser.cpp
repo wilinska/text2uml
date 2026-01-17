@@ -4,12 +4,24 @@
 #include <sstream>
 #include <string>
 
+namespace
+{
+std::string removeOuterParentheses(const std::string &input)
+{
+  if (input.length() >= 2 && input.front() == '(' && input.back() == ')')
+  {
+    return input.substr(1, input.length() - 2);
+  }
+  return input;
+}
+} // namespace
 namespace activity_diagram
 {
 void GeneratedParser::HandleConditionalStatement(
     Logs &logs,
     Graph &graph,
     std::optional<std::uint64_t> &node_parent,
+    const std::optional<std::string> &edge_label,
     std::uint64_t &node_id_ctr,
     std::uint64_t &edge_id_ctr,
     const std::string &label,
@@ -21,33 +33,34 @@ void GeneratedParser::HandleConditionalStatement(
   HandleNewActivity(logs,
                     graph,
                     node_parent,
+                    edge_label,
                     node_id_ctr,
                     edge_id_ctr,
-                    condition_label.name,
+                    removeOuterParentheses(condition_label.name),
                     ActivityTypeEnum::Conditional,
                     false,
                     enable_output);
 
   auto if_node_id = node_parent;
+  std::optional<std::string> then_label_opt;
 
   if (logs.top().type == TokenType::IS)
   {
     logs.pop(TokenType::IS, enable_output);
-    const auto condition_question =
-        logs.pop(TokenType::BRACE_CONTENT, enable_output);
+    then_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
   }
   // then
   logs.pop(TokenType::THEN, enable_output);
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    const auto then_label = logs.pop(TokenType::BRACE_CONTENT, enable_output);
-    std::ignore = then_label;
+    then_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
   }
 
   HandleNesting(logs,
                 graph,
                 node_parent,
+                then_label_opt,
                 node_id_ctr,
                 edge_id_ctr,
                 TokenType::IF,
@@ -58,6 +71,7 @@ void GeneratedParser::HandleConditionalStatement(
   HandleNewActivity(logs,
                     graph,
                     node_parent,
+                    std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
                     "",
@@ -68,11 +82,11 @@ void GeneratedParser::HandleConditionalStatement(
   const auto endif_node_id = node_parent;
 
   node_parent = if_node_id;
+  std::optional<std::string> else_label_opt;
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    const auto endif_label = logs.pop(TokenType::BRACE_CONTENT, enable_output);
-    std::ignore = endif_label;
+    else_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
   }
 
   while (logs.top().type == TokenType::ELSEIF)
@@ -87,17 +101,16 @@ void GeneratedParser::HandleConditionalStatement(
 
     if (logs.top().type == TokenType::BRACE_CONTENT)
     {
-      const auto endif_label =
-          logs.pop(TokenType::BRACE_CONTENT, enable_output);
-      std::ignore = endif_label;
+      else_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
     }
 
     HandleNewActivity(logs,
                       graph,
                       node_parent,
+                      std::nullopt,
                       node_id_ctr,
                       edge_id_ctr,
-                      elseifcondition_label.name,
+                      removeOuterParentheses(elseifcondition_label.name),
                       ActivityTypeEnum::Conditional,
                       false,
                       enable_output);
@@ -108,24 +121,24 @@ void GeneratedParser::HandleConditionalStatement(
         logs,
         graph,
         node_parent,
+        else_label_opt,
         node_id_ctr,
         edge_id_ctr,
         TokenType::ELSEIF,
         {TokenType::ELSE, TokenType::ELSEIF, TokenType::BRACE_CONTENT},
         enable_output);
 
+    std::optional<std::string> endif_label_opt;
     if (logs.top().type == TokenType::BRACE_CONTENT)
     {
-      const auto endif_label =
-          logs.pop(TokenType::BRACE_CONTENT, enable_output);
-      std::ignore = endif_label;
+      endif_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
     }
 
     HandleNewEdge(graph,
                   node_parent.value(),
                   endif_node_id.value(),
                   edge_id_ctr,
-                  {},
+                  endif_label_opt,
                   false,
                   enable_output);
 
@@ -134,16 +147,18 @@ void GeneratedParser::HandleConditionalStatement(
 
   // else
   logs.pop(TokenType::ELSE, enable_output);
+  std::optional<std::string> else_final_label_opt;
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    const auto endif_label = logs.pop(TokenType::BRACE_CONTENT, enable_output);
-    std::ignore = endif_label;
+    else_final_label_opt =
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
   }
 
   HandleNesting(logs,
                 graph,
                 node_parent,
+                else_final_label_opt,
                 node_id_ctr,
                 edge_id_ctr,
                 TokenType::IF,
