@@ -1,6 +1,7 @@
 @startuml
-' @layout_type OptimalHierarchy
-' @edge_type Polyline
+' @edge_type Bends
+' @layout_type Sugiyama
+
 class AppController {
     String route
     int requestCount
@@ -13,7 +14,45 @@ class SecurityGate {
     validateToken(token String)
     encrypt(raw String)
 }
+' komentarz
+class BaseService {
+    int serviceId
+    String status
+    initialize()
+    process()
+}
 
+class DataProcessor {
+    String engineType
+    transform(input String, mode int)
+    validateSchema(schemaId int)
+}
+
+class Repository {
+    String dbHost
+    save(payload String)
+    fetch(id int)
+}
+
+class Logger {
+    int logLevel
+    log(msg String, priority int)
+}
+
+class Cache {
+    int ttl
+    clear()
+}
+
+BaseService <|-- AppController
 AppController --> SecurityGate
+SecurityGate --> Logger
+
+AppController --> Logger
+
+DataProcessor --* Repository
+DataProcessor --o Cache
+Repository --+ Logger
+SecurityGate -- DataProcessor
 
 @enduml
