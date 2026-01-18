@@ -23,7 +23,7 @@ void GeneratedParser::HandleSplitStatement(
                     edge_label,
                     node_id_ctr,
                     edge_id_ctr,
-                    "SPLIT",
+                    "",
                     ActivityTypeEnum::Split,
                     false,
                     enable_output);
@@ -47,7 +47,7 @@ void GeneratedParser::HandleSplitStatement(
                     std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
-                    "ENDSPLIT",
+                    "",
                     ActivityTypeEnum::EndSplit,
                     false,
                     enable_output);

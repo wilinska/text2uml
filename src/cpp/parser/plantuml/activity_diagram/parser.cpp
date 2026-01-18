@@ -114,18 +114,7 @@ void GeneratedParser::HandleNesting(
                         false,
                         enable_output);
       break;
-    case TokenType::DETACH:
-      HandleNewActivity(logs,
-                        graph,
-                        node_parent,
-                        edge_label,
-                        node_id_ctr,
-                        edge_id_ctr,
-                        "DETACH",
-                        ActivityTypeEnum::Detach,
-                        false,
-                        enable_output);
-      break;
+    case TokenType::DETACH: node_parent = std::nullopt; break;
     case TokenType::ACTIVITY_CONTENT:
       HandleNewActivity(logs,
                         graph,
@@ -263,10 +252,16 @@ void GeneratedParser::HandleNewActivity(
                   backward,
                   enable_output);
   }
-  node_parent = node_id_ctr;
+  if (node_type != ActivityTypeEnum::End && node_type != ActivityTypeEnum::Stop)
+  {
+    node_parent = node_id_ctr;
+  }
+  else
+  {
+    node_parent = std::nullopt;
+  }
   ++node_id_ctr;
 }
-
 void GeneratedParser::HandleNewEdge(Graph &graph,
                                     const std::uint64_t source,
                                     const std::uint64_t target,

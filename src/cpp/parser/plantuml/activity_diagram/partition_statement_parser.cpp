@@ -47,7 +47,7 @@ void GeneratedParser::HandlePartitionStatement(
                     std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
-                    "ENDPARTITION",
+                    "",
                     ActivityTypeEnum::EndPartition,
                     false,
                     enable_output);

@@ -22,7 +22,7 @@ void GeneratedParser::HandleGroupStatement(
                     edge_label,
                     node_id_ctr,
                     edge_id_ctr,
-                    "GROUP",
+                    "",
                     ActivityTypeEnum::Group,
                     false,
                     enable_output);
@@ -45,7 +45,7 @@ void GeneratedParser::HandleGroupStatement(
                     std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
-                    "ENDGROUP",
+                    "",
                     ActivityTypeEnum::EndGroup,
                     false,
                     enable_output);

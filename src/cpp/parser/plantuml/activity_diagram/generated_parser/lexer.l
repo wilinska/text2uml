@@ -41,13 +41,14 @@ using TokenType = generated_parser::TokenType;
 "fork"                            { generated_parser::AddToken(TokenType::FORK, ""); return FORK; }
 fork[ \t]+again                   { generated_parser::AddToken(TokenType::FORK_AGAIN, ""); return FORK_AGAIN; }
 end[ \t]+fork                     { generated_parser::AddToken(TokenType::END_FORK, ""); return END_FORK; }
+endfork                           { generated_parser::AddToken(TokenType::END_FORK, ""); return END_FORK; }
 end[ \t]+merge                    { generated_parser::AddToken(TokenType::END_MERGE, ""); return END_MERGE; }
 "split"                           { generated_parser::AddToken(TokenType::SPLIT, ""); return SPLIT; }
 split[ \t]+again                  { generated_parser::AddToken(TokenType::SPLIT_AGAIN, ""); return SPLIT_AGAIN; }
 end[ \t]+split                    { generated_parser::AddToken(TokenType::END_SPLIT, ""); return END_SPLIT; }
-"group"                           { generated_parser::AddToken(TokenType::GROUP, ""); return GROUP; }
-end[ \t]+group                    { generated_parser::AddToken(TokenType::END_GROUP, ""); return END_GROUP; }
-"partition"                       { generated_parser::AddToken(TokenType::PARTITION, ""); return PARTITION; }
+"group"                           { return GROUP; }
+end[ \t]+group                    { return END_GROUP; }
+"partition"                       { return PARTITION; }
 "merge"                           { generated_parser::AddToken(TokenType::MERGE, ""); return MERGE; }
 [a-zA-Z][a-zA-Z0-9_]*             { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }
 \"[a-zA-Z][a-zA-Z0-9_\t]*\"       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }

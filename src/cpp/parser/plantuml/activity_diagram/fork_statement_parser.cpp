@@ -23,7 +23,7 @@ void GeneratedParser::HandleForkStatement(
                     edge_label,
                     node_id_ctr,
                     edge_id_ctr,
-                    "FORK",
+                    "",
                     ActivityTypeEnum::Fork,
                     false,
                     enable_output);
@@ -47,7 +47,7 @@ void GeneratedParser::HandleForkStatement(
                     std::nullopt,
                     node_id_ctr,
                     edge_id_ctr,
-                    "ENDFORK",
+                    "",
                     ActivityTypeEnum::EndFork,
                     false,
                     enable_output);
