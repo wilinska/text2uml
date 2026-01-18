@@ -60,12 +60,19 @@ void SwimlaneInjector::Inject()
     svg->SetAttribute("viewBox", "0 0 400 200");
   }
 
+  auto y_double = graph_.swimlane_start_y.has_value()
+                      ? graph_.swimlane_start_y.value()
+                      : graph_.y;
+
+  auto y_str = std::to_string(y_double);
+
   for (const auto &swimlane : graph_.swimlanes)
   {
     XMLElementPtr rect_element = doc_.NewElement("rect");
     rect_element->SetAttribute(ATTR_X,
                                std::to_string(swimlane.second.x - 10).c_str());
-    rect_element->SetAttribute(ATTR_Y, std::to_string(graph_.y).c_str());
+    rect_element->SetAttribute(ATTR_Y, y_str.c_str());
+
     rect_element->SetAttribute(ATTR_WIDTH,
                                std::to_string(swimlane.second.width).c_str());
     rect_element->SetAttribute(ATTR_HEIGHT, std::to_string(30).c_str());
@@ -75,7 +82,7 @@ void SwimlaneInjector::Inject()
     XMLElementPtr box_element = doc_.NewElement("rect");
     box_element->SetAttribute(ATTR_X,
                               std::to_string(swimlane.second.x - 10).c_str());
-    box_element->SetAttribute(ATTR_Y, std::to_string(graph_.y).c_str());
+    box_element->SetAttribute(ATTR_Y, y_str.c_str());
     box_element->SetAttribute(ATTR_WIDTH,
                               std::to_string(swimlane.second.width).c_str());
     box_element->SetAttribute(ATTR_HEIGHT,
@@ -88,7 +95,7 @@ void SwimlaneInjector::Inject()
         ATTR_X,
         std::to_string(swimlane.second.x + swimlane.second.width / 2 - 10)
             .c_str());
-    text_element->SetAttribute(ATTR_Y, std::to_string(graph_.y + 18).c_str());
+    text_element->SetAttribute(ATTR_Y, std::to_string(y_double + 18).c_str());
     text_element->SetAttribute(ATTR_TEXT_ANCHOR, "middle");
     text_element->SetAttribute(ATTR_DOMINANT_BASELINE, "start");
     text_element->SetAttribute(ATTR_FONT_FAMILY, "Arial");

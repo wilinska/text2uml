@@ -40,6 +40,14 @@ void EdgesMapper::Map()
     const auto path_element = g_element->FirstChildElement(TAG_PATH);
     const auto text_element = g_element->FirstChildElement(TAG_TEXT);
 
+    if (text_element &&
+        text_element->GetText() == std::string("SWIMLANE_PLACEHOLDER_EDGE"))
+    {
+      g_element->DeleteChild(polygon_element);
+      g_element->DeleteChild(path_element);
+      g_element->DeleteChild(text_element);
+      continue;
+    }
     if (polygon_element && path_element && text_element)
     {
       SVGEdge edge_node{g_element, path_element, text_element};

@@ -10,35 +10,95 @@
 #include <ogdf/layered/SugiyamaLayout.h>
 #include <queue>
 
+namespace
+{
+// clang-format off
+static const std::unordered_map<char, double> PIXEL_WIDTH_ARIAL_12_MAP = {
+    // Big letters
+    {'A', 7}, {'B', 7}, {'C', 7}, {'D', 7}, {'E', 6}, {'F', 6}, {'G', 7},
+    {'H', 7}, {'I', 3}, {'J', 6}, {'K', 7}, {'L', 6}, {'M', 8}, {'N', 7},
+    {'O', 7}, {'P', 7}, {'Q', 7}, {'R', 7}, {'S', 6}, {'T', 7}, {'U', 7},
+    {'V', 7}, {'W', 8}, {'X', 7}, {'Y', 7}, {'Z', 7},
+
+    // Small letters
+    {'a', 6}, {'b', 7}, {'c', 6}, {'d', 7}, {'e', 6}, {'f', 4}, {'g', 7},
+    {'h', 7}, {'i', 3}, {'j', 3}, {'k', 6}, {'l', 3}, {'m', 8}, {'n', 7},
+    {'o', 7}, {'p', 7}, {'q', 7}, {'r', 5}, {'s', 6}, {'t', 5}, {'u', 7},
+    {'v', 7}, {'w', 8}, {'x', 7}, {'y', 7}, {'z', 6},
+
+    // Digits
+    {'0', 6}, {'1', 6}, {'2', 6}, {'3', 6}, {'4', 6}, {'5', 6}, {'6', 6},
+    {'7', 6}, {'8', 6}, {'9', 6},
+
+    // Specials signs
+    {' ', 3}, {'.', 2}, {',', 2}, {'!', 2}, {'?', 6}, {'-', 4}, {'+', 6},
+    {'=', 6}, {'@', 10}, {'#', 8}, {'$', 7}, {'%', 10}, {'&', 8}, {'*', 6},
+    {'(', 4}, {')', 4}, {'[', 4}, {']', 4}, {'{', 4}, {'}', 4}, {';', 3},
+    {':', 3}, {'"', 4}, {'\'', 2}, {'<', 6}, {'>', 6}, {'/', 6}, {'\\', 6},
+};
+
+// clang-format on
+
+double Calculate(std::string text)
+{
+  double result{0};
+  std::for_each(text.begin(),
+                text.end(),
+                [&result](const char c)
+                {
+                  const auto it = PIXEL_WIDTH_ARIAL_12_MAP.find(c);
+                  if (it != PIXEL_WIDTH_ARIAL_12_MAP.end())
+                  {
+                    result += it->second;
+                  }
+                  else
+                  {
+                    result += PIXEL_WIDTH_ARIAL_12_MAP.at('?');
+                  }
+                });
+  return result;
+}
+
+} // namespace
+
 void ActivityDiagramLayout::ApplyLayout(const Config &config)
 {
   graph.activity = true;
   ogdf::SugiyamaLayout sugiyama;
   sugiyama.setRanking(new ActivityRanking(GA));
   sugiyama.setCrossMin(new ogdf::MedianHeuristic);
-
   ogdf::FastHierarchyLayout *fastHierarchyLayout =
       new ogdf::FastHierarchyLayout;
-  fastHierarchyLayout->layerDistance(50);
+  fastHierarchyLayout->layerDistance(config.GetDouble("edgeMinLength"));
   fastHierarchyLayout->nodeDistance(20);
   sugiyama.setLayout(fastHierarchyLayout);
-
   sugiyama.call(GA);
-
   double offset_y = 30.0;
   for (auto v : G.nodes)
   {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
     GA.y(v) += offset_y;
   }
-
   // Post-process edges from fork nodes to enforce vertical segments
   for (ogdf::node v : G.nodes)
   {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
     if (std::stoi(GA.label(v)))
     {
+      if (graph.nodes_order.size() <= std::stoull(GA.label(v)))
+      {
+        std::cerr << "ActivityDiagramLayout::ApplyLayout: Node index "
+                  << GA.label(v) << " out of bounds." << std::endl;
+        continue;
+      }
       const auto &graph_node =
           graph.nodes.at(graph.nodes_order.at(std::stoi(GA.label(v))));
-
       if (graph_node.activity_enum_type == ActivityTypeEnum::Fork)
       {
         for (ogdf::adjEntry adj : v->adjEntries)
@@ -104,7 +164,6 @@ void ActivityDiagramLayout::ApplyLayout(const Config &config)
       }
     }
   }
-
   if (swimlane_map.has_value())
   { // Apply the swimlane layout
     CreateHorizontalSwimlaneLayout(G, GA, swimlane_map.value());
@@ -121,6 +180,10 @@ void ActivityDiagramLayout::CreateHorizontalSwimlaneLayout(
   std::unordered_map<int, std::pair<double, double>> swimlane_min_max;
   for (ogdf::node v : G.nodes)
   {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
     if (graph.swimlanes_ids.find(swimlaneMap[v]) == graph.swimlanes_ids.end())
     {
       graph.swimlanes_ids[swimlaneMap[v]] = maxSwimlane++;
@@ -142,30 +205,39 @@ void ActivityDiagramLayout::CreateHorizontalSwimlaneLayout(
   }
 
   // Step 4: Adjust node positions for horizontal swimlanes
-  double swimlaneSpacing = 50.0; // Spacing between swimlanes
+  double swimlaneSpacing = 55.0; // Spacing between swimlanes
 
   std::unordered_map<int, int> swimlanes_offsets_map;
   swimlanes_offsets_map[0] = 0;
   graph.swimlanes[0].x = 0;
+  swimlane_min_max[0].second =
+      std::max(swimlane_min_max[0].second, Calculate(graph.swimlanes[0].name));
   graph.swimlanes[0].width =
       swimlane_min_max[0].second - swimlane_min_max[0].first;
+  ;
 
   for (auto i = 1; i < maxSwimlane; i++)
   {
     swimlanes_offsets_map[i] = swimlanes_offsets_map[i - 1];
-    swimlanes_offsets_map[i] +=
-        swimlane_min_max[i - 1].second - swimlane_min_max[i - 1].first;
+    swimlanes_offsets_map[i] += graph.swimlanes[i - 1].width;
+    // swimlane_min_max[i - 1].second - swimlane_min_max[i - 1].first;
     // offset
-    swimlanes_offsets_map[i] += swimlaneSpacing;
 
     graph.swimlanes[i].x =
         graph.swimlanes[i - 1].x + graph.swimlanes[i - 1].width;
+    swimlane_min_max[i].second = std::max(swimlane_min_max[i].second,
+                                          Calculate(graph.swimlanes[i].name));
     graph.swimlanes[i].width = swimlane_min_max[i].second -
                                swimlane_min_max[i].first + swimlaneSpacing;
+    swimlanes_offsets_map[i] += swimlaneSpacing;
   }
 
   for (ogdf::node v : G.nodes)
   {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
     GA.x(v) += swimlanes_offsets_map[graph.swimlanes_ids[swimlaneMap[v]]];
 
     graph.height = std::max(graph.height, GA.y(v) + GA.height(v));

@@ -31,7 +31,8 @@ private:
       {"useHighLevelOptions", "on"},
       {"fineTuneScalar", "0.2"},
       {"galaxyChoice", "NonUniformProbLowerMass"},
-      {"unitEdgeLength", "75"}};
+      {"unitEdgeLength", "75"},
+      {"edgeMinLength", "55"}};
 
   std::unordered_map<std::string, std::string> config{};
 };

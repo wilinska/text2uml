@@ -19,6 +19,7 @@ struct Graph
 
   std::unordered_map<std::string, int> swimlanes_ids;
   std::unordered_map<int, SwimlaneConfig> swimlanes;
+  std::optional<double> swimlane_start_y;
 
   std::optional<std::string> diagram_type;
   std::optional<std::string> layout_type;

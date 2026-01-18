@@ -31,6 +31,9 @@ protected:
   double StringToDouble(const char *str);
 
   virtual void ApplyLayout(const Config &config) = 0;
+
+private:
+  std::optional<ogdf::node> swimlane_placeholder_node;
 };
 
 #endif // SRC_CPP_IMAGE_BUILDER_LAYOUTS_I_LAYOUT_HPP

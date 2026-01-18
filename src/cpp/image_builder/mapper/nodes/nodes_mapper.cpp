@@ -14,7 +14,6 @@ void NodesMapper::Map()
   for (XMLElementPtr g_element = root_->FirstChildElement(TAG_G); g_element;
        g_element = g_element->NextSiblingElement(TAG_G))
   {
-
     static constexpr char TAG_TEXT[] = "text";
     static constexpr char TAG_RECT[] = "rect";
     static constexpr char TAG_ELLIPSE[] = "ellipse";
@@ -25,6 +24,25 @@ void NodesMapper::Map()
     const XMLElementPtr ellipse_element =
         g_element->FirstChildElement(TAG_ELLIPSE);
     const XMLElementPtr text_element = g_element->FirstChildElement(TAG_TEXT);
+
+    if (text_element &&
+        text_element->GetText() == std::string("SWIMLANE_PLACEHOLDER_NODE"))
+    {
+      if (rect_element)
+      {
+        g_element->DeleteChild(rect_element);
+      }
+      if (ellipse_element)
+      {
+        g_element->DeleteChild(ellipse_element);
+      }
+      if (polygon_element)
+      {
+        g_element->DeleteChild(polygon_element);
+      }
+      g_element->DeleteChild(text_element);
+      continue;
+    }
 
     if (rect_element && text_element)
     {

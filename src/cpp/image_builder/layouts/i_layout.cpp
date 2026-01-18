@@ -28,6 +28,13 @@ ILayout::ILayout(Graph &graph)
     }
   }
 
+  if (swimlane_map.has_value())
+  {
+    swimlane_placeholder_node = G.newNode();
+    GA.label(swimlane_placeholder_node.value()) = "SWIMLANE_PLACEHOLDER_NODE";
+  }
+  bool first = true;
+
   for (const auto &pair : graph.nodes)
   {
     const auto &abstract_node = pair.second;
@@ -36,11 +43,17 @@ ILayout::ILayout(Graph &graph)
     {
       // skipped_nodes.push(abstract_node);
       graph.skipped_nodes_order.push_back(pair.first);
-      continue;
+      GA.label(swimlane_placeholder_node.value()) = "SWIMLANE_PLACEHOLDER";
     }
 
     ogdf::node v = G.newNode();
     id_to_node_map[abstract_node.id] = v;
+    if (swimlane_placeholder_node.has_value() && first && abstract_node.id == 0)
+    {
+      auto ogdfEdge = G.newEdge(swimlane_placeholder_node.value(), v);
+      GA.label(ogdfEdge) = "SWIMLANE_PLACEHOLDER_EDGE";
+      first = false;
+    }
 
     GA.label(v) = std::to_string(abstract_node.id);
     if (abstract_node.graphics.find("w") != abstract_node.graphics.end())
@@ -99,6 +112,10 @@ std::string ILayout::GenerateSVG(const Config &config)
 {
   ApplyLayout(config);
 
+  if (swimlane_map.has_value() && swimlane_placeholder_node.has_value())
+  {
+    graph.swimlane_start_y = GA.y(swimlane_placeholder_node.value());
+  }
   int skipped_pos{0};
   for (const auto &node_label : graph.skipped_nodes_order)
   {
@@ -167,6 +184,19 @@ void ILayout::ApplyNodeTransformations(ogdf::Graph &G,
 {
   for (auto v : G.nodes)
   {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
+    if (std::stoi(GA.label(v)))
+    {
+      if (graph.nodes_order.size() <= std::stoull(GA.label(v)))
+      {
+        std::cerr << "ActivityDiagramLayout::ApplyLayout: Node index "
+                  << GA.label(v) << " out of bounds." << std::endl;
+        continue;
+      }
+    }
     const auto &graph_node =
         graph.nodes.at(graph.nodes_order[std::stoi(GA.label(v))]);
 
