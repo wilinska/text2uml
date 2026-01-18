@@ -59,8 +59,7 @@ end[ \t]+group                    { generated_parser::AddToken(TokenType::END_GR
 "{"                               { generated_parser::AddToken(TokenType::OPEN_CURLY_BRACKET, NULL); return OPEN_CURLY_BRACKET; }
 "}"                               { generated_parser::AddToken(TokenType::CLOSE_CURLY_BRACKET, NULL); return CLOSE_CURLY_BRACKET; }
 "->"                              { generated_parser::AddToken(TokenType::ARROW, NULL); return ARROW; }
-"'"                               { return COMMA; }
-"@diagram_type activity"          { return DIAGRAM_TYPE; }
+\'[^\n]*\n                        {}
 [\n]                              {}
 [ \t]+                            {}
 .                                 {}
