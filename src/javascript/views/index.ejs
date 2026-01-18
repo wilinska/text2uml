@@ -41,9 +41,8 @@
         </select>
         <!-- Dodaj wybór typu krawędzi -->
         <select id="edge-type" name="edgeType">
-          <option value="Bends" <%=edgeType==='Bends' ? 'selected' : '' %>>Curved (Bézier on existing points)</option>
+          <option value="Bends" <%=edgeType==='Bends' ? 'selected' : '' %>>Curved</option>
           <option value="Polyline" <%=edgeType==='Polyline' ? 'selected' : '' %>>Polyline</option>
-          <option value="BendsNew" <%=edgeType==='BendsNew' ? 'selected' : '' %>>Curved (Bézier with new control points)
           </option>
         </select>
         <button type="button" id="config-button">Config</button>
