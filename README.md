@@ -226,7 +226,7 @@ AppController --> SecurityGate
 | -------------------- | ----------------------- | --------------- | ---------------- |
 | **Hosting**          | Node.js (port 3000)     | Offline (HTML)  | Command line     |
 | **Installation**     | npm install + npm start | Open HTML       | npm install      |
-| **Generowanie**      | Server-side             | Client-side     | Server-side      |
+| **Generation**      | Server-side             | Client-side     | Server-side      |
 | **Interactivity**    | ✅ Full                  | ✅ Full          | ❌ Generate only  |
 | **URL sharing**      | ✅                       | ✅               | ❌                |
 | **API**              | ✅ Express               | ❌               | ✅ Node.js module |
