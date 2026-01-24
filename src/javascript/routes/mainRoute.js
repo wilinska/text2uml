@@ -3,7 +3,7 @@ const { decompressData } = require("../utils/compression");
 function splitAtFirstSpace(str) {
     const index = str.indexOf(' ');
 
-    // Jeśli nie ma spacji, zwróć cały string jako pierwszy element
+    // If there's no space, return the whole string as the first element
     if (index === -1) return [str, ""];
 
     const firstPart = str.slice(0, index);
@@ -13,10 +13,10 @@ function splitAtFirstSpace(str) {
 }
 
 /**
- * Obsługuje routing dla głównej strony aplikacji
- * @param {Function} getWasmModule - Funkcja zwracająca aktualny moduł WASM
- * @param {Function} reinitWasm - Funkcja do reinicjalizacji WASM
- * @returns {Function} Handler dla Express route
+ * Handles routing for the main application page
+ * @param {Function} getWasmModule - Function returning current WASM module
+ * @param {Function} reinitWasm - Function to reinitialize WASM
+ * @returns {Function} Handler for Express route
  */
 function createMainRouteHandler(getWasmModule, reinitWasm) {
     return async (req, res) => {
@@ -34,7 +34,7 @@ function createMainRouteHandler(getWasmModule, reinitWasm) {
         if (req.query.compressed) {
             try {
                 const decompressed = decompressData(req.query.compressed);
-                // Użyj SVG z dekompresowanych danych jeśli istnieje
+                // Use SVG from decompressed data if it exists
                 parameters.text = decompressed.text || "";
                 parameters.diagramType = decompressed.diagramType || "auto";
                 parameters.layoutType = decompressed.layoutType || "Sugiyama";
@@ -66,7 +66,7 @@ function createMainRouteHandler(getWasmModule, reinitWasm) {
                     } catch (error) {
                         console.error("Generate error:", error.message);
                     } finally {
-                        // Reinicjalizacja WASM po użyciu
+                        // Reinitialize WASM after use
                         await reinitWasm();
                     }
                 }

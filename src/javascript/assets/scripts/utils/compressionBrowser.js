@@ -27,7 +27,7 @@ function decompressData(compressedData) {
     return JSON.parse(pako.inflate(bytes, { to: "string" }));
 }
 
-// Eksport dla przeglądarki
+// Export for browser
 if (typeof module !== "undefined" && module.exports) {
     module.exports = { compressData, decompressData };
 }

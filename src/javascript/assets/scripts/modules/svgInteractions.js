@@ -1,10 +1,10 @@
 /**
- * Moduł zarządzający interakcjami z elementami SVG
+ * Module managing interactions with SVG elements
  */
 
 /**
- * Usuwa zaznaczenie z grupy SVG
- * @param {HTMLElement} selectedGroup - Aktualnie zaznaczona grupa
+ * Removes selection from SVG group
+ * @param {HTMLElement} selectedGroup - Currently selected group
  * @returns {null}
  */
 function deselectGroup(selectedGroup) {
@@ -15,21 +15,21 @@ function deselectGroup(selectedGroup) {
 }
 
 /**
- * Dodaje lub aktualizuje komentarz @position w PlantUML
- * @param {string} className - Nazwa klasy do znalezienia
- * @param {number} dx - Przesunięcie w osi X
- * @param {number} dy - Przesunięcie w osi Y
- * @param {HTMLTextAreaElement} textInput - Element textarea z kodem PlantUML
+ * Adds or updates @position comment in PlantUML
+ * @param {string} className - Class name to find
+ * @param {number} dx - X-axis offset
+ * @param {number} dy - Y-axis offset
+ * @param {HTMLTextAreaElement} textInput - Textarea element with PlantUML code
  */
 function addCommentToMatchingLine(className, dx, dy, textInput) {
     let lines = textInput.value.split("\n");
     let found = false;
 
-    // Przeszukaj linijki w poszukiwaniu klasy
+    // Search lines for the class
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
 
-        // Sprawdź, czy linijka zawiera definicję klasy
+        // Check if line contains class definition
         if (
             line.startsWith("class ") ||
             line.startsWith("abstract ") ||
@@ -39,11 +39,11 @@ function addCommentToMatchingLine(className, dx, dy, textInput) {
             if (name === className) {
                 found = true;
 
-                // Sprawdź, czy klasa ma nawiasy
+                // Check if class has braces
                 const hasBraces = line.includes("{");
 
                 if (hasBraces) {
-                    // Jeśli nawiasy są w tej samej linii, sprawdź @position_fixed lub @position
+                    // If braces are on the same line, check @position_fixed or @position
                     let fixedPositionIndex = -1;
                     let positionIndex = -1;
                     for (let j = i + 1; j < lines.length; j++) {
@@ -85,7 +85,7 @@ function addCommentToMatchingLine(className, dx, dy, textInput) {
                         if (parts[1]) lines.splice(i + 2, 0, parts[1]);
                     }
                 } else {
-                    // Sprawdź, czy następna linia zawiera nawias
+                    // Check if next line contains bracket
                     const nextLine = lines[i + 1]?.trim();
                     if (nextLine === "{") {
                         let fixedPositionIndex = -1;
@@ -133,7 +133,7 @@ function addCommentToMatchingLine(className, dx, dy, textInput) {
         }
     }
 
-    // Jeśli nie znaleziono klasy, dodaj nową definicję na końcu, ale przed @enduml
+    // If class not found, add new definition at the end, but before @enduml
     if (!found) {
         const newClassDefinition = [
             `class ${className} {`,
@@ -141,28 +141,28 @@ function addCommentToMatchingLine(className, dx, dy, textInput) {
             "}",
         ];
 
-        // Sprawdź, czy istnieje @enduml
+        // Check if @enduml exists
         const endUmlIndex = lines.findIndex((line) => line.trim() === "@enduml");
 
         if (endUmlIndex !== -1) {
-            // Wstaw nową definicję klasy przed @enduml
+            // Insert new class definition before @enduml
             lines.splice(endUmlIndex, 0, ...newClassDefinition);
         } else {
-            // Jeśli @enduml nie istnieje, dodaj na końcu
+            // If @enduml doesn't exist, add at the end
             lines.push(...newClassDefinition);
         }
     }
 
-    // Zaktualizuj tekst w textarea
+    // Update text in textarea
     textInput.value = lines.join("\n");
 }
 
 /**
- * Przesuwa grupę SVG o podane wartości
- * @param {HTMLElement} group - Grupa SVG do przesunięcia
- * @param {number} dx - Przesunięcie w osi X
- * @param {number} dy - Przesunięcie w osi Y
- * @param {HTMLTextAreaElement} textInput - Element textarea z kodem PlantUML
+ * Moves SVG group by given values
+ * @param {HTMLElement} group - SVG group to move
+ * @param {number} dx - X-axis offset
+ * @param {number} dy - Y-axis offset
+ * @param {HTMLTextAreaElement} textInput - Textarea element with PlantUML code
  */
 function moveGroup(group, dx, dy, textInput) {
     if (group) {
@@ -195,18 +195,18 @@ function moveGroup(group, dx, dy, textInput) {
 }
 
 /**
- * Przesuwa ścieżkę SVG (strzałkę)
- * @param {SVGPathElement} path - Element path do przesunięcia
- * @param {number} dx - Przesunięcie w osi X
- * @param {number} dy - Przesunięcie w osi Y
- * @param {boolean} isSource - Czy modyfikować punkt początkowy (true) czy końcowy (false)
+ * Moves SVG path (arrow)
+ * @param {SVGPathElement} path - Path element to move
+ * @param {number} dx - X-axis offset
+ * @param {number} dy - Y-axis offset
+ * @param {boolean} isSource - Whether to modify start point (true) or end point (false)
  */
 function movePath(path, dx, dy, isSource) {
     const d = path.getAttribute("d");
     const commands = d.split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
     if (commands.length < 2) return;
 
-    // Funkcja pomocnicza do parsowania i modyfikacji koordynat
+    // Helper function to parse and modify coordinates
     const modifyCoords = (command, offset) => {
         const commandType = command[0];
         const coords = command
@@ -224,10 +224,10 @@ function movePath(path, dx, dy, isSource) {
     };
 
     if (isSource) {
-        // Pierwszy punkt (M) - modyfikujemy pierwsze dwie współrzędne
+        // First point (M) - modify first two coordinates
         commands[0] = modifyCoords(commands[0], 0);
     } else {
-        // Ostatni punkt (L lub ostatnia para w C/S/Q/T) - modyfikujemy ostatnie dwie współrzędne
+        // Last point (L or last pair in C/S/Q/T) - modify last two coordinates
         const lastIndex = commands.length - 1;
         const lastCommandType = commands[lastIndex][0].toUpperCase();
 
@@ -239,7 +239,7 @@ function movePath(path, dx, dy, isSource) {
             lastCommandType === "Q" ||
             lastCommandType === "T"
         ) {
-            // Dla krzywych, ostatnie współrzędne są ostatnimi dwoma
+            // For curves, last coordinates are the last two
             const numCoords = commands[lastIndex]
                 .slice(1)
                 .split(/[\s,]+/)
@@ -252,8 +252,8 @@ function movePath(path, dx, dy, isSource) {
 }
 
 /**
- * Zapisuje SVG do pliku
- * @param {HTMLElement} svgOutput - Kontener z elementem SVG
+ * Saves SVG to file
+ * @param {HTMLElement} svgOutput - Container with SVG element
  */
 function saveSvgToFile(svgOutput) {
     const svgElement = svgOutput.querySelector("svg");
@@ -276,7 +276,7 @@ function saveSvgToFile(svgOutput) {
     URL.revokeObjectURL(url);
 }
 
-// Eksport dla przeglądarki (jeśli używane w browser_version, można użyć window)
+// Export for browser (if used in browser_version, can use window)
 if (typeof module !== "undefined" && module.exports) {
     module.exports = {
         deselectGroup,

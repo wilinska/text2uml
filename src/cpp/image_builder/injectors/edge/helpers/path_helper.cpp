@@ -22,13 +22,14 @@ struct Point
   Point(double x_ = 0, double y_ = 0) : x(x_), y(y_) {}
 };
 
-// Oblicza długość odcinka między dwoma punktami
+// Calculates the length of a segment between two points
 double segmentLength(const Point &p1, const Point &p2)
 {
   return std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2));
 }
 
-// Interpoluje punkt na odcinku między p1 i p2 na podstawie pozostałej długości
+// Interpolates a point on the segment between p1 and p2 based on remaining
+// length
 Point interpolatePoint(const Point &p1, const Point &p2, double remainingLength)
 {
   double totalLength = segmentLength(p1, p2);
@@ -38,7 +39,7 @@ Point interpolatePoint(const Point &p1, const Point &p2, double remainingLength)
   return Point(p1.x + t * (p2.x - p1.x), p1.y + t * (p2.y - p1.y));
 }
 
-// Funkcja skracająca ścieżkę o zadany odcinek
+// Function to shorten path by given distance
 std::string
 shortenPath(const std::string &pathData, double shortenBy, bool start)
 {
@@ -49,7 +50,7 @@ shortenPath(const std::string &pathData, double shortenBy, bool start)
       std::sregex_iterator(pathData.begin(), pathData.end(), pointRegex);
   auto end = std::sregex_iterator();
 
-  std::string commandOrder; // Zachowuje kolejność komend (M, L, C)
+  std::string commandOrder; // Keeps track of command order (M, L, C)
   for (auto it = matches; it != end; ++it)
   {
     commandOrder += (*it).str()[0]; // Pierwszy znak (M, L, C)
@@ -59,14 +60,14 @@ shortenPath(const std::string &pathData, double shortenBy, bool start)
   }
 
   if (points.size() < 2)
-    return pathData; // Za mało punktów
+    return pathData; // Too few points
 
   std::ostringstream newPath;
   double remainingLength = shortenBy;
 
   if (start)
   {
-    // Skracanie od początku
+    // Shorten from start
     size_t i = 0;
     double cumulativeLength = 0;
 
@@ -102,12 +103,12 @@ shortenPath(const std::string &pathData, double shortenBy, bool start)
     }
     if (remainingLength <= 0 || i >= points.size() - 1)
     {
-      return pathData; // Nie zmieniamy, jeśli za mało do skrócenia
+      return pathData; // Don't change if too little to shorten
     }
   }
   else
   {
-    // Skracanie od końca
+    // Shorten from end
     size_t i = points.size() - 1;
     double cumulativeLength = 0;
 
@@ -142,7 +143,7 @@ shortenPath(const std::string &pathData, double shortenBy, bool start)
     }
     if (remainingLength <= 0 || i <= 0)
     {
-      return pathData; // Nie zmieniamy, jeśli za mało do skrócenia
+      return pathData; // Don't change if too little to shorten
     }
   }
 
@@ -193,8 +194,8 @@ std::vector<Point> GetFirstTwoPoints(const std::string &path)
   std::smatch matches;
   std::string::const_iterator search_start(path.cbegin());
   const std::regex point_pattern(
-      R"([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?))");
-  // Szukaj wszystkich punktów
+      R"([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?))";
+  // Search for all points
   while (std::regex_search(search_start, path.cend(), matches, point_pattern))
   {
     Point point{0, 0};
@@ -202,7 +203,7 @@ std::vector<Point> GetFirstTwoPoints(const std::string &path)
     point.y = std::stod(matches[3]);
     points.push_back(point);
 
-    // Przesuń początek wyszukiwania
+    // Move search start
     search_start = matches.suffix().first;
 
     if (points.size() == 2)
@@ -223,57 +224,57 @@ struct Command
 
 std::string Shorten(const std::string &path, const double shortening)
 {
-  // Wyrażenie regularne do znajdowania par punktów w formacie "Mx,y" lub "Lx,y"
+  // Regular expression to find point pairs in format "Mx,y" or "Lx,y"
   std::regex point_pattern(R"(([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)))");
   std::smatch matches;
   std::vector<std::pair<double, double>> points;
   std::vector<std::string> markers;
 
-  // Szukaj wszystkich dopasowań dla par punktów
+  // Search for all matches for point pairs
   std::string::const_iterator searchStart(path.cbegin());
   while (std::regex_search(searchStart, path.cend(), matches, point_pattern))
   {
-    // Wyciągnij marker (M lub L) i współrzędne punktu
-    markers.push_back(matches.str().substr(0, 1)); // Pobierz 'M' lub 'L'
+    // Extract marker (M or L) and point coordinates
+    markers.push_back(matches.str().substr(0, 1)); // Get 'M' or 'L'
     double x = std::stod(matches[2]);
     double y = std::stod(matches[4]);
     points.emplace_back(x, y);
 
-    // Przesuń początek wyszukiwania
+    // Move search start
     searchStart = matches.suffix().first;
   }
 
-  // Sprawdź, czy znaleziono co najmniej dwa punkty
+  // Check if at least two points were found
   if (points.size() < 2)
   {
-    std::cerr << "Nie znaleziono wystarczającej liczby punktów." << std::endl;
+    std::cerr << "Not enough points found." << std::endl;
     return path;
   }
 
-  // Pobierz dwie ostatnie pary punktów
+  // Get last two point pairs
   auto [x1, y1] = points[points.size() - 2];
   auto [x2, y2] = points.back();
 
-  // Oblicz nowe współrzędne punktu końcowego po skróceniu odcinka
+  // Calculate new coordinates of end point after shortening segment
   double segment_length =
       std::sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
   if (shortening >= segment_length)
   {
-    return path; // Jeśli skrócenie jest większe od długości, zwróć oryginalne
+    return path; // If shortening is greater than length, return original
                  // `d`
   }
   double ratio = (segment_length - shortening) / segment_length;
   double new_x2 = x1 + (x2 - x1) * ratio;
   double new_y2 = y1 + (y2 - y1) * ratio;
 
-  // Zbuduj nowe d bez ostatniej pary punktów, dodaj znacznik i nowe współrzędne
+  // Build new d without last point pair, add marker and new coordinates
   std::ostringstream new_d;
   for (size_t i = 0; i < points.size() - 1; ++i)
   {
     new_d << markers[i] << points[i].first << "," << points[i].second << " ";
   }
 
-  // Dodaj nową końcową parę punktów ze znakiem 'L' dla linii
+  // Add new final point pair with 'L' sign for line
   new_d << "L" << new_x2 << "," << new_y2;
 
   return new_d.str();

@@ -1,11 +1,11 @@
-// script.js - Główny plik aplikacji klienckiej
-// Importy modułów (zakładamy, że są ładowane jako script tags lub przez bundler)
+// script.js - Main client application file
+// Module imports (assuming they are loaded as script tags or through bundler)
 
 // ====================================================================
-// ZMIENNE GLOBALNE
+// GLOBAL VARIABLES
 // ====================================================================
 
-// Te pliki powinny być załadowane jako <script> tags w HTML:
+// These files should be loaded as <script> tags in HTML:
 // - utils/compressionBrowser.js (compressData, decompressData)
 // - modules/configModal.js (collectConfigDataFromModal, collectCurrentParams, renderConfigFields)
 // - modules/svgInteractions.js (deselectGroup, moveGroup, movePath, saveSvgToFile)
@@ -20,7 +20,7 @@ let lastMove = { id: null, dx: 0, dy: 0 };
 let textInput, svgOutput, diagramTypeSelect, layoutTypeSelect, edgeTypeSelect;
 let configButton, configModal, applyConfigButton, renderButton, saveButton;
 
-// Zmienne do śledzenia aktywności
+// Variables for tracking activity
 let isSvgActive = false;
 let isTextInputActive = false;
 
@@ -29,28 +29,28 @@ let memento;
 let textMemento;
 
 // ====================================================================
-// FUNKCJE ZARZĄDZANIA DYREKTYWAMI
+// DIRECTIVE MANAGEMENT FUNCTIONS
 // ====================================================================
 
 /**
- * Aktualizuje dyrektywę w tekście PlantUML
+ * Updates directive in PlantUML text
  */
 function updateDirective(select, directivePrefix) {
     if (!textInput) return;
 
     let lines = textInput.value.split("\n");
 
-    // Usuń wszystkie linie zaczynające się od ' @<directivePrefix>
+    // Remove all lines starting with ' @<directivePrefix>
     const directiveStart = `' @${directivePrefix}`;
     lines = lines.filter(line => {
         const trimmed = line.trim();
         return !trimmed.startsWith(directiveStart);
     });
 
-    // Znajdź indeks linii @startuml
+    // Find index of @startuml line
     const startUmlIndex = lines.findIndex(line => line.trim() === '@startuml');
 
-    // Dodaj nową linię po @startuml (lub na początek, jeśli @startuml nie istnieje)
+    // Add new line after @startuml (or at the beginning if @startuml doesn't exist)
     const newDirectiveLine = `${directiveStart} ${select.value}`;
     if (startUmlIndex !== -1) {
         lines.splice(startUmlIndex + 1, 0, newDirectiveLine);
@@ -63,7 +63,7 @@ function updateDirective(select, directivePrefix) {
 }
 
 /**
- * Inicjalizuje select na podstawie dyrektywy w tekście
+ * Initializes select based on directive in text
  */
 function initializeSelectFromText(select, directivePrefix) {
     if (!textInput) return;
@@ -92,11 +92,11 @@ function initializeSelectFromText(select, directivePrefix) {
 }
 
 /**
- * Snap to current positions - ustawia @position_fixed na podstawie pozycji w SVG
+ * Snap to current positions - sets @position_fixed based on positions in SVG
  */
 function snapToCurrentPositions() {
     if (!svgOutput || !textInput) {
-        console.error("Brak SVG lub textarea!");
+        console.error("No SVG or textarea!");
         return;
     }
 
@@ -145,7 +145,7 @@ function snapToCurrentPositions() {
             }
         }
 
-        // Jeśli nie znaleziono klasy, dodaj nową definicję na końcu, ale przed @enduml
+        // If class not found, add new definition at the end, but before @enduml
         if (!found) {
             const newClassDefinition = [
                 `class ${className} {`,
@@ -153,14 +153,14 @@ function snapToCurrentPositions() {
                 "}",
             ];
 
-            // Sprawdź, czy istnieje @enduml
+            // Check if @enduml exists
             const endUmlIndex = lines.findIndex((line) => line.trim() === "@enduml");
 
             if (endUmlIndex !== -1) {
-                // Wstaw nową definicję klasy przed @enduml
+                // Insert new class definition before @enduml
                 lines.splice(endUmlIndex, 0, ...newClassDefinition);
             } else {
-                // Jeśli @enduml nie istnieje, dodaj na końcu
+                // If @enduml doesn't exist, add at the end
                 lines.push(...newClassDefinition);
             }
         }
@@ -231,7 +231,7 @@ function addOrUpdateFixedPosition(lines, classStartIndex, x, y) {
 }
 
 // ====================================================================
-// INICJALIZACJA INTERAKCJI SVG
+// SVG INTERACTIONS INITIALIZATION
 // ====================================================================
 
 function textInputHandler() {
@@ -255,19 +255,19 @@ function initSvgInteractions() {
     textInput.addEventListener("input", textInputHandler);
 }
 
-// Funkcja do ponownej inicjalizacji interakcji SVG po aktualizacji
+// Function to reinitialize SVG interactions after update
 function setupSvgInteractions() {
     initSvgInteractions();
 }
 
 // ====================================================================
-// INICJALIZACJA GŁÓWNA
+// MAIN INITIALIZATION
 // ====================================================================
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("DOM fully loaded and parsed");
 
-    // B. Mapowanie elementów DOM
+    // B. DOM element mapping
     const form = document.querySelector("form");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     textMemento = createTextMemento(textInput);
 
-    // D. Parsowanie i Inicjalizacja Stanu z URL
+    // D. Parse and Initialize State from URL
     const urlParams = new URLSearchParams(window.location.search);
     let initialParams = collectCurrentParams(
         currentConfig,
@@ -313,15 +313,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // E. Pierwsze renderowanie
+    // E. First render
     renderConfigFields(initialParams.layoutType, configTemplates, currentConfig);
 
-    // Inicjalizacja interakcji SVG jeśli SVG już jest załadowane
+    // Initialize SVG interactions if SVG is already loaded
     if (svgOutput.querySelector("svg")) {
         initSvgInteractions();
     }
 
-    // F. Event Listenery (UI)
+    // F. Event Listeners (UI)
     const loadingOverlay = document.getElementById("loading-overlay");
 
     const showLoader = () => {
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const compressed = compressData(params);
 
-        // Twórz nowy URL z compressed
+        // Create new URL with compressed
         const url = new URL(window.location.origin + window.location.pathname);
         url.searchParams.set("compressed", compressed);
         url.searchParams.set("_t", Date.now()); // Timestamp to prevent caching
@@ -365,10 +365,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const renderHandler = sendRequest;
 
-    // Fix Position Button - definicja przed użyciem
+    // Fix Position Button - definition before use
     const fixPositionButton = document.getElementById('fix-position-button');
 
-    // Funkcja do włączania/wyłączania kontrolek w zależności od typu diagramu
+    // Function to enable/disable controls depending on diagram type
     const updateControlsState = () => {
         const isActivity = diagramTypeSelect.value === 'activity';
 
@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Event listenery dla selectów - tylko aktualizują dyrektywy w tekście
+    // Event listeners for selects - only update directives in text
     diagramTypeSelect.addEventListener("change", () => {
         updateDirective(diagramTypeSelect, "diagram_type");
         updateControlsState();
@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateDirective(edgeTypeSelect, "edge_type");
     });
 
-    // Inicjalizacja stanu kontrolek przy załadowaniu
+    // Initialize controls state on load
     updateControlsState();
 
     renderButton.addEventListener("click", renderHandler);
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (fixPositionButton) {
         fixPositionButton.addEventListener('click', () => {
             const isActivity = diagramTypeSelect.value === 'activity';
-            if (isActivity) return; // Zablokuj dla activity diagram
+            if (isActivity) return; // Block for activity diagram
 
             snapToCurrentPositions();
         });
@@ -414,7 +414,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Modal Config
     configButton.addEventListener("click", () => {
         const isActivity = diagramTypeSelect.value === 'activity';
-        if (isActivity) return; // Zablokuj dla activity diagram
+        if (isActivity) return; // Block for activity diagram
 
         renderConfigFields(layoutTypeSelect.value, configTemplates, currentConfig);
         configModal.style.display = "flex";
@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // G. Event Listenery (Interakcja SVG/Textarea)
+    // G. Event Listeners (SVG/Textarea Interaction)
     document.addEventListener("mousedown", (e) => {
         if (e.target.closest("#svg-output")) {
             isSvgActive = true;
@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         let targetGroup = e.target.closest("g");
         if (targetGroup && targetGroup.querySelector("rect")) {
-            // Sprawdź czy rect ma stroke (nie jest labelką)
+            // Check if rect has stroke (not a label)
             const rect = targetGroup.querySelector("rect");
             const hasStroke = rect && rect.getAttribute("stroke") !== "none";
             const isActivity = diagramTypeSelect.value === 'activity';
@@ -470,7 +470,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // Przesuwanie strzałkami i Undo/Redo
+    // Arrow keys movement and Undo/Redo
     document.addEventListener("keydown", (e) => {
         if (e.ctrlKey) {
             if (e.key === "z") {
@@ -493,7 +493,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!selectedGroup) return;
 
         const isActivity = diagramTypeSelect.value === 'activity';
-        if (isActivity) return; // Zablokuj przesuwanie dla activity diagram
+        if (isActivity) return; // Block movement for activity diagram
 
         let dX = 0,
             dY = 0;

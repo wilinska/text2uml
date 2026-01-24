@@ -114,7 +114,7 @@ g.highlighted>rect {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Przyciemnienie tła */
+    /* Background dimming */
     justify-content: center;
     align-items: center;
     z-index: 1000;

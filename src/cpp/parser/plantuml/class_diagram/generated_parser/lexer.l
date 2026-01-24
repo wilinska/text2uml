@@ -55,8 +55,8 @@ extern void yy_switch_to_buffer(void* buffer);
 \([ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*,[ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*\) {   yylval.str = strdup(yytext);  return POSITION_ARGS;}
 [a-zA-Z_][a-zA-Z0-9_]*\n               { yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
 [a-zA-Z_][a-zA-Z0-9_]*                 { yylval.str = strdup(yytext); return IDENTIFIER; }
-[ \t\n]+                               { /* Ignoruj białe znaki */ }
-\'[^\n]*\n                             {}
+[ \t\n]+                               { /* Ignore whitespace */ }
+'[^\n]*\n                              {}
 .                                      { printf("Unknown character: %s\n", yytext); }
 
 

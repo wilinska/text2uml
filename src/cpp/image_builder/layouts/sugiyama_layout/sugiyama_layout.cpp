@@ -25,7 +25,7 @@
 
 std::string postProcessSVG(const std::string &svg)
 {
-  // Zamień sekwencje "M x1,y1 L cx,cy L x2,y2" na "M x1,y1 Q cx,cy x2,y2"
+  // Replace sequences "M x1,y1 L cx,cy L x2,y2" with "M x1,y1 Q cx,cy x2,y2"
   std::regex line_pattern(
       R"(M\s+(\d+\.\d+),(\d+\.\d+)\s+L\s+(\d+\.\d+),(\d+\.\d+)\s+L\s+(\d+\.\d+),(\d+\.\d+))");
   std::string result =

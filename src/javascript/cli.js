@@ -3,23 +3,23 @@
 const fs = require('fs');
 
 /**
- * CLI dla generowania diagramów UML
- * Użycie: node cli.js <input_file> <output_file> [options]
+ * CLI for generating UML diagrams
+ * Usage: node cli.js <input_file> <output_file> [options]
  *
- * Opcje:
- *   --diagram-type <type>  Typ diagramu (auto, class, activity)
- *   --layout <type>        Typ layoutu (Sugiyama, Orthogonal, OptimalHierarchy, etc.)
- *   --edge <type>          Typ krawędzi (Bends, Polyline)
- *   --config <json>        Konfiguracja jako JSON string
+ * Options:
+ *   --diagram-type <type>  Diagram type (auto, class, activity)
+ *   --layout <type>        Layout type (Sugiyama, Orthogonal, OptimalHierarchy, etc.)
+ *   --edge <type>          Edge type (Bends, Polyline)
+ *   --config <json>        Configuration as JSON string
  *
- * Przykład:
+ * Example:
  *   node cli.js input.txt output.svg --diagram-type class --layout Sugiyama
  */
 
 function splitAtFirstSpace(str) {
     const index = str.indexOf(' ');
 
-    // Jeśli nie ma spacji, zwróć cały string jako pierwszy element
+    // If there's no space, return the whole string as the first element
     if (index === -1) return [str, ""];
 
     const firstPart = str.slice(0, index);
@@ -32,20 +32,20 @@ async function main() {
     const args = process.argv.slice(2);
 
     if (args.length < 2) {
-        console.error('Użycie: node cli.js <input_file> <output_file> [options]');
+        console.error('Usage: node cli.js <input_file> <output_file> [options]');
         console.error('');
-        console.error('Opcje:');
-        console.error('  --diagram-type <type>  Typ diagramu (auto, class, activity)');
-        console.error('  --layout <type>        Typ layoutu (Sugiyama, Orthogonal, OptimalHierarchy)');
-        console.error('  --edge <type>          Typ krawędzi (Bends, Polyline)');
-        console.error('  --config <json>        Konfiguracja jako JSON string');
+        console.error('Options:');
+        console.error('  --diagram-type <type>  Diagram type (auto, class, activity)');
+        console.error('  --layout <type>        Layout type (Sugiyama, Orthogonal, OptimalHierarchy)');
+        console.error('  --edge <type>          Edge type (Bends, Polyline)');
+        console.error('  --config <json>        Configuration as JSON string');
         process.exit(1);
     }
 
     const inputFile = args[0];
     const outputFile = args[1];
 
-    // Parsowanie opcji
+    // Parse options
     let diagramType = 'auto';
     let layoutType = 'Sugiyama';
     let edgeType = 'Bends';
@@ -66,40 +66,40 @@ async function main() {
                 try {
                     config = JSON.parse(args[++i]);
                 } catch (e) {
-                    console.error('Błąd parsowania konfiguracji JSON:', e.message);
+                    console.error('JSON configuration parsing error:', e.message);
                     process.exit(1);
                 }
                 break;
             default:
-                console.error('Nieznana opcja:', args[i]);
+                console.error('Unknown option:', args[i]);
                 process.exit(1);
         }
     }
 
-    // Sprawdź czy plik wejściowy istnieje
+    // Check if input file exists
     if (!fs.existsSync(inputFile)) {
-        console.error(`Plik wejściowy nie istnieje: ${inputFile}`);
+        console.error(`Input file does not exist: ${inputFile}`);
         process.exit(1);
     }
 
-    // Wczytaj treść pliku
+    // Load file content
     const inputText = fs.readFileSync(inputFile, 'utf8');
 
     if (!inputText.trim()) {
-        console.error('Plik wejściowy jest pusty');
+        console.error('Input file is empty');
         process.exit(1);
     }
 
-    console.log('Ładowanie modułu WASM...');
+    console.log('Loading WASM module...');
 
-    // Załaduj moduł WASM
+    // Load WASM module
     const Library = require('./dist/wasm/umd');
     const Text2UML = await Library();
 
-    console.log('Generowanie diagramu...');
-    console.log(`  Typ diagramu: ${diagramType}`);
+    console.log('Generating diagram...');
+    console.log(`  Diagram type: ${diagramType}`);
     console.log(`  Layout: ${layoutType}`);
-    console.log(`  Typ krawędzi: ${edgeType}`);
+    console.log(`  Edge type: ${edgeType}`);
 
     try {
         const configString = JSON.stringify(config);
@@ -112,17 +112,17 @@ async function main() {
         );
         const [diagram_type, diagram_svg] = splitAtFirstSpace(result);
 
-        // Zapisz wynik do pliku
+        // Save result to file
         fs.writeFileSync(outputFile, diagram_svg, 'utf8');
-        console.log(`✓ Diagram ${diagram_type} zapisany do: ${outputFile}`);
+        console.log(`✓ Diagram ${diagram_type} saved to: ${outputFile}`);
 
     } catch (error) {
-        console.error('Błąd podczas generowania diagramu:', error.message);
+        console.error('Error generating diagram:', error.message);
         process.exit(1);
     }
 }
 
 main().catch(error => {
-    console.error('Nieoczekiwany błąd:', error);
+    console.error('Unexpected error:', error);
     process.exit(1);
 });

@@ -1,13 +1,13 @@
 /**
- * Moduł implementujący wzorzec Memento dla operacji undo/redo
+ * Module implementing Memento pattern for undo/redo operations
  */
 
 /**
- * Tworzy obiekt memento dla operacji SVG (przesuwanie grup)
- * @param {HTMLElement} svgOutput - Kontener z SVG
- * @param {Function} moveGroup - Funkcja do przesuwania grup
- * @param {Function} movePath - Funkcja do przesuwania ścieżek
- * @returns {Object} Obiekt z metodami undo/redo/saveMove
+ * Creates memento object for SVG operations (moving groups)
+ * @param {HTMLElement} svgOutput - SVG container
+ * @param {Function} moveGroup - Function to move groups
+ * @param {Function} movePath - Function to move paths
+ * @returns {Object} Object with undo/redo/saveMove methods
  */
 function createSvgMemento(svgOutput, moveGroup, movePath) {
     const history = [];
@@ -20,7 +20,7 @@ function createSvgMemento(svgOutput, moveGroup, movePath) {
         saveMove(groupId, dx, dy) {
             if (dx === 0 && dy === 0) return;
             this.history.push({ groupId, dx, dy });
-            this.redoStack.length = 0; // Wyczyść stos redo
+            this.redoStack.length = 0; // Clear redo stack
         },
 
         undo() {
@@ -42,7 +42,7 @@ function createSvgMemento(svgOutput, moveGroup, movePath) {
             if (group) {
                 moveGroup(group, dx, dy);
 
-                // Przesuń odpowiednie pathy (źródła)
+                // Move appropriate paths (sources)
                 const source_groups = svgOutput.querySelectorAll(
                     `g[data-source="${groupId}"]`
                 );
@@ -52,7 +52,7 @@ function createSvgMemento(svgOutput, moveGroup, movePath) {
                     if (paths.length > 1) movePath(paths[1], dx, dy, false);
                 });
 
-                // Przesuń odpowiednie pathy (cele)
+                // Move appropriate paths (targets)
                 const target_groups = svgOutput.querySelectorAll(
                     `g[data-target="${groupId}"]`
                 );
@@ -67,9 +67,9 @@ function createSvgMemento(svgOutput, moveGroup, movePath) {
 }
 
 /**
- * Tworzy obiekt memento dla operacji na textarea (undo/redo tekstu)
- * @param {HTMLTextAreaElement} textInput - Element textarea
- * @returns {Object} Obiekt z metodami undo/redo/saveState
+ * Creates memento object for textarea operations (text undo/redo)
+ * @param {HTMLTextAreaElement} textInput - Textarea element
+ * @returns {Object} Object with undo/redo/saveState methods
  */
 function createTextMemento(textInput) {
     const history = [];
@@ -86,7 +86,7 @@ function createTextMemento(textInput) {
                 this.history[this.history.length - 1] !== currentText
             ) {
                 this.history.push(currentText);
-                this.redoStack.length = 0; // Wyczyść stos redo
+                this.redoStack.length = 0; // Clear redo stack
             }
         },
 
@@ -113,7 +113,7 @@ function createTextMemento(textInput) {
     };
 }
 
-// Eksport dla przeglądarki
+// Export for browser
 if (typeof module !== "undefined" && module.exports) {
     module.exports = {
         createSvgMemento,

@@ -20,12 +20,12 @@
 void OptimalHierarchyGraphLayout::ApplyLayout(const Config &config)
 {
   ogdf::SugiyamaLayout SL;
-  // Ustawienie rankingu (przypisanie do warstw)
+  // Set ranking (layer assignment)
   SL.setRanking(new ogdf::OptimalRanking);
-  // Ustawienie krzyżowania krawędzi (minimalizacja przecięć)
+  // Set edge crossing (minimize crossings)
   SL.setCrossMin(new ogdf::MedianHeuristic);
-  // Ustawienie układu końcowego (współrzędne węzłów)
-  // OptimalHierarchyLayout wyznacza optymalne położenie w poziomie
+  // Set final layout (node coordinates)
+  // OptimalHierarchyLayout determines optimal horizontal positioning
   SL.setLayout(new ogdf::OptimalHierarchyLayout);
   SL.call(GA);
 }

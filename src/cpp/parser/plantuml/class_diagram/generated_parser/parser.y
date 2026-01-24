@@ -518,14 +518,14 @@ void clearLogs() {
 std::stack<Token> parse_class_diagram(const std::string& input) {
     clearLogs();
 
-    // Konwertuj std::stringbuf na FILE*
+    // Convert std::stringbuf to FILE*
     FILE* file = fmemopen(const_cast<char*>(input.c_str()), input.size(), "r");
     if (!file) {
         perror("fmemopen");
         return {};
     }
 
-    // Ustaw bufor jako wejście dla Flex
+    // Set buffer as input for Flex
     yyin = file;
 
     int result = yyparse();

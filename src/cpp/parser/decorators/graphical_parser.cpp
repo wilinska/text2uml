@@ -33,7 +33,7 @@ static const std::unordered_map<char, double> PIXEL_WIDTH_ARIAL_12_MAP = {
     {'(', 4}, {')', 4}, {'[', 4}, {']', 4}, {'{', 4}, {'}', 4}, {';', 3},
     {':', 3}, {'"', 4}, {'\'', 2}, {'<', 6}, {'>', 6}, {'/', 6}, {'\\', 6},
 };
-// Uzywamy std::string jako klucza, aby obsługiwać wielobajtowe znaki UTF-8 (np. "ą")
+// We use std::string as key to handle multibyte UTF-8 characters (e.g., "ą")
 static const std::unordered_map<std::string, double> PIXEL_WIDTH_ARIAL_PL_12_MAP = {
     {"Ą", 8}, {"Ć", 8}, {"Ę", 8}, {"Ł", 7}, {"Ń", 9}, {"Ó", 9}, {"Ś", 8}, {"Ź", 7}, {"Ż", 7},
     {"ą", 6}, {"ć", 6}, {"ę", 6}, {"ł", 3}, {"ń", 7}, {"ó", 7}, {"ś", 6}, {"ź", 6}, {"ż", 6}

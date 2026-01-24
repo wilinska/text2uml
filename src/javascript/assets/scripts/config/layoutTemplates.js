@@ -29,8 +29,8 @@ const configTemplates = {
     Tree: [],
 };
 
-// Eksport dla Node.js i przeglądarki
+// Export for Node.js and browser
 if (typeof module !== "undefined" && module.exports) {
     module.exports = { configTemplates };
 }
-// W przeglądarce configTemplates będzie dostępny jako zmienna globalna
+// In browser, configTemplates will be available as a global variable

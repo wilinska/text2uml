@@ -14,13 +14,13 @@ namespace svg
 namespace path
 {
 
-// Funkcja do przesuwania pierwszego lub ostatniego punktu ścieżki SVG
+// Function to move the first or last point of an SVG path
 std::string
 MovePath(const std::string &path_data, int dx, int dy, bool isSource)
 {
-  // Podziel ścieżkę na osobne komendy
+  // Split path into separate commands
   std::regex command_regex(
-      "([MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*)"); // Rozdziel komendy
+      "([MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*)"); // Split commands
   std::sregex_iterator iter(path_data.begin(), path_data.end(), command_regex);
   std::sregex_iterator end;
   std::vector<std::string> commands;
@@ -32,15 +32,15 @@ MovePath(const std::string &path_data, int dx, int dy, bool isSource)
 
   if (commands.empty())
   {
-    return path_data; // Jeśli nie ma komend, zwróć oryginalną ścieżkę
+    return path_data; // If there are no commands, return original path
   }
 
-  // Wybierz komendę do modyfikacji (pierwszą lub ostatnią)
+  // Select command to modify (first or last)
   std::string &target_command = isSource ? commands.front() : commands.back();
 
-  // Wyodrębnij współrzędne z komendy
-  std::regex coordRegex("([-+]?[0-9]*\\.?[0-9]+)"); // Dopasuj liczby (całkowite
-                                                    // i zmiennoprzecinkowe)
+  // Extract coordinates from command
+  std::regex coordRegex("([-+]?[0-9]*\\.?[0-9]+)"); // Match numbers (integer
+                                                    // and floating-point)
   std::sregex_iterator coordIter(
       target_command.begin(), target_command.end(), coordRegex);
   std::vector<double> coords;
@@ -52,35 +52,35 @@ MovePath(const std::string &path_data, int dx, int dy, bool isSource)
 
   if (coords.size() < 2)
   {
-    return path_data; // Jeśli nie ma wystarczająco współrzędnych, zwróć
-                      // oryginalną ścieżkę
+    return path_data; // If there aren't enough coordinates, return
+                      // original path
   }
 
-  // Przesuń odpowiedni punkt
+  // Move appropriate point
   if (isSource)
   {
-    // Przesuń pierwszy punkt
+    // Move first point
     coords[0] += dx;
     coords[1] += dy;
   }
   else
   {
-    // Przesuń ostatni punkt
+    // Move last point
     coords[coords.size() - 2] += dx;
     coords[coords.size() - 1] += dy;
   }
 
-  // Zaktualizuj komendę
+  // Update command
   std::ostringstream updated_command;
   updated_command << target_command[0] << coords[0] << ","
-                  << coords[1]; // Zachowaj literę polecenia (np. 'M', 'L')
+                  << coords[1]; // Keep command letter (e.g., 'M', 'L')
   for (size_t i = 2; i < coords.size(); ++i)
   {
     updated_command << " " << coords[i];
   }
   target_command = updated_command.str();
 
-  // Zaktualizuj atrybut 'd' ścieżki
+  // Update 'd' attribute of path
   std::ostringstream updated_path_data;
   for (const auto &cmd : commands)
   {

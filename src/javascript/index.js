@@ -1,7 +1,7 @@
-// src/javascript/dist/wasm/umd/index.js (uproszczony przykład po Rollup)
+// src/javascript/dist/wasm/umd/index.js (simplified example after Rollup)
 (function (global, factory) {
     if (typeof define === 'function' && define.amd) {
-        // AMD support (np. RequireJS)
+        // AMD support (e.g., RequireJS)
         define([], factory);
     } else if (typeof module === 'object' && module.exports) {
         // CommonJS support (Node.js)
@@ -13,19 +13,19 @@
 }(typeof self !== 'undefined' ? self : this, function () {
     'use strict';
 
-    // Internal imports (z twoich plików implementation i loader)
+    // Internal imports (from your implementation and loader files)
     function GeneratorImpl(library) {
-        // Implementacja GeneratorImpl (z './implementation/generator')
+        // GeneratorImpl implementation (from './implementation/generator')
         return {
-            generate: function(input) {
-                // Przykładowe wywołanie Embind: library._generateUML(input)
-                return library._generateUML(input);  // Zakładając, że Embind eksportuje _generateUML
+            generate: function (input) {
+                // Example Embind call: library._generateUML(input)
+                return library._generateUML(input);  // Assuming Embind exports _generateUML
             }
         };
     }
 
     function createLoader(Library) {
-        // Implementacja createLoader (z './loader') – async inicjalizacja
+        // createLoader implementation (from './loader') – async initialization
         return new Promise((resolve, reject) => {
             if (typeof Library !== 'function') {
                 reject(new Error('Library is not initialized'));
@@ -33,16 +33,16 @@
             }
             Library({
                 onRuntimeInitialized: () => {
-                    resolve({ library: Library });  // Przekaż zainicjalizowaną instancję
+                    resolve({ library: Library });  // Pass initialized instance
                 },
                 onAbort: (error) => reject(new Error('WASM init failed: ' + error))
             });
         });
     }
 
-    // Główna eksportowana funkcja (z index_wasm.js)
+    // Main exported function (from index_wasm.js)
     var mainExport = function () {
-        // Library jest globalne (z uml-wasm.js)
+        // Library is global (from uml-wasm.js)
         return createLoader(Library).then(function (_ref) {
             var library = _ref.library;
             return {
@@ -51,6 +51,6 @@
         });
     };
 
-    // Zwróć async funkcję jako moduł
+    // Return async function as module
     return mainExport;
 }));

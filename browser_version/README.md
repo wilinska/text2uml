@@ -1,72 +1,71 @@
 # Text2UML - Browser Version
 
-Wersja przeglądarkowa Text2UML - generator diagramów UML z notacji PlantUML.
+Browser version of Text2UML - UML diagram generator from PlantUML notation.
 
-## Jak uruchomić
+## How to Run
 
-1. Otwórz plik `index.html` w przeglądarce (wystarczy dwukrotnie kliknąć na plik)
-2. Aplikacja uruchomi się automatycznie i wygeneruje przykładowy diagram
+1. Open the `index.html` file in a browser (just double-click the file)
+2. The application will start automatically and generate a sample diagram
 
-## Funkcje
+## Features
 
-### Podstawowe funkcje
-- **Automatyczne generowanie** - diagram generuje się automatycznie po załadowaniu strony
-- **Edycja tekstu** - wpisz lub wklej kod UML w lewym panelu
-- **Render** - kliknij przycisk "Render" aby wygenerować diagram z aktualnego tekstu
-- **Save** - zapisz wygenerowany diagram jako plik SVG (przycisk 💾)
+### Basic Features
+- **Automatic generation** - diagram generates automatically after page load
+- **Text editing** - type or paste UML code in the left panel
+- **Render** - click the "Render" button to generate diagram from current text
+- **Save** - save the generated diagram as SVG file (💾 button)
 
-### Typy diagramów
-- **Auto** - automatyczne wykrywanie typu diagramu
-- **Class Diagram** - diagram klas z możliwością edycji pozycji
-- **Activity Diagram** - diagram aktywności (bez edycji pozycji)
+### Diagram Types
+- **Auto** - automatic diagram type detection
+- **Class Diagram** - class diagram with position editing capability
+- **Activity Diagram** - activity diagram (without position editing)
 
-### Layouty (tylko dla Class Diagram)
-- **Optimal Hierarchy** - optymalny układ hierarchiczny
-- **Circular** - układ kołowy
+### Layouts (Class Diagram only)
+- **Optimal Hierarchy** - optimal hierarchical layout
+- **Circular** - circular layout
 - **FMMM** - Force-directed layout
-- **Orthogonal** - układ ortogonalny
-- **Sugiyama** - układ warstwowy Sugiyama
-- **Tree** - układ drzewa
+- **Orthogonal** - orthogonal layout
+- **Sugiyama** - Sugiyama layered layout
+- **Tree** - tree layout
 
-### Typy krawędzi
-- **Curved (Bézier on existing points)** - krzywe Béziera na istniejących punktach
-- **Polyline** - linie łamane
-- **Curved (Bézier with new control points)** - krzywe Béziera z nowymi punktami kontrolnymi
+### Edge Types
+- **Bends** - Bézier curves on existing points
+- **Polyline** - polylines
 
-### Konfiguracja layoutu
-Kliknij przycisk **Config** aby otworzyć okno konfiguracji dla wybranego layoutu. Każdy layout ma swoje parametry (np. odległości między warstwami, między węzłami, itp.).
+### Layout Configuration
+Click the **Config** button to open configuration window for the selected layout. Each layout has its own parameters (e.g., distances between layers, between nodes, etc.).
 
-### Interaktywna edycja (tylko Class Diagram)
-1. **Zaznaczanie** - kliknij na element SVG aby go zaznaczyć (czerwona ramka)
-2. **Przeciąganie** - przeciągnij zaznaczony element myszką
-3. **Strzałki** - użyj klawiszy strzałek aby precyzyjnie przesunąć element (5px na kliknięcie)
-4. **Automatyczna aktualizacja** - pozycje są zapisywane jako komentarze `' @position(x, y)` w kodzie PlantUML
+### Interactive Editing (Class Diagram only)
+1. **Selection** - click on SVG element to select it (red border)
+2. **Dragging** - drag selected element with mouse
+3. **Arrow keys** - use arrow keys to precisely move element (5px per click)
+4. **Automatic update** - positions are saved as comments `' @position(x, y)` in PlantUML code
 
 ### Undo/Redo
-- **Ctrl+Z** - cofnij ostatnią operację
-- **Ctrl+Y** - ponów cofniętą operację
-- Działa zarówno dla edycji tekstu (gdy fokus na textarea) jak i przesuwania elementów (gdy fokus na SVG)
+- **Ctrl+Z** - undo last operation
+- **Ctrl+Y** - redo undone operation
+- Works both for text editing (when focus on textarea) and moving elements (when focus on SVG)
 
-### Współdzielenie i zapis stanu
-Aplikacja automatycznie zapisuje stan w URL (tekst, ustawienia, konfiguracja) w skompresowanej formie. Możesz skopiować URL z paska przeglądarki i udostępnić go innym osobom - po otwarciu zobaczą dokładnie ten sam diagram z tymi samymi ustawieniami.
+### Sharing and State Saving
+The application automatically saves state in URL (text, settings, configuration) in compressed form. You can copy the URL from browser address bar and share it with others - when they open it, they will see exactly the same diagram with the same settings.
 
-## Struktura projektu
+## Project Structure
 
 ```
 browser_version/
-├── index.html      - Główny plik HTML z interfejsem
-├── app.js          - Cała logika aplikacji (wszystkie funkcje w jednym pliku)
-├── uml-wasm.js     - Moduł WebAssembly (generator diagramów)
-├── index.js        - Wrapper dla WASM
-└── README.md       - Ten plik
+├── index.html      - Main HTML file with interface
+├── app.js          - All application logic (all functions in one file)
+├── uml-wasm.js     - WebAssembly module (diagram generator)
+├── index.js        - Wrapper for WASM
+└── README.md       - This file
 ```
 
-## Wymagania
+## Requirements
 
-- Nowoczesna przeglądarka z obsługą WebAssembly (Chrome, Firefox, Edge, Safari)
-- Połączenie internetowe (tylko do pobrania biblioteki pako z CDN)
+- Modern browser with WebAssembly support (Chrome, Firefox, Edge, Safari)
+- Internet connection (only to download pako library from CDN)
 
-## Przykładowy kod UML
+## Sample UML Code
 
 ```plantuml
 @startuml

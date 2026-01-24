@@ -21,13 +21,13 @@ std::tuple<double, double> extractCoordinates(const std::string &input)
   std::string dxStr = input.substr(start + 1, comma - (start + 1));
   std::string dyStr = input.substr(comma + 1, end - (comma + 1));
 
-  // Usuń białe znaki
+  // Remove whitespace
   dxStr.erase(0, dxStr.find_first_not_of(' '));
   dxStr.erase(dxStr.find_last_not_of(' ') + 1);
   dyStr.erase(0, dyStr.find_first_not_of(' '));
   dyStr.erase(dyStr.find_last_not_of(' ') + 1);
 
-  // Sprawdź, czy dxStr i dyStr zawierają tylko cyfry, minus i kropkę
+  // Check if dxStr and dyStr contain only digits, minus and dot
   for (char ch : dxStr)
   {
     if (!isdigit(ch) && ch != '-' && ch != '.')

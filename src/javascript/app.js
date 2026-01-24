@@ -19,7 +19,7 @@ let Text2UML;
 (async () => {
   Text2UML = await Library();
 
-  // Funkcje helper dla zarządzania stanem WASM
+  // Helper functions for WASM state management
   const getWasmModule = () => Text2UML;
   const reinitWasm = async () => {
     Text2UML = null;
@@ -27,7 +27,7 @@ let Text2UML;
     Text2UML = await Library();
   };
 
-  // Konfiguracja routingu
+  // Routing configuration
   app.get("/", createMainRouteHandler(getWasmModule, reinitWasm));
 
   http.createServer(app).listen(3000);

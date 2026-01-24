@@ -1,80 +1,80 @@
-# Instrukcje testowania
+# Testing Instructions
 
-## Sposób 1: Bezpośrednio w przeglądarce
-1. Otwórz folder `browser_version`
-2. Dwukrotnie kliknij na plik `index.html`
-3. Plik otworzy się w domyślnej przeglądarce
+## Method 1: Directly in Browser
+1. Open the `browser_version` folder
+2. Double-click the `index.html` file
+3. The file will open in your default browser
 
-## Sposób 2: Przez terminal (prosty serwer HTTP)
-Jeśli wystąpią problemy z CORS przy lokalnym otwieraniu:
+## Method 2: Via Terminal (Simple HTTP Server)
+If you encounter CORS issues when opening locally:
 
 ```bash
 cd /home/luxoft/Desktop/test2uml/browser_version
 python3 -m http.server 8080
 ```
 
-Następnie otwórz w przeglądarce: http://localhost:8080
+Then open in browser: http://localhost:8080
 
-## Weryfikacja działania
+## Verification
 
-Po otwarciu strony powinieneś zobaczyć:
-1. ✅ Interfejs z dwoma panelami (textarea po lewej, SVG po prawej)
-2. ✅ Przykładowy kod PlantUML w textarea
-3. ✅ Wygenerowany diagram w prawym panelu (automatycznie przy starcie)
-4. ✅ Paski narzędzi na górze z przyciskami i selectami
+After opening the page you should see:
+1. ✅ Interface with two panels (textarea on left, SVG on right)
+2. ✅ Sample PlantUML code in textarea
+3. ✅ Generated diagram in right panel (automatically on startup)
+4. ✅ Toolbars at top with buttons and select menus
 
-## Testowanie funkcji
+## Function Testing
 
-### Test 1: Generowanie diagramu
-- Zmień coś w tekście w textarea
-- Kliknij "Render"
-- Diagram powinien się zaktualizować
+### Test 1: Diagram Generation
+- Change something in the textarea text
+- Click "Render"
+- Diagram should update
 
-### Test 2: Przeciąganie elementów (tylko Class Diagram)
-- Kliknij na panel SVG (po prawej)
-- Kliknij na prostokąt z klasą
-- Powinien się zaznaczyć na czerwono
-- Przeciągnij go myszką
-- W textarea pojawi się komentarz `' @position(x, y)`
+### Test 2: Dragging Elements (Class Diagram only)
+- Click on the SVG panel (on the right)
+- Click on a class rectangle
+- It should be highlighted in red
+- Drag it with the mouse
+- A comment `' @position(x, y)` will appear in the textarea
 
-### Test 3: Zapis SVG
-- Kliknij przycisk 💾
-- Plik `diagram.svg` powinien się pobrać
+### Test 3: SVG Save
+- Click the 💾 button
+- The `diagram.svg` file should download
 
-### Test 4: Konfiguracja
-- Wybierz layout np. "Sugiyama"
-- Kliknij "Config"
-- Zmień wartości (np. layer distance)
-- Kliknij "Apply"
-- Diagram się przerenderuje z nowymi ustawieniami
+### Test 4: Configuration
+- Select a layout e.g. "Sugiyama"
+- Click "Config"
+- Change values (e.g. layer distance)
+- Click "Apply"
+- Diagram will re-render with new settings
 
 ### Test 5: Undo/Redo
-- Edytuj tekst w textarea
-- Naciśnij Ctrl+Z - powinno cofnąć zmiany
-- Naciśnij Ctrl+Y - powinno przywrócić zmiany
+- Edit text in textarea
+- Press Ctrl+Z - should undo changes
+- Press Ctrl+Y - should redo changes
 
-## Sprawdzanie błędów
+## Error Checking
 
-Jeśli coś nie działa:
-1. Naciśnij F12 w przeglądarce
-2. Przejdź do zakładki "Console"
-3. Sprawdź komunikaty - powinny być:
+If something doesn't work:
+1. Press F12 in the browser
+2. Go to the "Console" tab
+3. Check messages - they should be:
    - "Text2UML Browser App Starting..."
    - "DOM loaded"
-   - "Ładowanie WASM..."
-   - "WASM zainicjalizowany pomyślnie"
-   - "Generowanie początkowego diagramu"
-   - "Aplikacja gotowa"
+   - "Loading WASM..."
+   - "WASM initialized successfully"
+   - "Generating initial diagram"
+   - "Application ready"
 
-## Możliwe problemy
+## Possible Issues
 
-### Problem: "WASM module not initialized"
-- Upewnij się, że pliki `uml-wasm.js` i `index.js` są w tym samym folderze co `index.html`
-- Sprawdź czy masz połączenie z internetem (do pobrania pako z CDN)
+### Issue: "WASM module not initialized"
+- Make sure files `uml-wasm.js` and `index.js` are in the same folder as `index.html`
+- Check if you have internet connection (to download pako from CDN)
 
-### Problem: Brak diagramu
-- Otwórz konsolę i sprawdź błędy
-- Upewnij się, że kod PlantUML jest poprawny (musi zaczynać się od `@startuml` i kończyć `@enduml`)
+### Issue: No diagram
+- Open console and check for errors
+- Make sure PlantUML code is correct (must start with `@startuml` and end with `@enduml`)
 
-### Problem: CORS error przy lokalnym otwieraniu
-- Użyj prostego serwera HTTP (sposób 2 powyżej)
+### Issue: CORS error when opening locally
+- Use simple HTTP server (method 2 above)

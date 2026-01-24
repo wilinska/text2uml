@@ -193,14 +193,14 @@ namespace generated_parser {
 std::queue<Token> parse(const std::string& input) {
     ClearLogs();
 
-    // Konwertuj std::stringbuf na FILE*
+    // Convert std::stringbuf to FILE*
     FILE* file = fmemopen(const_cast<char*>(input.c_str()), input.size(), "r");
     if (!file) {
         perror("fmemopen");
         return {};
     }
 
-    // Ustaw bufor jako wejście dla Flex
+    // Set buffer as input for Flex
     activityin = file;
 
     int result = yyparse();
