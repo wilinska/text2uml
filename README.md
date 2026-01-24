@@ -229,7 +229,6 @@ AppController --> SecurityGate
 | **Generowanie**      | Server-side             | Client-side     | Server-side      |
 | **Interactivity**    | ✅ Full                  | ✅ Full          | ❌ Generate only  |
 | **URL sharing**      | ✅                       | ✅               | ❌                |
-| **Batch processing** | ❌                       | ❌               | ✅                |
 | **API**              | ✅ Express               | ❌               | ✅ Node.js module |
 
 ## Dokumentacja
