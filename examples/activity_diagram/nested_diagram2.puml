@@ -1,0 +1,37 @@
+@startuml
+
+start
+
+if (condition A) then (yes)
+  :Select option A;
+repeat
+:read data;
+:create nodes;
+:add_edges;
+repeat while (counter less than five) is (yes) not (no)
+
+:create diagram;
+:save diagram;
+
+elseif (condition B) then (yes)
+  fork
+   :start here;
+fork again
+:start there;
+end merge
+else (no)
+  :Disable layout selection;
+endif
+
+:Another Action1;
+:Another Action2;
+
+if (Diagram type: Class?) then (yes)
+  :Enable layout selection;
+else (no)
+  :Disable layout selection;
+endif
+
+:Render diagram;
+stop
+@enduml

@@ -42,7 +42,6 @@ function createMainRouteHandler(getWasmModule, reinitWasm) {
                 parameters.config = decompressed.config || {};
                 parameters.svg = decompressed.svg || undefined;
 
-
                 const cleanedConfig = {};
                 for (const key in parameters.config) {
                     cleanedConfig[key] = String(parameters.config[key]);
@@ -62,12 +61,12 @@ function createMainRouteHandler(getWasmModule, reinitWasm) {
                         const [diagram_type, diagram_svg] = splitAtFirstSpace(result);
                         parameters.diagramType = diagram_type;
                         parameters.svg = diagram_svg;
-                        console.log("Generated successfully diagram type:", diagram_type);
+                        console.log("Generated ended. diagram type:", diagram_type);
                     } catch (error) {
                         console.error("Generate error:", error.message);
                     } finally {
                         // Reinitialize WASM after use
-                        await reinitWasm();
+                        // await reinitWasm();
                     }
                 }
             } catch (error) {

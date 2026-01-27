@@ -1,9 +1,6 @@
 #ifndef SRC_CPP_IMAGE_BUILDER_LAYOUTS_LAYOUT_TYPE_HPP
 #define SRC_CPP_IMAGE_BUILDER_LAYOUTS_LAYOUT_TYPE_HPP
 
-// #include <fstream>
-// #include <iostream>
-// #include <ogdf/fileformats/GraphIO.h>
 #include "src/cpp/graph/graph.hpp"
 #include <iostream>
 #include <sstream>
@@ -23,9 +20,7 @@ enum class LayoutType
   LayoutType_OptimalHierarchy,
   LayoutType_Orthogonal,
   LayoutType_Sugiyama,
-  LayoutType_Tree,
-  // LayoutType_Sugiyama,
-
+  LayoutType_Tree
 };
 
 static const std::unordered_map<std::string, LayoutType> stringToLayoutTypeMap{
@@ -34,11 +29,7 @@ static const std::unordered_map<std::string, LayoutType> stringToLayoutTypeMap{
     {kOptimalHierarchy, LayoutType::LayoutType_OptimalHierarchy},
     {kOrthogonal, LayoutType::LayoutType_Orthogonal},
     {kSugiyama, LayoutType::LayoutType_Sugiyama},
-    {kTree, LayoutType::LayoutType_Tree} //,
-    // {kThreeLines, LayoutType::ThreeLines},
-    // {kCircle, LayoutType::Circle},
-    // {kNone, LayoutType::None}
-};
+    {kTree, LayoutType::LayoutType_Tree}};
 
 inline std::string toString(const LayoutType value)
 {
@@ -61,7 +52,7 @@ inline LayoutType LayoutTypeStringToEnum(const std::string &str)
   {
     return it->second;
   }
-  return LayoutType::LayoutType_Orthogonal;
+  return LayoutType::LayoutType_Sugiyama;
 }
 
 inline std::string getStringForEnumValue(const LayoutType value)

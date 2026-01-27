@@ -1,0 +1,20 @@
+@startuml
+start
+ fork
+   while (data available?)
+  :read data;
+  :create nodes;
+endwhile
+stop
+
+fork again
+:start there;
+if (Diagram type: Class?) then (yes)
+  :Enable layout selection;
+else (no)
+  :Disable layout selection;
+endif
+
+end merge
+stop
+@enduml

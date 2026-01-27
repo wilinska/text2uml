@@ -31,15 +31,16 @@ void GeneratedParser::HandleForkStatement(
   const auto fork_node_id = node_parent.value();
 
   // then
-  HandleNesting(logs,
-                graph,
-                node_parent,
-                std::nullopt,
-                node_id_ctr,
-                edge_id_ctr,
-                TokenType::WHILE,
-                {TokenType::END_FORK, TokenType::FORK_AGAIN},
-                enable_output);
+  HandleNesting(
+      logs,
+      graph,
+      node_parent,
+      std::nullopt,
+      node_id_ctr,
+      edge_id_ctr,
+      TokenType::WHILE,
+      {TokenType::END_FORK, TokenType::FORK_AGAIN, TokenType::END_MERGE},
+      enable_output);
 
   HandleNewActivity(logs,
                     graph,
@@ -59,15 +60,16 @@ void GeneratedParser::HandleForkStatement(
     logs.pop(TokenType::FORK_AGAIN, enable_output);
 
     node_parent = fork_node_id;
-    HandleNesting(logs,
-                  graph,
-                  node_parent,
-                  std::nullopt,
-                  node_id_ctr,
-                  edge_id_ctr,
-                  TokenType::WHILE,
-                  {TokenType::END_FORK, TokenType::FORK_AGAIN},
-                  enable_output);
+    HandleNesting(
+        logs,
+        graph,
+        node_parent,
+        std::nullopt,
+        node_id_ctr,
+        edge_id_ctr,
+        TokenType::WHILE,
+        {TokenType::END_FORK, TokenType::FORK_AGAIN, TokenType::END_MERGE},
+        enable_output);
 
     HandleNewEdge(graph,
                   node_parent.value(),
@@ -78,8 +80,14 @@ void GeneratedParser::HandleForkStatement(
                   enable_output);
   }
 
-  logs.pop(TokenType::END_FORK, enable_output);
-
+  if (logs.top().type == TokenType::END_FORK)
+  {
+    logs.pop(TokenType::END_FORK, enable_output);
+  }
+  else if (logs.top().type == TokenType::END_MERGE)
+  {
+    logs.pop(TokenType::END_MERGE, enable_output);
+  }
   node_parent = endfork_node_id;
 }
 } // namespace activity_diagram

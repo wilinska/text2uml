@@ -6,11 +6,16 @@
  * Zbiera dane konfiguracyjne z modala
  * @param {Object} configTemplates - Szablony konfiguracji dla różnych layoutów
  * @param {HTMLSelectElement} layoutTypeSelect - Element select z typem layoutu
+ * @param {HTMLSelectElement} diagramTypeSelect - Element select z typem diagramu
  * @returns {Object} Konfiguracja zebrana z pól modala
  */
-function collectConfigDataFromModal(configTemplates, layoutTypeSelect) {
+function collectConfigDataFromModal(configTemplates, layoutTypeSelect, diagramTypeSelect) {
     const config = {};
-    const layoutType = layoutTypeSelect.value;
+    let layoutType = layoutTypeSelect.value;
+    console.log("Diagram type in collectConfigDataFromModal:", diagramTypeSelect.value);
+    if (diagramTypeSelect.value === "activity") {
+        layoutType = "Activity";
+    }
     const fields = configTemplates[layoutType] || [];
 
     fields.forEach((field) => {
@@ -23,6 +28,7 @@ function collectConfigDataFromModal(configTemplates, layoutTypeSelect) {
             config[field.name] = element.value;
         }
     });
+    console.log("Collected config from modal:", config);
     return config;
 }
 
@@ -67,13 +73,16 @@ function collectCurrentParams(
 /**
  * Renderuje dynamiczne pola konfiguracyjne w modalu
  * @param {string} layoutType - Typ layoutu
+ * @param {string} diagramType - Typ diagramu
  * @param {Object} configTemplates - Szablony konfiguracji
  * @param {Object} currentConfig - Aktualna konfiguracja
  */
-function renderConfigFields(layoutType, configTemplates, currentConfig) {
+function renderConfigFields(layoutType, diagramType, configTemplates, currentConfig) {
     const modalTitle = document.getElementById("modal-title");
     const container = document.getElementById("modal-fields-container");
     container.innerHTML = "";
+
+    if (diagramType === "activity") { layoutType = "Activity"; }
 
     modalTitle.textContent = `Configuration for ${layoutType}`;
     const fields = configTemplates[layoutType] || [];

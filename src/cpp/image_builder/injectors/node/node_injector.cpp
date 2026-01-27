@@ -5,22 +5,33 @@
 
 namespace
 {
+#include <iostream>
+#include <regex>
+#include <string>
+
 std::string extractPartBeforeSemicolon(const std::string &input)
 {
-  std::regex pattern("^:([a-zA-Z0-9 ]+);.*");
+  std::string result;
+  std::regex capture_pattern("^:([^;]+);");
   std::smatch matches;
 
-  if (std::regex_search(input, matches, pattern))
+  if (std::regex_search(input, matches, capture_pattern) && matches.size() > 1)
   {
-    if (matches.size() > 1)
-    {
-      return matches[1].str();
-    }
+    result = matches[1].str();
+  }
+  else
+  {
+    std::regex prefix_pattern("<\\d+>$");
+    result = std::regex_replace(input, prefix_pattern, "");
   }
 
-  std::regex prefix_pattern("<\\d+>$");
+  std::regex whitespace_pattern("\\s+");
+  result = std::regex_replace(result, whitespace_pattern, " ");
 
-  return std::regex_replace(input, prefix_pattern, "");
+  std::regex trim_pattern("^ +| +$");
+  result = std::regex_replace(result, trim_pattern, "");
+
+  return result;
 }
 } // namespace
 
@@ -273,6 +284,37 @@ void NodeInjector::InjectAttributes(const XMLElementPtr &text_element,
   {
     InjectLine(text_element, doc_, attr, ctr++);
   }
+}
+
+std::string ReplaceVisibilityMarkers(std::string text)
+{
+  if (text.empty())
+  {
+    return text;
+  }
+
+  // Map of shorthand characters to UTF-8 Unicode symbols
+  static const std::unordered_map<char, std::string> visibilityMap = {
+      {'-', "\u25A0"}, // Black Square
+      {'#', "\u25C6"}, // Black Diamond
+      {'~', "\u25B2"}, // Black Up-Pointing Triangle
+      {'+', "\u25CF"}  // Black Circle
+  };
+
+  // Find the first character that isn't a space or tab
+  size_t pos = text.find_first_not_of(" \t");
+
+  if (pos != std::string::npos)
+  {
+    auto it = visibilityMap.find(text[pos]);
+    if (it != visibilityMap.end())
+    {
+      // Replace the 1-byte char with the multi-byte UTF-8 string
+      text.replace(pos, 1, it->second);
+    }
+  }
+
+  return text;
 }
 
 void NodeInjector::InjectLine(XMLElementPtr textElement,

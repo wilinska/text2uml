@@ -194,7 +194,7 @@ std::vector<Point> GetFirstTwoPoints(const std::string &path)
   std::smatch matches;
   std::string::const_iterator search_start(path.cbegin());
   const std::regex point_pattern(
-      R"([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?))";
+      R"([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?))");
   // Search for all points
   while (std::regex_search(search_start, path.cend(), matches, point_pattern))
   {

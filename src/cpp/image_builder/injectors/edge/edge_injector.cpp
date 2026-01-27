@@ -60,6 +60,10 @@ void EdgeInjector::Inject(const Edge &edge,
   svg_edge.parent->SetAttribute("data-source", edge.source.c_str());
   svg_edge.parent->SetAttribute("data-target", edge.target.c_str());
 
+  // TODO: future work
+  // std::string pathId = "path_" + std::to_string(edge.id);
+  // path->SetAttribute("id", pathId.c_str());
+
   if (!svg_graph_.graph_.activity)
   {
     InjectLineAdjustments(rect, path);
@@ -71,6 +75,26 @@ void EdgeInjector::Inject(const Edge &edge,
 
   if (edge.label.has_value() and !isInt(edge.label.value()))
   {
+    // TODO: future work
+    // svg_edge.text->DeleteAttribute("x");
+    // svg_edge.text->DeleteAttribute("y");
+
+    // // 3. Skonfiguruj styl tekstu, by był wyśrodkowany względem linii
+    // svg_edge.text->SetAttribute("dominant-baseline", "middle");
+    // svg_edge.text->SetAttribute("dy", "-5"); // Lekkie odsunięcie nad linię
+
+    // // 4. Stwórz element <textPath> (zależnie od Twojej biblioteki XML, np.
+    // // tinyxml2) Zakładając, że Twoja struktura pozwala na dodawanie
+    // // podelementów:
+    // auto *textPath = svg_edge.text->GetDocument()->NewElement("textPath");
+    // textPath->SetAttribute("href", ("#" + pathId).c_str());
+    // textPath->SetAttribute("startOffset", "50%");
+    // textPath->SetAttribute("text-anchor", "middle");
+    // textPath->SetText(edge.label.value().c_str());
+
+    // // Wyczyść stary tekst i dodaj textPath
+    // svg_edge.text->SetText("");
+    // svg_edge.text->InsertEndChild(textPath);
     svg_edge.text->SetText(edge.label.value().c_str());
   }
   else
@@ -84,11 +108,11 @@ void EdgeInjector::Inject(const Edge &edge,
 
 void EdgeInjector::InjectLineType(const Edge &edge, const XMLElementPtr path)
 {
-  if (edge.line_type == LineType::Dashed)
-  {
-    const std::string line_pattern(SOLID_LENGTH + "," + GAP_LENGTH);
-    path->SetAttribute("stroke-dasharray", line_pattern.c_str());
-  }
+  // if (edge.line_type == LineType::Dashed)
+  // {
+  //   const std::string line_pattern(SOLID_LENGTH + "," + GAP_LENGTH);
+  //   path->SetAttribute("stroke-dasharray", line_pattern.c_str());
+  // }
 }
 
 void EdgeInjector::InjectLineAdjustments(const XMLElementPtr rect,

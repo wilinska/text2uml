@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // E. First render
-    renderConfigFields(initialParams.layoutType, configTemplates, currentConfig);
+    renderConfigFields(initialParams.layoutType, initialParams.diagram_type, configTemplates, currentConfig);
 
     // Initialize SVG interactions if SVG is already loaded
     if (svgOutput.querySelector("svg")) {
@@ -343,6 +343,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         for (const key in currentConfig) {
             cleanedConfig[key] = String(currentConfig[key]);
         }
+        console.log("Cleaned config before sending request:", cleanedConfig);
 
         const params = collectCurrentParams(
             cleanedConfig,
@@ -374,7 +375,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         layoutTypeSelect.disabled = isActivity;
         edgeTypeSelect.disabled = isActivity;
-        configButton.disabled = isActivity;
 
         if (fixPositionButton) {
             fixPositionButton.disabled = isActivity;
@@ -413,17 +413,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Modal Config
     configButton.addEventListener("click", () => {
-        const isActivity = diagramTypeSelect.value === 'activity';
-        if (isActivity) return; // Block for activity diagram
-
-        renderConfigFields(layoutTypeSelect.value, configTemplates, currentConfig);
+        renderConfigFields(layoutTypeSelect.value, diagramTypeSelect.value, configTemplates, currentConfig);
         configModal.style.display = "flex";
     });
 
     applyConfigButton.addEventListener("click", () => {
         currentConfig = collectConfigDataFromModal(
             configTemplates,
-            layoutTypeSelect
+            layoutTypeSelect,
+            diagramTypeSelect
         );
         configModal.style.display = "none";
         renderHandler();
@@ -439,14 +437,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener("mousedown", (e) => {
         if (e.target.closest("#svg-output")) {
             isSvgActive = true;
-            isTextInputActive = false;
+            isTextInputActive = true;
         } else if (e.target.closest("#text-input")) {
             isTextInputActive = true;
             isSvgActive = false;
             selectedGroup = deselectGroup(selectedGroup);
         } else {
             isSvgActive = false;
-            isTextInputActive = false;
+            isTextInputActive = true;
         }
 
         let targetGroup = e.target.closest("g");

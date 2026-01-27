@@ -1,0 +1,19 @@
+@startuml
+' @layout_type FMMM
+' @edge_type Polyline
+class AppController {
+    String route
+    int requestCount
+    handleRequest(data String, id int)
+    shutdown(force int)
+}
+
+class SecurityGate {
+    int accessLevel
+    validateToken(token String)
+    encrypt(raw String)
+}
+
+AppController --> SecurityGate
+
+@enduml

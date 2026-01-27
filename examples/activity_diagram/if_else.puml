@@ -1,0 +1,10 @@
+@startuml
+start
+if (Diagram type: Class?) then (yes)
+  :Enable layout selection;
+else (no)
+  :Disable layout selection;
+endif
+:Submit DSL source code;
+stop
+@enduml

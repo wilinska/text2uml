@@ -1,0 +1,12 @@
+@startuml
+start
+repeat
+:read data;
+:create nodes;
+:add_edges;
+repeat while (counter less than five) is (yes) not (no)
+
+:create diagram;
+:save diagram;
+stop
+@enduml

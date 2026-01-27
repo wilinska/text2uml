@@ -18,7 +18,14 @@ Graph GeneratedParser::Parse(const std::string &input, const bool enable_output)
   std::uint64_t edge_id_ctr{0U};
   std::optional<std::uint64_t> node_parent{};
 
-  auto logs = Logs(generated_parser::parse(RemoveCRLF(input)));
+  auto logs_pair = generated_parser::parse(RemoveCRLF(input));
+  if (logs_pair.first.size() > 0)
+  {
+    graph.failed = true;
+    graph.failed_string = logs_pair.first;
+    return graph;
+  }
+  auto logs = Logs(logs_pair.second);
 
   if (!logs.empty() && logs.top().type == TokenType::SWIMLANE)
   {
@@ -49,7 +56,8 @@ void GeneratedParser::HandleNesting(
     std::set<TokenType> end_types,
     const bool enable_output)
 {
-
+  std::optional<std::string> next_label = edge_label;
+  bool reset_label = false;
   while (!logs.empty() && end_types.count(logs.top().type) == 0)
   {
     const auto token = logs.top();
@@ -63,6 +71,14 @@ void GeneratedParser::HandleNesting(
                 << logs.top().type << "; Name: " << logs.top().name
                 << std::endl;
     }
+    if (reset_label)
+    {
+      next_label = std::nullopt;
+    }
+    else
+    {
+      reset_label = true;
+    }
 
     switch (token.type)
     {
@@ -70,7 +86,7 @@ void GeneratedParser::HandleNesting(
       HandleNewActivity(logs,
                         graph,
                         node_parent,
-                        edge_label,
+                        next_label,
                         node_id_ctr,
                         edge_id_ctr,
                         "",
@@ -82,7 +98,7 @@ void GeneratedParser::HandleNesting(
       HandleNewActivity(logs,
                         graph,
                         node_parent,
-                        edge_label,
+                        next_label,
                         node_id_ctr,
                         edge_id_ctr,
                         "",
@@ -94,7 +110,7 @@ void GeneratedParser::HandleNesting(
       HandleNewActivity(logs,
                         graph,
                         node_parent,
-                        edge_label,
+                        next_label,
                         node_id_ctr,
                         edge_id_ctr,
                         "END",
@@ -106,7 +122,7 @@ void GeneratedParser::HandleNesting(
       HandleNewActivity(logs,
                         graph,
                         node_parent,
-                        edge_label,
+                        next_label,
                         node_id_ctr,
                         edge_id_ctr,
                         "BREAK",
@@ -119,7 +135,7 @@ void GeneratedParser::HandleNesting(
       HandleNewActivity(logs,
                         graph,
                         node_parent,
-                        edge_label,
+                        next_label,
                         node_id_ctr,
                         edge_id_ctr,
                         token.name,
@@ -131,7 +147,7 @@ void GeneratedParser::HandleNesting(
       HandleConditionalStatement(logs,
                                  graph,
                                  node_parent,
-                                 edge_label,
+                                 next_label,
                                  node_id_ctr,
                                  edge_id_ctr,
                                  token.name,
@@ -141,37 +157,39 @@ void GeneratedParser::HandleNesting(
       HandleSwitchStatement(logs,
                             graph,
                             node_parent,
-                            edge_label,
+                            next_label,
                             node_id_ctr,
                             edge_id_ctr,
                             token.name,
                             enable_output);
       break;
     case TokenType::WHILE:
-      HandleWhileStatement(logs,
-                           graph,
-                           node_parent,
-                           edge_label,
-                           node_id_ctr,
-                           edge_id_ctr,
-                           token.name,
-                           enable_output);
+      next_label = HandleWhileStatement(logs,
+                                        graph,
+                                        node_parent,
+                                        next_label,
+                                        node_id_ctr,
+                                        edge_id_ctr,
+                                        token.name,
+                                        enable_output);
+      reset_label = false;
       break;
     case TokenType::REPEAT:
-      HandleRepeatStatement(logs,
-                            graph,
-                            node_parent,
-                            edge_label,
-                            node_id_ctr,
-                            edge_id_ctr,
-                            token.name,
-                            enable_output);
+      next_label = HandleRepeatStatement(logs,
+                                         graph,
+                                         node_parent,
+                                         next_label,
+                                         node_id_ctr,
+                                         edge_id_ctr,
+                                         token.name,
+                                         enable_output);
+      reset_label = false;
       break;
     case TokenType::FORK:
       HandleForkStatement(logs,
                           graph,
                           node_parent,
-                          edge_label,
+                          next_label,
                           node_id_ctr,
                           edge_id_ctr,
                           token.name,
@@ -181,7 +199,7 @@ void GeneratedParser::HandleNesting(
       HandleSplitStatement(logs,
                            graph,
                            node_parent,
-                           edge_label,
+                           next_label,
                            node_id_ctr,
                            edge_id_ctr,
                            token.name,
@@ -191,7 +209,7 @@ void GeneratedParser::HandleNesting(
       HandleGroupStatement(logs,
                            graph,
                            node_parent,
-                           edge_label,
+                           next_label,
                            node_id_ctr,
                            edge_id_ctr,
                            token.name,
@@ -201,7 +219,7 @@ void GeneratedParser::HandleNesting(
       HandlePartitionStatement(logs,
                                graph,
                                node_parent,
-                               edge_label,
+                               next_label,
                                node_id_ctr,
                                edge_id_ctr,
                                token.name,
@@ -280,6 +298,7 @@ void GeneratedParser::HandleNewEdge(Graph &graph,
     edge.source = std::to_string(target);
     edge.right_head = LineHeadEnum::None;
     edge.left_head = LineHeadEnum::Arrow;
+    edge.skipping = true;
   }
   else
   {

@@ -1,0 +1,38 @@
+
+@startuml
+' @layout_type Circular
+
+class B
+class C
+class D
+class E
+class F
+class G
+class H
+class I
+class J
+
+E --> C
+B --> A
+H --> D
+J --> H
+F --> I
+I --> B
+A --> F
+H --> I
+I --> A
+H --> A
+C --> B
+D --> F
+J --> G
+A --> E
+E --> D
+I --> G
+A --> G
+
+class A {
+' @position(285, 250)
+' @skip_layout
+}
+
+@enduml

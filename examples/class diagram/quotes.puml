@@ -1,0 +1,6 @@
+@startuml
+class "This is my class"
+class "foo/dummy"
+
+"This is my class" *-- "foo/dummy" : use
+@enduml

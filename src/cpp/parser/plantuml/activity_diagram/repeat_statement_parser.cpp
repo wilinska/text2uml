@@ -4,9 +4,21 @@
 #include <sstream>
 #include <string>
 
+namespace
+{
+std::string removeOuterParentheses(const std::string &input)
+{
+  if (input.length() >= 2 && input.front() == '(' && input.back() == ')')
+  {
+    return input.substr(1, input.length() - 2);
+  }
+  return input;
+}
+} // namespace
+
 namespace activity_diagram
 {
-void GeneratedParser::HandleRepeatStatement(
+std::optional<std::string> GeneratedParser::HandleRepeatStatement(
     Logs &logs,
     Graph &graph,
     std::optional<std::uint64_t> &node_parent,
@@ -16,14 +28,13 @@ void GeneratedParser::HandleRepeatStatement(
     const std::string &label,
     const bool enable_output)
 {
-
   HandleNewActivity(logs,
                     graph,
                     node_parent,
                     edge_label,
                     node_id_ctr,
                     edge_id_ctr,
-                    "WHILE",
+                    "",
                     ActivityTypeEnum::Repeat,
                     false,
                     enable_output);
@@ -38,7 +49,7 @@ void GeneratedParser::HandleRepeatStatement(
                 node_id_ctr,
                 edge_id_ctr,
                 TokenType::WHILE,
-                {TokenType::BACKWARD, TokenType::REPEAT},
+                {TokenType::BACKWARD, TokenType::END_REPEAT},
                 enable_output);
 
   if (logs.top().type == TokenType::BACKWARD)
@@ -59,12 +70,12 @@ void GeneratedParser::HandleRepeatStatement(
                       enable_output);
   }
 
-  logs.pop(TokenType::REPEAT, enable_output);
+  logs.pop(TokenType::END_REPEAT, enable_output);
 
-  if (logs.top().type == TokenType::WHILE)
+  if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    logs.pop(TokenType::WHILE, enable_output);
-    const auto while_token = logs.pop(TokenType::BRACE_CONTENT, enable_output);
+    const auto while_token = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
 
     HandleNewActivity(logs,
                       graph,
@@ -72,21 +83,44 @@ void GeneratedParser::HandleRepeatStatement(
                       std::nullopt,
                       node_id_ctr,
                       edge_id_ctr,
-                      while_token.name,
+                      while_token,
                       ActivityTypeEnum::Conditional,
                       false,
                       enable_output);
   }
-  // const auto repeat
+
+  if (logs.top().type == TokenType::IS)
+  {
+    logs.pop(TokenType::IS, enable_output);
+  }
+
+  std::optional<std::string> condition_yes = std::nullopt;
+  if (logs.top().type == TokenType::BRACE_CONTENT)
+  {
+    condition_yes = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
+  }
 
   HandleNewEdge(graph,
                 node_parent.value(),
                 repeat_start_node_id,
                 edge_id_ctr,
-                {},
+                condition_yes,
                 true,
                 enable_output);
 
+  if (logs.top().type == TokenType::NOT)
+  {
+    logs.pop(TokenType::NOT, enable_output);
+  }
+
+  std::optional<std::string> condition_no = std::nullopt;
+  if (logs.top().type == TokenType::BRACE_CONTENT)
+  {
+    condition_no = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
+  }
   node_parent = repeat_start_node_id;
+  return condition_no;
 }
 } // namespace activity_diagram

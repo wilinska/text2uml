@@ -11,7 +11,6 @@ std::string ImageBuilder::GenerateImage(const std::string &edge_bends,
                                         const Config &config)
 {
   const auto svg_sceleton = layout->GenerateSVG(config);
-
   SVGGraph svg_graph(svg_sceleton, graph);
   Mapper mapper(svg_graph);
   mapper.Map();

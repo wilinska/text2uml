@@ -1,0 +1,50 @@
+@startuml
+|Browser|
+start
+if (multiprocessor?) then (yes)
+fork
+:start here;
+fork again
+:start there;
+fork again
+:start there;
+end merge
+elseif (condition B) then (yes)
+  :Select option B;
+
+else (no)
+  :Process images one by one;
+
+endif
+|Server|
+:Parse input & compute layout;
+:Generate SVG representation;
+:Another Action1;
+:Another Action2;
+if (Diagram type: Class?) then (yes)
+  :Enable layout selection;
+else (no)
+  :Disable layout selection;
+endif
+
+repeat
+:read data;
+:create nodes;
+:add_edges;
+repeat while (counter less than five) is (yes) not (no)
+
+if (condition A) then (yes)
+  :Select option A;
+elseif (condition B) then (yes)
+  :Select option B;
+elseif (condition C) then (yes)
+  :Select option C;
+else (no)
+  :Disable layout selection;
+endif
+:Submit DSL source code;
+
+|Browser|
+:Render diagram;
+stop
+@enduml

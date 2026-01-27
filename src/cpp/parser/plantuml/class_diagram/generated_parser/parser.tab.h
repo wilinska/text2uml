@@ -79,28 +79,34 @@ extern int yydebug;
     PLUS = 280,                    /* PLUS  */
     HAT = 281,                     /* HAT  */
     HYPHEN = 282,                  /* HYPHEN  */
-    L_ANGLE_BRACE = 283,           /* L_ANGLE_BRACE  */
-    R_ANGLE_BRACE = 284,           /* R_ANGLE_BRACE  */
-    L_SQUARE_BRACE = 285,          /* L_SQUARE_BRACE  */
-    R_SQUARE_BRACE = 286,          /* R_SQUARE_BRACE  */
-    L_CURLY_BRACE = 287,           /* L_CURLY_BRACE  */
-    R_CURLY_BRACE = 288,           /* R_CURLY_BRACE  */
-    LBRACE = 289,                  /* LBRACE  */
-    RBRACE = 290,                  /* RBRACE  */
-    COMMA = 291,                   /* COMMA  */
-    QUOTE = 292,                   /* QUOTE  */
-    AT_POSITION = 293,             /* AT_POSITION  */
-    AT_POSITION_FIXED = 294,       /* AT_POSITION_FIXED  */
-    SPLIT_EDGE = 295,              /* SPLIT_EDGE  */
-    SKIP_LAYOUT = 296,             /* SKIP_LAYOUT  */
-    DIAGRAM_TYPE = 297,            /* DIAGRAM_TYPE  */
-    LAYOUT_TYPE = 298,             /* LAYOUT_TYPE  */
-    EDGE_TYPE = 299,               /* EDGE_TYPE  */
-    IDENTIFIER = 300,              /* IDENTIFIER  */
-    LINE_LAST_IDENTIFIER = 301,    /* LINE_LAST_IDENTIFIER  */
-    POSITION = 302,                /* POSITION  */
-    POSITION_FIXED = 303,          /* POSITION_FIXED  */
-    POSITION_ARGS = 304            /* POSITION_ARGS  */
+    DOWN = 283,                    /* DOWN  */
+    UP = 284,                      /* UP  */
+    LEFT = 285,                    /* LEFT  */
+    RIGHT = 286,                   /* RIGHT  */
+    L_ANGLE_BRACE = 287,           /* L_ANGLE_BRACE  */
+    R_ANGLE_BRACE = 288,           /* R_ANGLE_BRACE  */
+    L_SQUARE_BRACE = 289,          /* L_SQUARE_BRACE  */
+    R_SQUARE_BRACE = 290,          /* R_SQUARE_BRACE  */
+    L_CURLY_BRACE = 291,           /* L_CURLY_BRACE  */
+    R_CURLY_BRACE = 292,           /* R_CURLY_BRACE  */
+    LBRACE = 293,                  /* LBRACE  */
+    RBRACE = 294,                  /* RBRACE  */
+    COMMA = 295,                   /* COMMA  */
+    QUOTE = 296,                   /* QUOTE  */
+    AT_POSITION = 297,             /* AT_POSITION  */
+    AT_POSITION_FIXED = 298,       /* AT_POSITION_FIXED  */
+    SPLIT_EDGE = 299,              /* SPLIT_EDGE  */
+    SKIP_LAYOUT = 300,             /* SKIP_LAYOUT  */
+    DIAGRAM_TYPE = 301,            /* DIAGRAM_TYPE  */
+    LAYOUT_TYPE = 302,             /* LAYOUT_TYPE  */
+    EDGE_TYPE = 303,               /* EDGE_TYPE  */
+    IDENTIFIER = 304,              /* IDENTIFIER  */
+    LINE_LAST_IDENTIFIER = 305,    /* LINE_LAST_IDENTIFIER  */
+    POSITION = 306,                /* POSITION  */
+    POSITION_FIXED = 307,          /* POSITION_FIXED  */
+    POSITION_ARGS = 308,           /* POSITION_ARGS  */
+    START_IDENTIFIER = 309,        /* START_IDENTIFIER  */
+    ATTRIBUTE = 310                /* ATTRIBUTE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -109,11 +115,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 29 "parser.y"
+#line 60 "parser.y"
 
     char *str;
 
-#line 117 "parser.tab.h"
+#line 123 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

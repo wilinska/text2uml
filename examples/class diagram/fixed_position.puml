@@ -1,0 +1,22 @@
+@startuml
+' @layout_type Sugiyama
+A --> B
+C --> D
+class A {
+' @position_fixed(47.5, 39)
+}
+class B {
+' @position_fixed(47.5, 107)
+}
+class C {
+' @position_fixed(112.5, 39)
+}
+class D {
+' @position_fixed(112.5, 107)
+}
+A --> E
+E --> D
+class E {
+' @position(-145, -35)
+}
+@enduml

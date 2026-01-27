@@ -1,0 +1,5 @@
+@startuml
+' @layout_type Sugiyama
+
+A --> B
+@enduml

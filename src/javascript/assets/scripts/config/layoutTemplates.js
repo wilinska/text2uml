@@ -27,6 +27,9 @@ const configTemplates = {
         { label: "CrossMin algorithm type", id: "cross-type", name: "crossType", type: "select", options: ["MedianHeuristic", "BarycenterHeuristic", "GreedyInsertHeuristic"], defaultValue: "MedianHeuristic" }
     ],
     Tree: [],
+    Activity: [
+        { label: "edgeMinLength", id: "edgeMinLength", name: "edgeMinLength", type: "number", min: 0, step: 1, defaultValue: 55 }
+    ],
 };
 
 // Export for Node.js and browser

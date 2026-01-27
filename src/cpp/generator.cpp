@@ -25,6 +25,11 @@ GenerateClassDiagram(const std::string &uml_text,
                    .Get()
                    ->Parse(uml_text, false);
 
+  if (graph.failed)
+  {
+    return std::make_pair(graph.failed_string, false);
+  }
+
   LayoutBuilder lb;
 
   std::string final_layout_type = layout_type;
@@ -59,7 +64,10 @@ GenerateActivityDiagram(const std::string &uml_text,
                    .WithGraphics()
                    .Get()
                    ->Parse(uml_text, false);
-
+  if (graph.failed)
+  {
+    return std::make_pair(graph.failed_string, false);
+  }
   const auto layout = std::make_shared<ActivityDiagramLayout>(graph);
 
   ImageBuilder ib;
@@ -94,7 +102,23 @@ std::string Generator::Generate(const std::string &uml_text,
   }
 
   auto result = GenerateActivityDiagram(uml_text, config_json);
-  return "activity " + result.first;
+  if (result.second)
+  {
+    return "activity " + result.first;
+  }
+  if (diagram_type == "activity")
+  {
+    return std::string(
+        "activity  Syntax Error: Unable to generate activity diagram. Check "
+        "your "
+        "UML syntax. More info in console logs.\n" +
+        result.first);
+  }
+
+  return std::string(
+      "class Syntax Error: Unable to generate class diagram. Check your "
+      "UML syntax. More info in console logs.\n" +
+      class_result.first);
 }
 
 } // namespace Text2UML

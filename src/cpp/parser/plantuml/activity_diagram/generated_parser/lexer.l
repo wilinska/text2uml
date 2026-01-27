@@ -13,7 +13,14 @@ using TokenType = generated_parser::TokenType;
 
 %}
 %option prefix="activity"
+%x NOTE_STATE
+
 %%
+
+^[[:blank:]]*(?i:note)          { BEGIN(NOTE_STATE); }
+<NOTE_STATE>(?i:end[[:blank:]]+note) { BEGIN(INITIAL); }
+<NOTE_STATE>[ \t\n]+            { /* ignore whitespace inside note */ }
+<NOTE_STATE>.                   { /* ignore any other character inside note */ }
 
 "@startuml"                       { return STARTUML; }
 "@enduml"                         { return ENDUML; }
@@ -21,8 +28,8 @@ using TokenType = generated_parser::TokenType;
 "stop"                            { generated_parser::AddToken(TokenType::STOP, ""); return STOP; }
 "end"                             { generated_parser::AddToken(TokenType::END, ""); return END; }
 "if"                              { generated_parser::AddToken(TokenType::IF, ""); return IF; }
-"is"                              { generated_parser::AddToken(TokenType::IS, ""); return IS; }
-"equals"                          { generated_parser::AddToken(TokenType::IS, ""); return EQUALS; }
+"is"                             { generated_parser::AddToken(TokenType::IS, ""); return IS; }
+"equals"                          { generated_parser::AddToken(TokenType::IS, ""); return IS; }
 "then"                            { generated_parser::AddToken(TokenType::THEN, ""); return THEN; }
 "else"                            { generated_parser::AddToken(TokenType::ELSE, ""); return ELSE; }
 "elseif"                          { generated_parser::AddToken(TokenType::ELSEIF, ""); return ELSEIF; }
@@ -36,6 +43,7 @@ using TokenType = generated_parser::TokenType;
 "case"                            { generated_parser::AddToken(TokenType::CASE, ""); return CASE; }
 "endswitch"                       { generated_parser::AddToken(TokenType::ENDSWITCH, ""); return ENDSWITCH; }
 "repeat"                          { generated_parser::AddToken(TokenType::REPEAT, ""); return REPEAT; }
+repeat[ \t]+while                 { generated_parser::AddToken(TokenType::END_REPEAT, ""); return END_REPEAT; }
 "kill"                            { generated_parser::AddToken(TokenType::KILL, ""); return KILL; }
 "not"                             { generated_parser::AddToken(TokenType::NOT, ""); return NOT; }
 "fork"                            { generated_parser::AddToken(TokenType::FORK, ""); return FORK; }
@@ -50,12 +58,13 @@ end[ \t]+split                    { generated_parser::AddToken(TokenType::END_SP
 end[ \t]+group                    { return END_GROUP; }
 "partition"                       { return PARTITION; }
 "merge"                           { generated_parser::AddToken(TokenType::MERGE, ""); return MERGE; }
-[a-zA-Z][a-zA-Z0-9_]*             { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }
-\"[a-zA-Z][a-zA-Z0-9_\t]*\"       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }
+[a-zA-Z][a-zA-Z0-9_\-\(\)]*             { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }
+\"[a-zA-Z][a-zA-Z0-9\-\(\)_\t]*\"       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ID, yytext); return ID; }
 :[^;]*;                           { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::ACTIVITY_CONTENT, yytext); return ACTIVITY_CONTENT; }
 (\([^)]*\))                       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::BRACE_CONTENT, yytext); return BRACE_CONTENT; }
 \"[^\"]*\"                        { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::QUOTED_NAME, yytext); return QUOTED_NAME; }
-\|[a-zA-Z][a-zA-Z0-9_\t]*\|       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::SWIMLANE, yytext); return SWIMLANE; }
+(\|[^\|]+\|)                       { activitylval.str = strdup(yytext); generated_parser::AddToken(TokenType::SWIMLANE, yytext); return SWIMLANE; }
+
 ";"                               { generated_parser::AddToken(TokenType::SEMICOLON, NULL); return SEMICOLON; }
 "{"                               { generated_parser::AddToken(TokenType::OPEN_CURLY_BRACKET, NULL); return OPEN_CURLY_BRACKET; }
 "}"                               { generated_parser::AddToken(TokenType::CLOSE_CURLY_BRACKET, NULL); return CLOSE_CURLY_BRACKET; }

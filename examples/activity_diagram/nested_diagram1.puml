@@ -1,0 +1,25 @@
+@startuml
+start
+if (multiprocessor?) then (yes)
+fork
+:start here;
+fork again
+:start there;
+fork again
+:start there;
+fork again
+:start there;
+fork again
+:start there;
+fork again
+:start there;
+end merge
+
+
+else (no)
+  :Process images one by one;
+
+endif
+
+end
+@enduml

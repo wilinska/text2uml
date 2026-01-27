@@ -7,6 +7,14 @@
 namespace generated_parser
 {
 std::queue<Token> logs;
+std::string last_error_report;
+
+void FillLastError(std::string error_report)
+{
+  last_error_report = error_report;
+}
+
+std::string GetLastError() { return last_error_report; }
 
 void ClearLogs()
 {

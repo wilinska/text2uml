@@ -1,0 +1,15 @@
+@startuml
+
+start
+
+while (data available?)
+  :read data;
+  :create nodes;
+  :add edges;
+endwhile
+
+:create diagram;
+:inject values;
+:generate diagram;
+
+@enduml

@@ -29,6 +29,9 @@ struct Graph
   double height = 0;
   double y = 20;
 
+  bool failed = false;
+  std::string failed_string{""};
+
   friend std::ostream &operator<<(std::ostream &os, const Graph &graph)
   {
     os << "Graph:\n";

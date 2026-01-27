@@ -68,8 +68,10 @@ inline std::ostream &operator<<(std::ostream &os, const TokenType &value)
   os << toString(value);
   return os;
 }
-
-std::stack<Token> parse_class_diagram(const std::string &input);
+void FillLastError(std::string error_report);
+std::string GetLastError();
+std::pair<std::string, std::stack<Token>>
+parse_class_diagram(const std::string &input);
 
 } // namespace generated_parser
 } // namespace class_diagram

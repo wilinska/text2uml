@@ -1,0 +1,8 @@
+@startuml
+' @layout_type Sugiyama
+' @diagram_type class
+A --> B : label ' @split_edge
+A --> C ' @skip_layout
+A --> D
+C --> D
+@enduml

@@ -80,29 +80,29 @@ extern int activitydebug;
     WHILE = 273,                   /* WHILE  */
     ENDWHILE = 274,                /* ENDWHILE  */
     IS = 275,                      /* IS  */
-    EQUALS = 276,                  /* EQUALS  */
-    SWITCH = 277,                  /* SWITCH  */
-    CASE = 278,                    /* CASE  */
-    REPEAT_WHILE = 279,            /* REPEAT_WHILE  */
-    REPEAT = 280,                  /* REPEAT  */
-    NOT = 281,                     /* NOT  */
-    ENDSWITCH = 282,               /* ENDSWITCH  */
-    BACKWARD = 283,                /* BACKWARD  */
-    COLON = 284,                   /* COLON  */
-    SEMICOLON = 285,               /* SEMICOLON  */
-    ARROW = 286,                   /* ARROW  */
-    FORK_AGAIN = 287,              /* FORK_AGAIN  */
-    END_FORK = 288,                /* END_FORK  */
-    END_MERGE = 289,               /* END_MERGE  */
-    SPLIT = 290,                   /* SPLIT  */
-    SPLIT_AGAIN = 291,             /* SPLIT_AGAIN  */
-    END_SPLIT = 292,               /* END_SPLIT  */
-    GROUP = 293,                   /* GROUP  */
-    END_GROUP = 294,               /* END_GROUP  */
-    PARTITION = 295,               /* PARTITION  */
-    OPEN_CURLY_BRACKET = 296,      /* OPEN_CURLY_BRACKET  */
-    CLOSE_CURLY_BRACKET = 297,     /* CLOSE_CURLY_BRACKET  */
-    SWIMLANE = 298,                /* SWIMLANE  */
+    SWITCH = 276,                  /* SWITCH  */
+    CASE = 277,                    /* CASE  */
+    REPEAT_WHILE = 278,            /* REPEAT_WHILE  */
+    REPEAT = 279,                  /* REPEAT  */
+    NOT = 280,                     /* NOT  */
+    ENDSWITCH = 281,               /* ENDSWITCH  */
+    BACKWARD = 282,                /* BACKWARD  */
+    COLON = 283,                   /* COLON  */
+    SEMICOLON = 284,               /* SEMICOLON  */
+    ARROW = 285,                   /* ARROW  */
+    FORK_AGAIN = 286,              /* FORK_AGAIN  */
+    END_FORK = 287,                /* END_FORK  */
+    END_MERGE = 288,               /* END_MERGE  */
+    SPLIT = 289,                   /* SPLIT  */
+    SPLIT_AGAIN = 290,             /* SPLIT_AGAIN  */
+    END_SPLIT = 291,               /* END_SPLIT  */
+    GROUP = 292,                   /* GROUP  */
+    END_GROUP = 293,               /* END_GROUP  */
+    PARTITION = 294,               /* PARTITION  */
+    OPEN_CURLY_BRACKET = 295,      /* OPEN_CURLY_BRACKET  */
+    CLOSE_CURLY_BRACKET = 296,     /* CLOSE_CURLY_BRACKET  */
+    SWIMLANE = 297,                /* SWIMLANE  */
+    END_REPEAT = 298,              /* END_REPEAT  */
     ID = 299,                      /* ID  */
     ACTIVITY_CONTENT = 300,        /* ACTIVITY_CONTENT  */
     BRACE_CONTENT = 301,           /* BRACE_CONTENT  */
@@ -115,7 +115,7 @@ extern int activitydebug;
 #if ! defined ACTIVITYSTYPE && ! defined ACTIVITYSTYPE_IS_DECLARED
 union ACTIVITYSTYPE
 {
-#line 26 "parser.y"
+#line 28 "parser.y"
 
 char *str;
 

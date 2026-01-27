@@ -8,6 +8,8 @@ extern void yyrestart(FILE *input_file);
 extern void yy_switch_to_buffer(void* buffer);
 %}
 
+%x NOTE_STATE
+
 %%
 
 "@startuml"                            { return STARTUML; }
@@ -26,6 +28,24 @@ extern void yy_switch_to_buffer(void* buffer);
 "protocol"                             { return PROTOCOL; }
 "stereotype"                           { return STEREOTYPE; }
 "struct"                               { return STRUCT; }
+(?i:\[hidden\])                        { return DOWN; }
+(?i:\[dotted\])                        { return DOWN; }
+(?i:\[dashed\])                        { return DOWN; }
+(?i:\[bold\])                         { return DOWN; }
+(?i:\[plain\])                        { return DOWN; }
+(?i:down)                        { return DOWN; }
+(?i:up)                        { return UP; }
+(?i:left)    { return LEFT; }
+(?i:right)   { return RIGHT; }
+^[[:blank:]]*(?i:note)          { BEGIN(NOTE_STATE); printf("START NOTE\n"); }
+
+<NOTE_STATE>(?i:end[[:blank:]]+note) { BEGIN(INITIAL); printf("END NOTE\n"); }
+<NOTE_STATE>[ \t\n]+            { /* ignoruj białe znaki wewnątrz */ }
+<NOTE_STATE>.                   { /* ignoruj każdy inny znak wewnątrz */ }
+
+^[[:blank:]]*([+\-#~][ \t]*)[a-zA-Z_][^\n\r\(\)]*\n    { yylval.str = strdup(yytext); return ATTRIBUTE; }
+^[[:blank:]]*([+\-#~][ \t]*)[a-zA-Z_][a-zA-Z0-9_?]* { yylval.str = strdup(yytext); return START_IDENTIFIER; }
+
 ","                                    { return COMMA; }
 ":"                                    { return COLON; }
 "|"                                    { return PIPE; }
@@ -45,6 +65,7 @@ extern void yy_switch_to_buffer(void* buffer);
 "("                                    { return LBRACE; }
 ")"                                    { return RBRACE; }
 "'"                                    { return QUOTE; }
+
 "@position"                            { return AT_POSITION; }
 "@position_fixed"                      { return AT_POSITION_FIXED; }
 "@split_edge"                          { return SPLIT_EDGE; }
@@ -52,13 +73,16 @@ extern void yy_switch_to_buffer(void* buffer);
 "@diagram_type"                        { return DIAGRAM_TYPE; }
 "@layout_type"                         { return LAYOUT_TYPE; }
 "@edge_type"                           { return EDGE_TYPE; }
-\([ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*,[ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*\) {   yylval.str = strdup(yytext);  return POSITION_ARGS;}
-[a-zA-Z_][a-zA-Z0-9_]*\n               { yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
-[a-zA-Z_][a-zA-Z0-9_]*                 { yylval.str = strdup(yytext); return IDENTIFIER; }
-[ \t\n]+                               { /* Ignore whitespace */ }
-'[^\n]*\n                              {}
-.                                      { printf("Unknown character: %s\n", yytext); }
 
+\([ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*,[ \t]*[-]?[0-9]*\.?[0-9]+[ \t]*\) { yylval.str = strdup(yytext); return POSITION_ARGS; }
+
+[a-zA-Z_][a-zA-Z0-9_]*\n               { yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return IDENTIFIER; }
+\"[^\"]*\" { yylval.str = strdup(yytext); return IDENTIFIER; }
+\"[^\"]*\"\n { yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
+
+[ \t\n]+                               { /* Debugging whitespace is usually too noisy, but you can add it if needed: printf("WS\n"); */ }
+.                                      { }
 
 %%
 

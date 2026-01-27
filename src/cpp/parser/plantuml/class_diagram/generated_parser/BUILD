@@ -3,6 +3,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "generated_parser",
     srcs = [
+        "generated_parser.cpp",
         "lex.yy.cpp",
         "parser.tab.cpp",
     ],

@@ -30,7 +30,6 @@ enum TokenType
   EDGE_COMMENT,
   END,
   IS,
-  EQUALS,
   ID,
   COLON,
   SEMICOLON,
@@ -56,7 +55,8 @@ enum TokenType
   PARTITION,
   OPEN_CURLY_BRACKET,
   CLOSE_CURLY_BRACKET,
-  SWIMLANE
+  SWIMLANE,
+  END_REPEAT
 };
 
 struct Token
@@ -89,13 +89,13 @@ inline std::string toString(const TokenType value)
   case TokenType::EDGE_COMMENT: return "EDGE_COMMENT";
   case TokenType::END: return "END";
   case TokenType::IS: return "IS";
-  case TokenType::EQUALS: return "EQUALS";
   case TokenType::ID: return "ID";
   case TokenType::COLON: return "COLON";
   case TokenType::SEMICOLON: return "SEMICOLON";
   case TokenType::ARROW: return "ARROW";
   case TokenType::BACKWARD: return "BACKWARD";
   case TokenType::REPEAT: return "REPEAT";
+  case TokenType::END_REPEAT: return "END_REPEAT";
   case TokenType::NOT: return "NOT";
   case TokenType::DETACH: return "DETACH";
   case TokenType::BREAK: return "BREAK";
@@ -129,7 +129,9 @@ inline std::ostream &operator<<(std::ostream &os, const TokenType &value)
 void AddToken(const TokenType type, const std::string &name);
 void ClearLogs();
 std::queue<Token> GetLogs();
-std::queue<Token> parse(const std::string &input);
+void FillLastError(std::string error_report);
+std::string GetLastError();
+std::pair<std::string, std::queue<Token>> parse(const std::string &input);
 
 } // namespace generated_parser
 

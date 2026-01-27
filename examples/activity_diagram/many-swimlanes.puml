@@ -1,0 +1,15 @@
+@startuml
+|Swimlane1|
+:Action1;
+|Swimlane2|
+:Action2;
+|Swimlane1|
+:Back in swimlane 1;
+|Swimlane2|
+:Action2;
+|Swimlane3|
+:Action1;
+|Swimlane4|
+:End in swimlane 4;
+stop
+@enduml

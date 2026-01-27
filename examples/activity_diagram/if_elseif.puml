@@ -1,0 +1,14 @@
+@startuml
+start
+if (condition A) then (yes)
+  :Select option A;
+elseif (condition B) then (yes)
+  :Select option B;
+elseif (condition C) then (yes)
+  :Select option C;
+else (no)
+  :Disable layout selection;
+endif
+:Submit DSL source code;
+stop
+@enduml

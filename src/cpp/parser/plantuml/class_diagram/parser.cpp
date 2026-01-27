@@ -5,10 +5,83 @@
 #include <cctype>
 #include <iostream>
 #include <memory>
+#include <regex>
 #include <sstream>
 #include <stack>
 #include <string>
 #include <tuple>
+#include <unordered_map>
+
+namespace
+{
+#include <regex>
+#include <string>
+#include <unordered_map>
+
+/**
+ * Formats UML string:
+ * - Replaces markers with colored emojis.
+ * - Ensures exactly one space after the visibility marker.
+ * - Normalizes internal whitespace and trims the string.
+ */
+std::string FormatUmlString(std::string text)
+{
+  // 1. Trim leading and trailing whitespace
+  text.erase(0, text.find_first_not_of(" \t\r\n"));
+  size_t last = text.find_last_not_of(" \t\r\n");
+  if (last != std::string::npos)
+  {
+    text.erase(last + 1);
+  }
+
+  if (text.empty())
+    return text;
+
+  // 2. Normalize internal whitespace (multiple spaces/tabs -> single space)
+  static const std::regex space_regex("[ \t]+");
+  text = std::regex_replace(text, space_regex, " ");
+
+  // 3. Define colored markers
+  // Note: ~ uses 🔼 (Up-button) as it's the closest blue triangle emoji
+  // static const std::unordered_map<char, std::string> colorMap = {
+  // {'-', "🟥"}, // Red Square
+  // {'#', "🔶"}, // Yellow Diamond
+  // {'~', "🔼"}, // Blue/Greyish Triangle
+  // {'+', "🟢"}  // Green Circle
+  static const std::unordered_map<char, std::string> hollowMap = {
+      {'-', "\u25A1"}, // □ Hollow Square
+      {'#', "\u25CA"}, // ◊ Hollow Diamond
+      {'~', "\u25B3"}, // △ Hollow Triangle
+      {'+', "\u25CB"}  // ○ Hollow Circle
+  };
+
+  // 4. Check for visibility marker at the beginning
+  auto it = hollowMap.find(text[0]);
+  if (it != hollowMap.end())
+  {
+    std::string symbol = it->second;
+
+    // Extract the rest of the string (after the marker)
+    std::string rest = text.substr(1);
+
+    // Remove any leading spaces from 'rest' to avoid double spacing
+    size_t firstChar = rest.find_first_not_of(" ");
+    if (firstChar != std::string::npos)
+    {
+      rest = rest.substr(firstChar);
+    }
+    else
+    {
+      rest = ""; // String was just the marker and spaces
+    }
+
+    // Return symbol + forced single space + cleaned rest
+    return symbol + " " + rest;
+  }
+
+  return text;
+}
+} // namespace
 
 namespace class_diagram
 {
@@ -18,10 +91,25 @@ Graph GeneratedParser::Parse(const std::string &input, const bool enable_output)
   std::stack<Edge> edges;
   std::size_t unique_label_id{0};
 
-  auto logs = Logs(
-      class_diagram::generated_parser::parse_class_diagram(RemoveCRLF(input)));
+  auto logs_pair =
+      class_diagram::generated_parser::parse_class_diagram(RemoveCRLF(input));
 
   Graph graph;
+  if (logs_pair.first.size() > 0)
+  {
+    graph.failed = true;
+    graph.failed_string = logs_pair.first;
+    return graph;
+  }
+  auto logs = Logs(logs_pair.second);
+
+  // while (!logs.empty())
+  // {
+  //   std::cout << "[DEBUG_LOG] GeneratedParser::Parse: Log Type: "
+  //             << logs.top().type << "; Name: " << logs.top().name <<
+  //             std::endl;
+  //   logs.pop();
+  // }
 
   while (!logs.empty())
   {
@@ -241,12 +329,12 @@ void GeneratedParser::HandleNewNode(Logs &logs,
     switch (token.type)
     {
     case TokenType::ATTRIBUTE:
-      node.attributes.push_back(token.name);
+      node.attributes.push_back(FormatUmlString(token.name));
       logs.pop();
       break;
     case TokenType::METHOD:
-      node.methods.push_back(
-          HandleNewNodeMethod(logs, token.name, enable_output));
+      node.methods.push_back(HandleNewNodeMethod(
+          logs, FormatUmlString(token.name), enable_output));
       break;
     case TokenType::POSITION:
       fillPosition(node.position.dx, node.position.dy, token.name);
@@ -332,6 +420,13 @@ void GeneratedParser::HandleNewConnection(Logs &logs,
     logs.pop(TokenType::SKIP_LAYOUT, enable_output);
   }
 
+  bool empty_right_head = false;
+  if (logs.top().type == TokenType::LABEL && logs.top().name == "")
+  {
+    empty_right_head = true;
+    logs.pop(TokenType::LABEL, enable_output);
+    logs.pop(TokenType::ARROW_HEAD, enable_output);
+  }
   if (logs.top().type == TokenType::LABEL)
   {
     const auto label_token = logs.pop(TokenType::LABEL, enable_output);
@@ -353,18 +448,57 @@ void GeneratedParser::HandleNewConnection(Logs &logs,
 
       logs.pop();
 
-      after_label_edge.right_head =
-          StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+      // after_label_edge.right_head =
+      //     StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
       after_label_edge.left_head = LineHeadEnum::None;
       before_label_edge.right_head = LineHeadEnum::None;
-      if (left_arrow_type == "")
+      // if (left_arrow_type == "")
+      // {
+      //   before_label_edge.left_head =
+      //       StringToEnum(logs.pop(TokenType::ARROW_HEAD,
+      //       enable_output).name);
+      // }
+      // else
+      // {
+      //   before_label_edge.left_head = LineHeadEnum::None;
+      // }
+
+      if (logs.top().type != TokenType::ARROW_HEAD)
       {
-        before_label_edge.left_head =
-            StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+        after_label_edge.right_head = LineHeadEnum::None;
+        before_label_edge.left_head = LineHeadEnum::None;
       }
       else
       {
-        before_label_edge.left_head = StringToEnum(left_arrow_type);
+        if (left_arrow_type == "")
+        {
+          if (empty_right_head)
+          {
+            after_label_edge.right_head = LineHeadEnum::None;
+          }
+          else
+          {
+            after_label_edge.right_head = StringToEnum(
+                logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+          }
+
+          if (logs.top().type == TokenType::LABEL)
+          {
+            std::cout
+                << "Wiemy że będzie label więc się na nią przygotowaliśmy "
+                   "na powtorke\n";
+            logs.pop();
+          }
+
+          before_label_edge.left_head =
+              StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+        }
+        else
+        {
+          after_label_edge.right_head =
+              StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+          before_label_edge.left_head = LineHeadEnum::None;
+        }
       }
 
       nodes.push(edge_label_node);
@@ -381,17 +515,60 @@ void GeneratedParser::HandleNewConnection(Logs &logs,
       edge.label = label_token.name;
       edge.skipping = skipping;
 
-      edge.right_head =
-          StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
-
-      if (left_arrow_type == "")
+      if (logs.top().type != TokenType::ARROW_HEAD)
       {
-        edge.left_head =
-            StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+        edge.right_head = LineHeadEnum::None;
+        edge.left_head = LineHeadEnum::None;
       }
       else
       {
-        edge.left_head = StringToEnum(left_arrow_type);
+        if (left_arrow_type == "")
+        {
+          if (empty_right_head)
+          {
+            edge.right_head = LineHeadEnum::None;
+          }
+          else
+          {
+            if (logs.top().type == TokenType::SKIP_LAYOUT)
+            {
+              edge.skipping = true;
+              logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+            }
+            edge.right_head = StringToEnum(
+                logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+          }
+
+          if (logs.top().type == TokenType::LABEL)
+          {
+            logs.pop();
+          }
+
+          if (logs.top().type == TokenType::SKIP_LAYOUT)
+          {
+            edge.skipping = true;
+            logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+          }
+          edge.left_head =
+              StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+        }
+        else
+        {
+
+          if (logs.top().type == TokenType::SKIP_LAYOUT)
+          {
+            edge.skipping = true;
+            logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+          }
+          edge.right_head =
+              StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+          edge.left_head = LineHeadEnum::None;
+        }
+      }
+      if (logs.top().type == TokenType::SKIP_LAYOUT)
+      {
+        edge.skipping = true;
+        logs.pop(TokenType::SKIP_LAYOUT, enable_output);
       }
       edges.push(edge);
     }
@@ -403,17 +580,38 @@ void GeneratedParser::HandleNewConnection(Logs &logs,
     edge.source = source_node.label;
     edge.skipping = skipping;
 
-    edge.right_head =
-        StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
-
     if (left_arrow_type == "")
     {
+      if (logs.top().type == TokenType::SKIP_LAYOUT)
+      {
+        edge.skipping = true;
+        logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+      }
+      edge.right_head =
+          StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+      if (logs.top().type == TokenType::SKIP_LAYOUT)
+      {
+        edge.skipping = true;
+        logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+      }
       edge.left_head =
           StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
     }
     else
     {
-      edge.left_head = StringToEnum(left_arrow_type);
+      if (logs.top().type == TokenType::SKIP_LAYOUT)
+      {
+        edge.skipping = true;
+        logs.pop(TokenType::SKIP_LAYOUT, enable_output);
+      }
+      edge.right_head =
+          StringToEnum(logs.pop(TokenType::ARROW_HEAD, enable_output).name);
+      edge.left_head = LineHeadEnum::None;
+    }
+    if (logs.top().type == TokenType::SKIP_LAYOUT)
+    {
+      edge.skipping = true;
+      logs.pop(TokenType::SKIP_LAYOUT, enable_output);
     }
     edges.push(edge);
   }

@@ -4,9 +4,21 @@
 #include <sstream>
 #include <string>
 
+namespace
+{
+std::string removeOuterParentheses(const std::string &input)
+{
+  if (input.length() >= 2 && input.front() == '(' && input.back() == ')')
+  {
+    return input.substr(1, input.length() - 2);
+  }
+  return input;
+}
+} // namespace
+
 namespace activity_diagram
 {
-void GeneratedParser::HandleWhileStatement(
+std::optional<std::string> GeneratedParser::HandleWhileStatement(
     Logs &logs,
     Graph &graph,
     std::optional<std::uint64_t> &node_parent,
@@ -36,7 +48,8 @@ void GeneratedParser::HandleWhileStatement(
   if (logs.top().type == TokenType::IS)
   {
     logs.pop(TokenType::IS, enable_output);
-    condition_question = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    condition_question = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
 
   HandleNesting(logs,
@@ -71,17 +84,19 @@ void GeneratedParser::HandleWhileStatement(
   std::optional<std::string> backward_label_opt;
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    backward_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    backward_label_opt = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
 
   HandleNewEdge(graph,
                 node_parent.value(),
                 while_node_id,
                 edge_id_ctr,
-                backward_label_opt,
+                std::nullopt,
                 true,
                 enable_output);
 
   node_parent = while_node_id;
+  return backward_label_opt;
 }
 } // namespace activity_diagram

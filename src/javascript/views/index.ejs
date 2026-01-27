@@ -24,7 +24,7 @@
   <form action="/" method="get" style="height: 100%; display: flex; flex-direction: column;">
     <div id="top-bar">
       <div>
-        <button id="lan-button">PlantUML</button>
+        <button id="lan-button" onclick="window.location.href='/'">Text2UML</button>
         <select id="diagram-type" name="diagramType">
           <option value="auto" <%=diagramType==='auto' ? 'selected' : '' %>>Auto</option>
           <option value="class" <%=diagramType==='class' ? 'selected' : '' %>>Class Diagram</option>

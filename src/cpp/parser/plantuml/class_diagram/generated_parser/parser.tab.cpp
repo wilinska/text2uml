@@ -77,25 +77,56 @@
 #include <iostream>
 #include <stack>
 #include "generated_parser.hpp"
+#include <regex>
+#include <algorithm>
 
 using Token = class_diagram::generated_parser::Token;
 using TokenType = class_diagram::generated_parser::TokenType;
 
 namespace {
+
+std::string CleanQuotedString(std::string text) {
+    if (text.empty()) return text;
+
+    if (text.size() >= 2 && text.front() == '"' && text.back() == '"') {
+        text = text.substr(1, text.size() - 2);
+    }
+    else {
+        return text;
+    }
+
+    static const std::regex whitespace_to_space_regex("[\\t\\n\\r]+");
+    text = std::regex_replace(text, whitespace_to_space_regex, " ");
+
+    static const std::regex multiple_spaces_regex(" +");
+    text = std::regex_replace(text, multiple_spaces_regex, " ");
+
+    text.erase(0, text.find_first_not_of(" "));
+    size_t last = text.find_last_not_of(" ");
+    if (last != std::string::npos) {
+        text.erase(last + 1);
+    }
+
+    return text;
+}
+
 std::string RemoveLastChar(const std::string &str) {
     if (str[str.size() - 1] != '\n') {
         return str;
     }
-  return str.substr(0, str.size() - 1);
+  return CleanQuotedString(str.substr(0, str.size() - 1));
 }
-}
+
+} // namespace
 std::stack<Token> logs;
 
 void yyerror(const char *s);
 extern int yylex();
+extern char* yytext;
 extern FILE *yyin;
+extern void yyrestart(FILE* input_file);
 
-#line 99 "parser.tab.c"
+#line 130 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -151,51 +182,59 @@ enum yysymbol_kind_t
   YYSYMBOL_PLUS = 25,                      /* PLUS  */
   YYSYMBOL_HAT = 26,                       /* HAT  */
   YYSYMBOL_HYPHEN = 27,                    /* HYPHEN  */
-  YYSYMBOL_L_ANGLE_BRACE = 28,             /* L_ANGLE_BRACE  */
-  YYSYMBOL_R_ANGLE_BRACE = 29,             /* R_ANGLE_BRACE  */
-  YYSYMBOL_L_SQUARE_BRACE = 30,            /* L_SQUARE_BRACE  */
-  YYSYMBOL_R_SQUARE_BRACE = 31,            /* R_SQUARE_BRACE  */
-  YYSYMBOL_L_CURLY_BRACE = 32,             /* L_CURLY_BRACE  */
-  YYSYMBOL_R_CURLY_BRACE = 33,             /* R_CURLY_BRACE  */
-  YYSYMBOL_LBRACE = 34,                    /* LBRACE  */
-  YYSYMBOL_RBRACE = 35,                    /* RBRACE  */
-  YYSYMBOL_COMMA = 36,                     /* COMMA  */
-  YYSYMBOL_QUOTE = 37,                     /* QUOTE  */
-  YYSYMBOL_AT_POSITION = 38,               /* AT_POSITION  */
-  YYSYMBOL_AT_POSITION_FIXED = 39,         /* AT_POSITION_FIXED  */
-  YYSYMBOL_SPLIT_EDGE = 40,                /* SPLIT_EDGE  */
-  YYSYMBOL_SKIP_LAYOUT = 41,               /* SKIP_LAYOUT  */
-  YYSYMBOL_DIAGRAM_TYPE = 42,              /* DIAGRAM_TYPE  */
-  YYSYMBOL_LAYOUT_TYPE = 43,               /* LAYOUT_TYPE  */
-  YYSYMBOL_EDGE_TYPE = 44,                 /* EDGE_TYPE  */
-  YYSYMBOL_IDENTIFIER = 45,                /* IDENTIFIER  */
-  YYSYMBOL_LINE_LAST_IDENTIFIER = 46,      /* LINE_LAST_IDENTIFIER  */
-  YYSYMBOL_POSITION = 47,                  /* POSITION  */
-  YYSYMBOL_POSITION_FIXED = 48,            /* POSITION_FIXED  */
-  YYSYMBOL_POSITION_ARGS = 49,             /* POSITION_ARGS  */
-  YYSYMBOL_YYACCEPT = 50,                  /* $accept  */
-  YYSYMBOL_diagram = 51,                   /* diagram  */
-  YYSYMBOL_components = 52,                /* components  */
-  YYSYMBOL_component = 53,                 /* component  */
-  YYSYMBOL_command_line = 54,              /* command_line  */
-  YYSYMBOL_node_definition = 55,           /* node_definition  */
-  YYSYMBOL_node_type = 56,                 /* node_type  */
-  YYSYMBOL_node_body = 57,                 /* node_body  */
-  YYSYMBOL_node_element = 58,              /* node_element  */
-  YYSYMBOL_extensions = 59,                /* extensions  */
-  YYSYMBOL_extension = 60,                 /* extension  */
-  YYSYMBOL_position = 61,                  /* position  */
-  YYSYMBOL_position_fixed = 62,            /* position_fixed  */
-  YYSYMBOL_skip_layoutt = 63,              /* skip_layoutt  */
-  YYSYMBOL_attribute = 64,                 /* attribute  */
-  YYSYMBOL_method = 65,                    /* method  */
-  YYSYMBOL_method_arguments = 66,          /* method_arguments  */
-  YYSYMBOL_relationship = 67,              /* relationship  */
-  YYSYMBOL_relationship_with_label = 68,   /* relationship_with_label  */
-  YYSYMBOL_left_connection = 69,           /* left_connection  */
-  YYSYMBOL_right_connection = 70,          /* right_connection  */
-  YYSYMBOL_connection = 71,                /* connection  */
-  YYSYMBOL_label = 72                      /* label  */
+  YYSYMBOL_DOWN = 28,                      /* DOWN  */
+  YYSYMBOL_UP = 29,                        /* UP  */
+  YYSYMBOL_LEFT = 30,                      /* LEFT  */
+  YYSYMBOL_RIGHT = 31,                     /* RIGHT  */
+  YYSYMBOL_L_ANGLE_BRACE = 32,             /* L_ANGLE_BRACE  */
+  YYSYMBOL_R_ANGLE_BRACE = 33,             /* R_ANGLE_BRACE  */
+  YYSYMBOL_L_SQUARE_BRACE = 34,            /* L_SQUARE_BRACE  */
+  YYSYMBOL_R_SQUARE_BRACE = 35,            /* R_SQUARE_BRACE  */
+  YYSYMBOL_L_CURLY_BRACE = 36,             /* L_CURLY_BRACE  */
+  YYSYMBOL_R_CURLY_BRACE = 37,             /* R_CURLY_BRACE  */
+  YYSYMBOL_LBRACE = 38,                    /* LBRACE  */
+  YYSYMBOL_RBRACE = 39,                    /* RBRACE  */
+  YYSYMBOL_COMMA = 40,                     /* COMMA  */
+  YYSYMBOL_QUOTE = 41,                     /* QUOTE  */
+  YYSYMBOL_AT_POSITION = 42,               /* AT_POSITION  */
+  YYSYMBOL_AT_POSITION_FIXED = 43,         /* AT_POSITION_FIXED  */
+  YYSYMBOL_SPLIT_EDGE = 44,                /* SPLIT_EDGE  */
+  YYSYMBOL_SKIP_LAYOUT = 45,               /* SKIP_LAYOUT  */
+  YYSYMBOL_DIAGRAM_TYPE = 46,              /* DIAGRAM_TYPE  */
+  YYSYMBOL_LAYOUT_TYPE = 47,               /* LAYOUT_TYPE  */
+  YYSYMBOL_EDGE_TYPE = 48,                 /* EDGE_TYPE  */
+  YYSYMBOL_IDENTIFIER = 49,                /* IDENTIFIER  */
+  YYSYMBOL_LINE_LAST_IDENTIFIER = 50,      /* LINE_LAST_IDENTIFIER  */
+  YYSYMBOL_POSITION = 51,                  /* POSITION  */
+  YYSYMBOL_POSITION_FIXED = 52,            /* POSITION_FIXED  */
+  YYSYMBOL_POSITION_ARGS = 53,             /* POSITION_ARGS  */
+  YYSYMBOL_START_IDENTIFIER = 54,          /* START_IDENTIFIER  */
+  YYSYMBOL_ATTRIBUTE = 55,                 /* ATTRIBUTE  */
+  YYSYMBOL_YYACCEPT = 56,                  /* $accept  */
+  YYSYMBOL_diagram = 57,                   /* diagram  */
+  YYSYMBOL_components = 58,                /* components  */
+  YYSYMBOL_component = 59,                 /* component  */
+  YYSYMBOL_command_line = 60,              /* command_line  */
+  YYSYMBOL_ignored = 61,                   /* ignored  */
+  YYSYMBOL_node_definition = 62,           /* node_definition  */
+  YYSYMBOL_node_type = 63,                 /* node_type  */
+  YYSYMBOL_node_body = 64,                 /* node_body  */
+  YYSYMBOL_node_element = 65,              /* node_element  */
+  YYSYMBOL_extensions = 66,                /* extensions  */
+  YYSYMBOL_extension = 67,                 /* extension  */
+  YYSYMBOL_position = 68,                  /* position  */
+  YYSYMBOL_position_fixed = 69,            /* position_fixed  */
+  YYSYMBOL_skip_layoutt = 70,              /* skip_layoutt  */
+  YYSYMBOL_attribute = 71,                 /* attribute  */
+  YYSYMBOL_method = 72,                    /* method  */
+  YYSYMBOL_method_arguments = 73,          /* method_arguments  */
+  YYSYMBOL_hyphen_with_direction = 74,     /* hyphen_with_direction  */
+  YYSYMBOL_relationship = 75,              /* relationship  */
+  YYSYMBOL_relationship_with_label = 76,   /* relationship_with_label  */
+  YYSYMBOL_left_connection = 77,           /* left_connection  */
+  YYSYMBOL_right_connection = 78,          /* right_connection  */
+  YYSYMBOL_connection = 79,                /* connection  */
+  YYSYMBOL_label = 80                      /* label  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -523,19 +562,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  28
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   154
+#define YYLAST   247
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  50
+#define YYNTOKENS  56
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  23
+#define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  87
+#define YYNRULES  120
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  131
+#define YYNSTATES  191
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   304
+#define YYMAXUTOK   310
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -579,22 +618,27 @@ static const yytype_int8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    49
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    55,    55,    59,    60,    64,    65,    66,    67,    71,
-      77,    83,    91,    96,   101,   106,   111,   119,   123,   127,
-     131,   135,   139,   143,   147,   151,   155,   159,   163,   167,
-     171,   175,   179,   186,   187,   191,   192,   193,   198,   199,
-     203,   204,   205,   210,   218,   226,   230,   234,   239,   247,
-     254,   259,   264,   273,   280,   285,   291,   299,   309,   318,
-     327,   336,   346,   355,   364,   375,   385,   394,   402,   414,
-     418,   422,   426,   430,   434,   438,   442,   446,   450,   454,
-     458,   462,   466,   473,   479,   486,   492,   497
+       0,    86,    86,    90,    91,    95,    96,    97,    98,   102,
+     108,   114,   120,   124,   128,   129,   137,   142,   147,   152,
+     157,   165,   169,   173,   177,   181,   185,   189,   193,   197,
+     201,   205,   209,   213,   217,   221,   225,   232,   233,   237,
+     238,   239,   244,   245,   249,   250,   251,   256,   264,   272,
+     276,   280,   286,   292,   298,   303,   309,   314,   320,   325,
+     331,   339,   346,   351,   356,   363,   370,   376,   382,   389,
+     396,   402,   408,   415,   422,   428,   434,   441,   448,   453,
+     458,   467,   474,   479,   485,   493,   494,   495,   496,   497,
+     501,   511,   520,   529,   538,   548,   557,   566,   577,   588,
+     597,   607,   619,   623,   627,   631,   635,   639,   643,   647,
+     651,   655,   659,   663,   667,   671,   678,   684,   691,   697,
+     702
 };
 #endif
 
@@ -614,17 +658,18 @@ static const char *const yytname[] =
   "CLASS", "ABSTRACT", "ABSTRACT_CLASS", "ANNOTATION", "CIRCLE", "DIAMOND",
   "ENTITY", "ENUM", "EXCEPTION", "INTERFACE", "METACLASS", "PROTOCOL",
   "STEREOTYPE", "STRUCT", "COLON", "PIPE", "STAR", "O", "HASH", "X",
-  "PLUS", "HAT", "HYPHEN", "L_ANGLE_BRACE", "R_ANGLE_BRACE",
-  "L_SQUARE_BRACE", "R_SQUARE_BRACE", "L_CURLY_BRACE", "R_CURLY_BRACE",
-  "LBRACE", "RBRACE", "COMMA", "QUOTE", "AT_POSITION", "AT_POSITION_FIXED",
-  "SPLIT_EDGE", "SKIP_LAYOUT", "DIAGRAM_TYPE", "LAYOUT_TYPE", "EDGE_TYPE",
-  "IDENTIFIER", "LINE_LAST_IDENTIFIER", "POSITION", "POSITION_FIXED",
-  "POSITION_ARGS", "$accept", "diagram", "components", "component",
-  "command_line", "node_definition", "node_type", "node_body",
+  "PLUS", "HAT", "HYPHEN", "DOWN", "UP", "LEFT", "RIGHT", "L_ANGLE_BRACE",
+  "R_ANGLE_BRACE", "L_SQUARE_BRACE", "R_SQUARE_BRACE", "L_CURLY_BRACE",
+  "R_CURLY_BRACE", "LBRACE", "RBRACE", "COMMA", "QUOTE", "AT_POSITION",
+  "AT_POSITION_FIXED", "SPLIT_EDGE", "SKIP_LAYOUT", "DIAGRAM_TYPE",
+  "LAYOUT_TYPE", "EDGE_TYPE", "IDENTIFIER", "LINE_LAST_IDENTIFIER",
+  "POSITION", "POSITION_FIXED", "POSITION_ARGS", "START_IDENTIFIER",
+  "ATTRIBUTE", "$accept", "diagram", "components", "component",
+  "command_line", "ignored", "node_definition", "node_type", "node_body",
   "node_element", "extensions", "extension", "position", "position_fixed",
   "skip_layoutt", "attribute", "method", "method_arguments",
-  "relationship", "relationship_with_label", "left_connection",
-  "right_connection", "connection", "label", YY_NULLPTR
+  "hyphen_with_direction", "relationship", "relationship_with_label",
+  "left_connection", "right_connection", "connection", "label", YY_NULLPTR
 };
 
 static const char *
@@ -634,7 +679,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-47)
+#define YYPACT_NINF (-114)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -646,22 +691,28 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-static const yytype_int8 yypact[] =
+static const yytype_int16 yypact[] =
 {
-      32,    37,    22,   -47,   -47,   -47,   -47,   -47,   -47,   -47,
-     -47,   -47,   -47,   -47,   -47,   -47,   -47,    28,    31,   -15,
-      89,    -4,   -47,   -47,   -47,    73,   -47,   -47,   -47,   -47,
-     -47,    33,    56,    85,   -47,   -47,   -47,   -47,   -47,   -47,
-     105,   113,   -47,   107,   -47,   -47,   -47,   103,   104,   -47,
-     -47,   -47,    -6,   -47,   110,    43,    48,   118,   -47,    19,
-     -47,    75,   -47,    38,   -47,    60,    -9,   -47,    58,   -47,
-     -47,   -47,   -47,    63,   -47,    78,    98,   -47,    49,   -47,
-      50,   -47,    80,    91,    92,   -47,    60,   -47,   -47,   -47,
-     -14,   108,   -47,   -47,   -47,   -47,   106,   109,   -47,   -47,
-      78,   -47,    78,   -47,    53,   -47,   -47,   -47,   -47,   -47,
-      99,    70,    62,    87,   111,   -47,   -47,    78,   -47,   -47,
-     -47,   100,   -47,    94,   -47,   -47,   -47,   -47,   102,   -47,
-     -47
+      18,    91,    23,  -114,  -114,  -114,  -114,  -114,  -114,  -114,
+    -114,  -114,  -114,  -114,  -114,  -114,  -114,    11,    37,   156,
+     164,    46,  -114,  -114,  -114,    39,  -114,  -114,  -114,  -114,
+    -114,    31,    42,    61,    84,  -114,  -114,  -114,  -114,  -114,
+    -114,  -114,  -114,   169,    93,  -114,    95,    98,  -114,  -114,
+    -114,    80,    82,  -114,  -114,  -114,  -114,  -114,  -114,  -114,
+    -114,  -114,    44,   120,   -17,    87,   146,  -114,   -15,  -114,
+      89,  -114,   134,    96,   124,   143,  -114,    30,    -8,  -114,
+      33,  -114,    94,  -114,  -114,  -114,  -114,   127,  -114,   145,
+     133,  -114,   -14,  -114,   -12,  -114,   158,    36,  -114,    41,
+    -114,    77,  -114,   118,   177,  -114,    30,  -114,  -114,  -114,
+     -37,   142,  -114,   -24,   191,  -114,  -114,  -114,  -114,   190,
+     192,  -114,  -114,   145,  -114,   145,  -114,    -2,  -114,   -21,
+     194,  -114,    -4,   196,  -114,    81,   197,  -114,  -114,  -114,
+    -114,  -114,   187,     8,   112,  -114,   170,   114,   167,   193,
+    -114,  -114,   145,  -114,  -114,   174,   123,  -114,   176,   126,
+    -114,   178,   130,  -114,  -114,   195,  -114,   180,  -114,  -114,
+     182,  -114,  -114,  -114,  -114,  -114,  -114,   184,  -114,  -114,
+     186,  -114,  -114,   188,   198,  -114,  -114,  -114,  -114,  -114,
+    -114
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -669,36 +720,42 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     0,    17,    18,    19,    20,    21,    23,    25,
-      26,    27,    28,    29,    30,    31,    32,     0,     0,     0,
-       0,     0,     4,     8,     5,     0,     7,     6,     1,    24,
-      22,     0,     0,     0,    77,    78,    79,    80,    81,    82,
-       0,    70,    71,     0,    72,     2,     3,     0,    12,     9,
-      10,    11,     0,    69,     0,     0,     0,    74,    75,    46,
-      57,     0,    76,     0,    16,     0,     0,    48,     0,    34,
-      36,    37,    15,     0,    73,     0,     0,    61,    46,    58,
-      46,    59,     0,     0,     0,    42,    35,    39,    40,    41,
-       0,     0,    47,    13,    33,    14,    83,    86,    65,    45,
-       0,    62,     0,    63,    46,    60,    43,    44,    38,    50,
-      56,     0,     0,     0,     0,    66,    67,     0,    64,    55,
-      51,     0,    49,     0,    85,    84,    87,    68,    54,    52,
-      53
+       0,     0,     0,    21,    22,    23,    24,    25,    27,    29,
+      30,    31,    32,    33,    34,    35,    36,     0,     0,    14,
+       0,     0,     4,     8,     5,     0,     7,     6,     1,    28,
+      26,     0,     0,     0,    14,    13,    12,   110,   111,   112,
+     113,   114,   115,    85,   103,   104,     0,     0,   105,     2,
+       3,     0,    16,     9,    10,    11,    15,    89,    88,    86,
+      87,   102,     0,     0,     0,     0,   107,   108,    50,    90,
+       0,   109,     0,     0,     0,     0,    20,     0,     0,    60,
+       0,    51,     0,    38,    40,    41,    19,     0,   106,     0,
+       0,    94,    50,    91,    50,    92,     0,     0,    58,     0,
+      56,     0,    54,     0,     0,    46,    39,    43,    44,    45,
+       0,     0,    59,     0,     0,    52,    17,    37,    18,   116,
+     119,    98,    49,     0,    95,     0,    96,    50,    93,     0,
+       0,    57,     0,     0,    55,     0,     0,    53,    47,    48,
+      42,    78,    84,     0,     0,    62,     0,     0,     0,     0,
+      99,   100,     0,    97,    74,     0,     0,    70,     0,     0,
+      66,     0,     0,    83,    79,     0,    77,     0,    63,    61,
+       0,   118,   117,   120,   101,    75,    73,     0,    71,    69,
+       0,    67,    65,     0,    82,    80,    64,    76,    72,    68,
+      81
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -47,   -47,   -47,   127,   -47,   -47,   -47,    93,     5,   -47,
-      64,   -47,   -47,   -46,   -47,   -47,    39,   -47,   -47,   -47,
-      90,   134,   -25
+    -114,  -114,  -114,   216,  -114,   205,  -114,  -114,   175,   -73,
+    -114,   135,  -114,  -114,   -91,  -114,  -114,  -113,   199,  -114,
+    -114,  -114,   171,   222,  -112
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int8 yydefgoto[] =
+static const yytype_uint8 yydefgoto[] =
 {
-       0,     2,    21,    22,    23,    24,    25,    68,    69,    86,
-      87,    88,    89,    77,    70,    71,   111,    26,    27,    43,
-      61,    62,    98
+       0,     2,    21,    22,    23,    36,    24,    25,    82,    83,
+     106,   107,   108,   109,    91,    84,    85,   143,    46,    26,
+      27,    47,    70,    71,   121
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -706,90 +763,122 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      45,     3,     4,     5,     6,     7,     8,     9,    10,    11,
-      12,    13,    14,    15,    16,    34,    35,    36,    37,    38,
-      39,   109,    28,    57,    17,    90,    58,    31,    32,    33,
-      18,   110,   101,    19,   103,     1,    91,    92,    75,    59,
-      60,    20,     3,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    13,    14,    15,    16,    76,    29,   118,    34,
-      35,    36,    37,    38,    39,    17,    30,    57,   100,   102,
-      58,    18,   117,    94,    19,   115,    64,   116,    94,    49,
-      65,    72,    20,    80,    81,    65,    76,    76,    66,    67,
-      76,    93,   127,    66,    67,    65,    95,   122,    83,    84,
-      65,    85,    50,    66,    67,   120,   121,   110,    66,    67,
-      34,    35,    36,    37,    38,    39,    40,    41,    47,    48,
-      78,    79,    42,    96,    97,   104,   105,   124,   125,   129,
-     121,    51,    52,    53,    54,    55,    56,    63,    74,    99,
-     106,   107,   112,   113,   119,   128,   114,   130,    46,    73,
-     108,   123,   126,    82,    44
+     146,   124,   141,   126,    89,   123,    73,   125,    74,   117,
+      75,   150,   142,   151,   117,   145,   155,   152,   154,   158,
+      76,     1,   161,    28,    77,   142,    90,    90,   142,    90,
+     110,   167,    78,    79,   170,   157,   153,    80,    81,    90,
+     174,   111,   112,   177,    29,   142,   180,   164,   165,   183,
+      49,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    14,    15,    16,    37,    38,    39,    40,    41,
+      42,   113,   103,   104,   129,   105,    30,    66,    17,   132,
+      67,    53,   114,   115,    18,   130,   131,    19,    51,    52,
+     133,   134,    54,    68,    69,    20,     3,     4,     5,     6,
+       7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+      73,    55,    74,    61,    75,   135,    64,    73,    65,    74,
+     160,    75,    62,    17,    86,    43,   136,   137,    77,    18,
+     142,   116,    19,    34,    35,    77,    78,    79,    92,    93,
+      20,    80,    81,    78,    79,    97,    98,    72,    80,    81,
+      73,   166,    74,   169,    75,    37,    38,    39,    40,    41,
+      42,   142,   176,   142,   118,   179,    88,    66,    77,   182,
+      67,   138,   142,    99,   100,   142,    78,    79,   122,   142,
+     144,    80,    81,    94,    95,    37,    38,    39,    40,    41,
+      42,    43,   101,   102,   119,   120,    44,    57,    58,    59,
+      60,    45,    31,    32,    33,    34,    35,   127,   128,   168,
+     165,   171,   172,   175,   165,   178,   165,   181,   165,   185,
+     165,   186,   165,   187,   165,   188,   165,   189,   165,   147,
+     139,   148,   156,   149,   159,   162,   163,    50,   173,    56,
+      87,   140,    48,    96,   184,     0,    63,   190
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_int16 yycheck[] =
 {
+     113,    92,    39,    94,    19,    19,    23,    19,    25,    82,
+      27,   123,    49,   125,    87,    39,   129,    19,    39,   132,
+      37,     3,   135,     0,    41,    49,    41,    41,    49,    41,
+      38,   144,    49,    50,   147,    39,   127,    54,    55,    41,
+     152,    49,    50,   156,    33,    49,   159,    39,    40,   162,
        4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
       14,    15,    16,    17,    18,    21,    22,    23,    24,    25,
-      26,    35,     0,    29,    28,    34,    32,    42,    43,    44,
-      34,    45,    78,    37,    80,     3,    45,    46,    19,    45,
-      46,    45,     5,     6,     7,     8,     9,    10,    11,    12,
-      13,    14,    15,    16,    17,    18,    37,    29,   104,    21,
-      22,    23,    24,    25,    26,    28,    35,    29,    19,    19,
-      32,    34,    19,    68,    37,   100,    33,   102,    73,    46,
-      37,    33,    45,    45,    46,    37,    37,    37,    45,    46,
-      37,    33,   117,    45,    46,    37,    33,    35,    38,    39,
-      37,    41,    46,    45,    46,    35,    36,    45,    45,    46,
-      21,    22,    23,    24,    25,    26,    27,    28,    45,    46,
-      45,    46,    33,    45,    46,    45,    46,    40,    41,    35,
-      36,    46,    27,    20,    27,    32,    32,    27,    20,    41,
-      49,    49,    34,    37,    45,    45,    37,    45,    21,    56,
-      86,   112,    41,    63,    20
+      26,    38,    42,    43,    38,    45,    39,    33,    32,    38,
+      36,    50,    49,    50,    38,    49,    50,    41,    49,    50,
+      49,    50,    50,    49,    50,    49,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      23,    50,    25,    20,    27,    38,    36,    23,    36,    25,
+      39,    27,    27,    32,    37,    27,    49,    50,    41,    38,
+      49,    37,    41,    49,    50,    41,    49,    50,    49,    50,
+      49,    54,    55,    49,    50,    49,    50,    27,    54,    55,
+      23,    39,    25,    39,    27,    21,    22,    23,    24,    25,
+      26,    49,    39,    49,    37,    39,    20,    33,    41,    39,
+      36,    53,    49,    49,    50,    49,    49,    50,    45,    49,
+      38,    54,    55,    49,    50,    21,    22,    23,    24,    25,
+      26,    27,    49,    50,    49,    50,    32,    28,    29,    30,
+      31,    37,    46,    47,    48,    49,    50,    49,    50,    39,
+      40,    44,    45,    39,    40,    39,    40,    39,    40,    39,
+      40,    39,    40,    39,    40,    39,    40,    39,    40,    38,
+      53,    41,    38,    41,    38,    38,    49,    21,    45,    34,
+      65,   106,    20,    72,    49,    -1,    47,    49
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,    51,     5,     6,     7,     8,     9,    10,    11,
-      12,    13,    14,    15,    16,    17,    18,    28,    34,    37,
-      45,    52,    53,    54,    55,    56,    67,    68,     0,    29,
-      35,    42,    43,    44,    21,    22,    23,    24,    25,    26,
-      27,    28,    33,    69,    71,     4,    53,    45,    46,    46,
-      46,    46,    27,    20,    27,    32,    32,    29,    32,    45,
-      46,    70,    71,    27,    33,    37,    45,    46,    57,    58,
-      64,    65,    33,    57,    20,    19,    37,    63,    45,    46,
-      45,    46,    70,    38,    39,    41,    59,    60,    61,    62,
-      34,    45,    46,    33,    58,    33,    45,    46,    72,    41,
-      19,    63,    19,    63,    45,    46,    49,    49,    60,    35,
-      45,    66,    34,    37,    37,    72,    72,    19,    63,    45,
-      35,    36,    35,    66,    40,    41,    41,    72,    45,    35,
-      45
+       0,     3,    57,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    14,    15,    16,    17,    18,    32,    38,    41,
+      49,    58,    59,    60,    62,    63,    75,    76,     0,    33,
+      39,    46,    47,    48,    49,    50,    61,    21,    22,    23,
+      24,    25,    26,    27,    32,    37,    74,    77,    79,     4,
+      59,    49,    50,    50,    50,    50,    61,    28,    29,    30,
+      31,    20,    27,    74,    36,    36,    33,    36,    49,    50,
+      78,    79,    27,    23,    25,    27,    37,    41,    49,    50,
+      54,    55,    64,    65,    71,    72,    37,    64,    20,    19,
+      41,    70,    49,    50,    49,    50,    78,    49,    50,    49,
+      50,    49,    50,    42,    43,    45,    66,    67,    68,    69,
+      38,    49,    50,    38,    49,    50,    37,    65,    37,    49,
+      50,    80,    45,    19,    70,    19,    70,    49,    50,    38,
+      49,    50,    38,    49,    50,    38,    49,    50,    53,    53,
+      67,    39,    49,    73,    38,    39,    73,    38,    41,    41,
+      80,    80,    19,    70,    39,    73,    38,    39,    73,    38,
+      39,    73,    38,    49,    39,    40,    39,    73,    39,    39,
+      73,    44,    45,    45,    80,    39,    39,    73,    39,    39,
+      73,    39,    39,    73,    49,    39,    39,    39,    39,    39,
+      49
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    50,    51,    52,    52,    53,    53,    53,    53,    54,
-      54,    54,    55,    55,    55,    55,    55,    56,    56,    56,
-      56,    56,    56,    56,    56,    56,    56,    56,    56,    56,
-      56,    56,    56,    57,    57,    58,    58,    58,    59,    59,
-      60,    60,    60,    61,    62,    63,    63,    64,    64,    65,
-      65,    65,    65,    66,    66,    66,    66,    67,    67,    67,
-      67,    67,    67,    67,    67,    68,    68,    68,    68,    69,
-      69,    69,    69,    70,    70,    70,    70,    71,    71,    71,
-      71,    71,    71,    72,    72,    72,    72,    72
+       0,    56,    57,    58,    58,    59,    59,    59,    59,    60,
+      60,    60,    60,    61,    61,    61,    62,    62,    62,    62,
+      62,    63,    63,    63,    63,    63,    63,    63,    63,    63,
+      63,    63,    63,    63,    63,    63,    63,    64,    64,    65,
+      65,    65,    66,    66,    67,    67,    67,    68,    69,    70,
+      70,    71,    71,    71,    71,    71,    71,    71,    71,    71,
+      71,    72,    72,    72,    72,    72,    72,    72,    72,    72,
+      72,    72,    72,    72,    72,    72,    72,    72,    72,    72,
+      72,    73,    73,    73,    73,    74,    74,    74,    74,    74,
+      75,    75,    75,    75,    75,    75,    75,    75,    76,    76,
+      76,    76,    77,    77,    77,    77,    78,    78,    78,    78,
+      79,    79,    79,    79,    79,    79,    80,    80,    80,    80,
+      80
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     3,     2,     1,     1,     1,     1,     1,     3,
-       3,     3,     2,     5,     5,     4,     4,     1,     1,     1,
-       1,     1,     2,     1,     2,     1,     1,     1,     1,     1,
-       1,     1,     1,     2,     1,     2,     1,     1,     2,     1,
-       1,     1,     1,     2,     2,     2,     0,     2,     1,     4,
-       3,     4,     5,     4,     3,     2,     1,     4,     5,     5,
-       6,     5,     6,     6,     7,     6,     7,     7,     8,     2,
-       1,     1,     1,     2,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     3,     3,     1,     3
+       3,     3,     2,     1,     0,     2,     2,     5,     5,     4,
+       4,     1,     1,     1,     1,     1,     2,     1,     2,     1,
+       1,     1,     1,     1,     1,     1,     1,     2,     1,     2,
+       1,     1,     2,     1,     1,     1,     1,     2,     2,     2,
+       0,     1,     2,     3,     2,     3,     2,     3,     2,     2,
+       1,     4,     3,     4,     5,     5,     4,     5,     6,     5,
+       4,     5,     6,     5,     4,     5,     6,     4,     3,     4,
+       5,     4,     3,     2,     1,     1,     2,     2,     2,     2,
+       4,     5,     5,     6,     5,     6,     6,     7,     6,     7,
+       7,     8,     2,     1,     1,     1,     2,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     3,     3,     1,
+       3
 };
 
 
@@ -1253,634 +1342,882 @@ yyreduce:
   switch (yyn)
     {
   case 9: /* command_line: QUOTE DIAGRAM_TYPE LINE_LAST_IDENTIFIER  */
-#line 72 "parser.y"
+#line 103 "parser.y"
     {
         logs.push(Token{TokenType::DIAGRAM_TYPE, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1262 "parser.tab.c"
+#line 1351 "parser.tab.c"
     break;
 
   case 10: /* command_line: QUOTE LAYOUT_TYPE LINE_LAST_IDENTIFIER  */
-#line 78 "parser.y"
+#line 109 "parser.y"
     {
         logs.push(Token{TokenType::LAYOUT_TYPE, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1271 "parser.tab.c"
+#line 1360 "parser.tab.c"
     break;
 
   case 11: /* command_line: QUOTE EDGE_TYPE LINE_LAST_IDENTIFIER  */
-#line 84 "parser.y"
+#line 115 "parser.y"
     {
         logs.push(Token{TokenType::EDGE_TYPE, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1280 "parser.tab.c"
+#line 1369 "parser.tab.c"
     break;
 
-  case 12: /* node_definition: node_type LINE_LAST_IDENTIFIER  */
-#line 92 "parser.y"
+  case 13: /* ignored: LINE_LAST_IDENTIFIER  */
+#line 125 "parser.y"
+    {
+        free((yyvsp[0].str));
+    }
+#line 1377 "parser.tab.c"
+    break;
+
+  case 15: /* ignored: IDENTIFIER ignored  */
+#line 130 "parser.y"
+    {
+        free((yyvsp[-1].str));
+    }
+#line 1385 "parser.tab.c"
+    break;
+
+  case 16: /* node_definition: node_type LINE_LAST_IDENTIFIER  */
+#line 138 "parser.y"
     {
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1289 "parser.tab.c"
+#line 1394 "parser.tab.c"
     break;
 
-  case 13: /* node_definition: node_type IDENTIFIER L_CURLY_BRACE node_body R_CURLY_BRACE  */
-#line 97 "parser.y"
+  case 17: /* node_definition: node_type IDENTIFIER L_CURLY_BRACE node_body R_CURLY_BRACE  */
+#line 143 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-3].str))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-3].str)))});
         free((yyvsp[-3].str));
     }
-#line 1298 "parser.tab.c"
+#line 1403 "parser.tab.c"
     break;
 
-  case 14: /* node_definition: node_type LINE_LAST_IDENTIFIER L_CURLY_BRACE node_body R_CURLY_BRACE  */
-#line 102 "parser.y"
+  case 18: /* node_definition: node_type LINE_LAST_IDENTIFIER L_CURLY_BRACE node_body R_CURLY_BRACE  */
+#line 148 "parser.y"
     {
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[-3].str)))});
         free((yyvsp[-3].str));
     }
-#line 1307 "parser.tab.c"
+#line 1412 "parser.tab.c"
     break;
 
-  case 15: /* node_definition: node_type LINE_LAST_IDENTIFIER L_CURLY_BRACE R_CURLY_BRACE  */
-#line 107 "parser.y"
+  case 19: /* node_definition: node_type LINE_LAST_IDENTIFIER L_CURLY_BRACE R_CURLY_BRACE  */
+#line 153 "parser.y"
     {
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[-2].str)))});
         free((yyvsp[-2].str));
     }
-#line 1316 "parser.tab.c"
-    break;
-
-  case 16: /* node_definition: node_type IDENTIFIER L_CURLY_BRACE R_CURLY_BRACE  */
-#line 112 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-2].str))});
-        free((yyvsp[-2].str));
-    }
-#line 1325 "parser.tab.c"
-    break;
-
-  case 17: /* node_type: CLASS  */
-#line 120 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Class"});
-    }
-#line 1333 "parser.tab.c"
-    break;
-
-  case 18: /* node_type: ABSTRACT  */
-#line 124 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Abstract"});
-    }
-#line 1341 "parser.tab.c"
-    break;
-
-  case 19: /* node_type: ABSTRACT_CLASS  */
-#line 128 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Abstract"});
-    }
-#line 1349 "parser.tab.c"
-    break;
-
-  case 20: /* node_type: ANNOTATION  */
-#line 132 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Annotation"});
-    }
-#line 1357 "parser.tab.c"
-    break;
-
-  case 21: /* node_type: CIRCLE  */
-#line 136 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Circle"});
-    }
-#line 1365 "parser.tab.c"
-    break;
-
-  case 22: /* node_type: LBRACE RBRACE  */
-#line 140 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "CIRCLE"});
-    }
-#line 1373 "parser.tab.c"
-    break;
-
-  case 23: /* node_type: DIAMOND  */
-#line 144 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Diamond"});
-    }
-#line 1381 "parser.tab.c"
-    break;
-
-  case 24: /* node_type: L_ANGLE_BRACE R_ANGLE_BRACE  */
-#line 148 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Diamond"});
-    }
-#line 1389 "parser.tab.c"
-    break;
-
-  case 25: /* node_type: ENTITY  */
-#line 152 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Entity"});
-    }
-#line 1397 "parser.tab.c"
-    break;
-
-  case 26: /* node_type: ENUM  */
-#line 156 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Enum"});
-    }
-#line 1405 "parser.tab.c"
-    break;
-
-  case 27: /* node_type: EXCEPTION  */
-#line 160 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Exception"});
-    }
-#line 1413 "parser.tab.c"
-    break;
-
-  case 28: /* node_type: INTERFACE  */
-#line 164 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_TYPE, "Interface"});
-    }
 #line 1421 "parser.tab.c"
     break;
 
-  case 29: /* node_type: METACLASS  */
-#line 168 "parser.y"
+  case 20: /* node_definition: node_type IDENTIFIER L_CURLY_BRACE R_CURLY_BRACE  */
+#line 158 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_TYPE, "Metaclass"});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-2].str));
     }
-#line 1429 "parser.tab.c"
+#line 1430 "parser.tab.c"
     break;
 
-  case 30: /* node_type: PROTOCOL  */
-#line 172 "parser.y"
+  case 21: /* node_type: CLASS  */
+#line 166 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_TYPE, "Protocol"});
+        logs.push(Token{TokenType::NODE_TYPE, "Class"});
     }
-#line 1437 "parser.tab.c"
+#line 1438 "parser.tab.c"
     break;
 
-  case 31: /* node_type: STEREOTYPE  */
-#line 176 "parser.y"
+  case 22: /* node_type: ABSTRACT  */
+#line 170 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_TYPE, "Stereotype"});
+        logs.push(Token{TokenType::NODE_TYPE, "Abstract"});
     }
-#line 1445 "parser.tab.c"
+#line 1446 "parser.tab.c"
     break;
 
-  case 32: /* node_type: STRUCT  */
-#line 180 "parser.y"
+  case 23: /* node_type: ABSTRACT_CLASS  */
+#line 174 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_TYPE, "Struct"});
+        logs.push(Token{TokenType::NODE_TYPE, "Abstract"});
     }
-#line 1453 "parser.tab.c"
+#line 1454 "parser.tab.c"
     break;
 
-  case 42: /* extension: SKIP_LAYOUT  */
-#line 205 "parser.y"
-                  {
-        logs.push(Token{TokenType::SKIP_LAYOUT, std::string("")});
+  case 24: /* node_type: ANNOTATION  */
+#line 178 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Annotation"});
     }
-#line 1461 "parser.tab.c"
+#line 1462 "parser.tab.c"
     break;
 
-  case 43: /* position: AT_POSITION POSITION_ARGS  */
-#line 211 "parser.y"
+  case 25: /* node_type: CIRCLE  */
+#line 182 "parser.y"
     {
-        logs.push(Token{TokenType::POSITION, std::string((yyvsp[0].str))});
-        free((yyvsp[0].str));
+        logs.push(Token{TokenType::NODE_TYPE, "Circle"});
     }
 #line 1470 "parser.tab.c"
     break;
 
-  case 44: /* position_fixed: AT_POSITION_FIXED POSITION_ARGS  */
-#line 219 "parser.y"
+  case 26: /* node_type: LBRACE RBRACE  */
+#line 186 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "CIRCLE"});
+    }
+#line 1478 "parser.tab.c"
+    break;
+
+  case 27: /* node_type: DIAMOND  */
+#line 190 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Diamond"});
+    }
+#line 1486 "parser.tab.c"
+    break;
+
+  case 28: /* node_type: L_ANGLE_BRACE R_ANGLE_BRACE  */
+#line 194 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Diamond"});
+    }
+#line 1494 "parser.tab.c"
+    break;
+
+  case 29: /* node_type: ENTITY  */
+#line 198 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Entity"});
+    }
+#line 1502 "parser.tab.c"
+    break;
+
+  case 30: /* node_type: ENUM  */
+#line 202 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Enum"});
+    }
+#line 1510 "parser.tab.c"
+    break;
+
+  case 31: /* node_type: EXCEPTION  */
+#line 206 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Exception"});
+    }
+#line 1518 "parser.tab.c"
+    break;
+
+  case 32: /* node_type: INTERFACE  */
+#line 210 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Interface"});
+    }
+#line 1526 "parser.tab.c"
+    break;
+
+  case 33: /* node_type: METACLASS  */
+#line 214 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Metaclass"});
+    }
+#line 1534 "parser.tab.c"
+    break;
+
+  case 34: /* node_type: PROTOCOL  */
+#line 218 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Protocol"});
+    }
+#line 1542 "parser.tab.c"
+    break;
+
+  case 35: /* node_type: STEREOTYPE  */
+#line 222 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Stereotype"});
+    }
+#line 1550 "parser.tab.c"
+    break;
+
+  case 36: /* node_type: STRUCT  */
+#line 226 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_TYPE, "Struct"});
+    }
+#line 1558 "parser.tab.c"
+    break;
+
+  case 46: /* extension: SKIP_LAYOUT  */
+#line 251 "parser.y"
+                  {
+        logs.push(Token{TokenType::SKIP_LAYOUT, std::string("")});
+    }
+#line 1566 "parser.tab.c"
+    break;
+
+  case 47: /* position: AT_POSITION POSITION_ARGS  */
+#line 257 "parser.y"
+    {
+        logs.push(Token{TokenType::POSITION, std::string((yyvsp[0].str))});
+        free((yyvsp[0].str));
+    }
+#line 1575 "parser.tab.c"
+    break;
+
+  case 48: /* position_fixed: AT_POSITION_FIXED POSITION_ARGS  */
+#line 265 "parser.y"
     {
         logs.push(Token{TokenType::POSITION_FIXED, std::string((yyvsp[0].str))});
         free((yyvsp[0].str));
     }
-#line 1479 "parser.tab.c"
+#line 1584 "parser.tab.c"
     break;
 
-  case 45: /* skip_layoutt: QUOTE SKIP_LAYOUT  */
-#line 227 "parser.y"
+  case 49: /* skip_layoutt: QUOTE SKIP_LAYOUT  */
+#line 273 "parser.y"
     {
         logs.push(Token{TokenType::SKIP_LAYOUT, std::string("")});
     }
-#line 1487 "parser.tab.c"
+#line 1592 "parser.tab.c"
     break;
 
-  case 47: /* attribute: IDENTIFIER LINE_LAST_IDENTIFIER  */
-#line 235 "parser.y"
-    {
-        logs.push(Token{TokenType::ATTRIBUTE, std::string((yyvsp[-1].str)) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
-        free((yyvsp[-1].str));
-    }
-#line 1496 "parser.tab.c"
-    break;
-
-  case 48: /* attribute: LINE_LAST_IDENTIFIER  */
-#line 240 "parser.y"
+  case 51: /* attribute: ATTRIBUTE  */
+#line 281 "parser.y"
     {
         logs.push(Token{TokenType::ATTRIBUTE, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1505 "parser.tab.c"
+#line 1601 "parser.tab.c"
     break;
 
-  case 49: /* method: IDENTIFIER IDENTIFIER LBRACE RBRACE  */
-#line 248 "parser.y"
+  case 52: /* attribute: START_IDENTIFIER LINE_LAST_IDENTIFIER  */
+#line 287 "parser.y"
     {
-        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-3].str)) + " " + std::string((yyvsp[-2].str))});
-        free((yyvsp[-3].str));
-        free((yyvsp[-2].str));
-    }
-#line 1515 "parser.tab.c"
-    break;
-
-  case 50: /* method: IDENTIFIER LBRACE RBRACE  */
-#line 255 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-2].str))});
-        free((yyvsp[-2].str));
-    }
-#line 1524 "parser.tab.c"
-    break;
-
-  case 51: /* method: IDENTIFIER LBRACE method_arguments RBRACE  */
-#line 260 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-3].str))});
-        free((yyvsp[-3].str));
-    }
-#line 1533 "parser.tab.c"
-    break;
-
-  case 52: /* method: IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
-#line 265 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-4].str)) + " " + std::string((yyvsp[-3].str))});
-        free((yyvsp[-4].str));
-        free((yyvsp[-3].str));
-    }
-#line 1543 "parser.tab.c"
-    break;
-
-  case 53: /* method_arguments: method_arguments COMMA IDENTIFIER IDENTIFIER  */
-#line 274 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD_ARGUMENT, std::string((yyvsp[-1].str)) + " " + std::string((yyvsp[0].str))});
+        logs.push(Token{TokenType::ATTRIBUTE, std::string((yyvsp[-1].str)) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[-1].str));
         free((yyvsp[0].str));
     }
-#line 1553 "parser.tab.c"
+#line 1611 "parser.tab.c"
     break;
 
-  case 54: /* method_arguments: method_arguments COMMA IDENTIFIER  */
-#line 281 "parser.y"
+  case 53: /* attribute: HYPHEN IDENTIFIER LINE_LAST_IDENTIFIER  */
+#line 293 "parser.y"
     {
-        logs.push(Token{TokenType::METHOD_ARGUMENT, std::string((yyvsp[0].str))});
-        free((yyvsp[0].str));
-    }
-#line 1562 "parser.tab.c"
-    break;
-
-  case 55: /* method_arguments: IDENTIFIER IDENTIFIER  */
-#line 286 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD_ARGUMENT, std::string((yyvsp[-1].str)) + " " + std::string((yyvsp[0].str))});
+        logs.push(Token{TokenType::ATTRIBUTE, "- " + std::string((yyvsp[-1].str)) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[-1].str));
-        free((yyvsp[0].str));
-    }
-#line 1572 "parser.tab.c"
-    break;
-
-  case 56: /* method_arguments: IDENTIFIER  */
-#line 292 "parser.y"
-    {
-        logs.push(Token{TokenType::METHOD_ARGUMENT, std::string((yyvsp[0].str))});
-        free((yyvsp[0].str));
-    }
-#line 1581 "parser.tab.c"
-    break;
-
-  case 57: /* relationship: IDENTIFIER HYPHEN HYPHEN LINE_LAST_IDENTIFIER  */
-#line 300 "parser.y"
-    {
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-3].str))});
-        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
-        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
-        free((yyvsp[-3].str));
-        free((yyvsp[0].str));
-    }
-#line 1595 "parser.tab.c"
-    break;
-
-  case 58: /* relationship: IDENTIFIER HYPHEN HYPHEN right_connection LINE_LAST_IDENTIFIER  */
-#line 310 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-4].str))});
-        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
-        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
-        free((yyvsp[-4].str));
-        free((yyvsp[0].str));
-    }
-#line 1608 "parser.tab.c"
-    break;
-
-  case 59: /* relationship: IDENTIFIER left_connection HYPHEN HYPHEN LINE_LAST_IDENTIFIER  */
-#line 319 "parser.y"
-    {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-4].str))});
-        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
-        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
-        free((yyvsp[-4].str));
         free((yyvsp[0].str));
     }
 #line 1621 "parser.tab.c"
     break;
 
-  case 60: /* relationship: IDENTIFIER left_connection HYPHEN HYPHEN right_connection LINE_LAST_IDENTIFIER  */
-#line 328 "parser.y"
+  case 54: /* attribute: HYPHEN LINE_LAST_IDENTIFIER  */
+#line 299 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-5].str))});
+        logs.push(Token{TokenType::ATTRIBUTE, "- " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1630 "parser.tab.c"
+    break;
+
+  case 55: /* attribute: PLUS IDENTIFIER LINE_LAST_IDENTIFIER  */
+#line 304 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, "+ " + CleanQuotedString(std::string((yyvsp[-1].str))) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[-1].str));
+        free((yyvsp[0].str));
+    }
+#line 1640 "parser.tab.c"
+    break;
+
+  case 56: /* attribute: PLUS LINE_LAST_IDENTIFIER  */
+#line 310 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, "+ " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1649 "parser.tab.c"
+    break;
+
+  case 57: /* attribute: HASH IDENTIFIER LINE_LAST_IDENTIFIER  */
+#line 315 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, "# " + CleanQuotedString(std::string((yyvsp[-1].str))) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[-1].str));
+        free((yyvsp[0].str));
+    }
+#line 1659 "parser.tab.c"
+    break;
+
+  case 58: /* attribute: HASH LINE_LAST_IDENTIFIER  */
+#line 321 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, "# " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1668 "parser.tab.c"
+    break;
+
+  case 59: /* attribute: IDENTIFIER LINE_LAST_IDENTIFIER  */
+#line 326 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, CleanQuotedString(std::string((yyvsp[-1].str))) + " " + RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[-1].str));
+        free((yyvsp[0].str));
+    }
+#line 1678 "parser.tab.c"
+    break;
+
+  case 60: /* attribute: LINE_LAST_IDENTIFIER  */
+#line 332 "parser.y"
+    {
+        logs.push(Token{TokenType::ATTRIBUTE, RemoveLastChar(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1687 "parser.tab.c"
+    break;
+
+  case 61: /* method: START_IDENTIFIER IDENTIFIER LBRACE RBRACE  */
+#line 340 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-3].str)) + " " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-3].str));
+        free((yyvsp[-2].str));
+    }
+#line 1697 "parser.tab.c"
+    break;
+
+  case 62: /* method: START_IDENTIFIER LBRACE RBRACE  */
+#line 347 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-2].str))});
+        free((yyvsp[-2].str));
+    }
+#line 1706 "parser.tab.c"
+    break;
+
+  case 63: /* method: START_IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 352 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-3].str))});
+        free((yyvsp[-3].str));
+    }
+#line 1715 "parser.tab.c"
+    break;
+
+  case 64: /* method: START_IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 357 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, std::string((yyvsp[-4].str)) + " " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-4].str));
+        free((yyvsp[-3].str));
+    }
+#line 1725 "parser.tab.c"
+    break;
+
+  case 65: /* method: HYPHEN IDENTIFIER IDENTIFIER LBRACE RBRACE  */
+#line 364 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "- " + CleanQuotedString(std::string((yyvsp[-3].str))) + " " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-3].str));
+        free((yyvsp[-2].str));
+    }
+#line 1735 "parser.tab.c"
+    break;
+
+  case 66: /* method: HYPHEN IDENTIFIER LBRACE RBRACE  */
+#line 371 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "- " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-2].str));
+    }
+#line 1744 "parser.tab.c"
+    break;
+
+  case 67: /* method: HYPHEN IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 377 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "- " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-3].str));
+    }
+#line 1753 "parser.tab.c"
+    break;
+
+  case 68: /* method: HYPHEN IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 383 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "- " + CleanQuotedString(std::string((yyvsp[-4].str))) + " " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-4].str));
+        free((yyvsp[-3].str));
+    }
+#line 1763 "parser.tab.c"
+    break;
+
+  case 69: /* method: PLUS IDENTIFIER IDENTIFIER LBRACE RBRACE  */
+#line 390 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "+ " + CleanQuotedString(std::string((yyvsp[-3].str))) + " " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-3].str));
+        free((yyvsp[-2].str));
+    }
+#line 1773 "parser.tab.c"
+    break;
+
+  case 70: /* method: PLUS IDENTIFIER LBRACE RBRACE  */
+#line 397 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "+ " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-2].str));
+    }
+#line 1782 "parser.tab.c"
+    break;
+
+  case 71: /* method: PLUS IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 403 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "+ " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-3].str));
+    }
+#line 1791 "parser.tab.c"
+    break;
+
+  case 72: /* method: PLUS IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 409 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "+ " + CleanQuotedString(std::string((yyvsp[-4].str))) + " " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-4].str));
+        free((yyvsp[-3].str));
+    }
+#line 1801 "parser.tab.c"
+    break;
+
+  case 73: /* method: HASH IDENTIFIER IDENTIFIER LBRACE RBRACE  */
+#line 416 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "# " + CleanQuotedString(std::string((yyvsp[-3].str))) + " " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-3].str));
+        free((yyvsp[-2].str));
+    }
+#line 1811 "parser.tab.c"
+    break;
+
+  case 74: /* method: HASH IDENTIFIER LBRACE RBRACE  */
+#line 423 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "# " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-2].str));
+    }
+#line 1820 "parser.tab.c"
+    break;
+
+  case 75: /* method: HASH IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 429 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "# " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-3].str));
+    }
+#line 1829 "parser.tab.c"
+    break;
+
+  case 76: /* method: HASH IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 435 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, "# " + CleanQuotedString(std::string((yyvsp[-4].str))) + " " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-4].str));
+        free((yyvsp[-3].str));
+    }
+#line 1839 "parser.tab.c"
+    break;
+
+  case 77: /* method: IDENTIFIER IDENTIFIER LBRACE RBRACE  */
+#line 442 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, CleanQuotedString(std::string((yyvsp[-3].str))) + " " + CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-3].str));
+        free((yyvsp[-2].str));
+    }
+#line 1849 "parser.tab.c"
+    break;
+
+  case 78: /* method: IDENTIFIER LBRACE RBRACE  */
+#line 449 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, CleanQuotedString(std::string((yyvsp[-2].str)))});
+        free((yyvsp[-2].str));
+    }
+#line 1858 "parser.tab.c"
+    break;
+
+  case 79: /* method: IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 454 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-3].str));
+    }
+#line 1867 "parser.tab.c"
+    break;
+
+  case 80: /* method: IDENTIFIER IDENTIFIER LBRACE method_arguments RBRACE  */
+#line 459 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD, CleanQuotedString(std::string((yyvsp[-4].str))) + " " + CleanQuotedString(std::string((yyvsp[-3].str)))});
+        free((yyvsp[-4].str));
+        free((yyvsp[-3].str));
+    }
+#line 1877 "parser.tab.c"
+    break;
+
+  case 81: /* method_arguments: method_arguments COMMA IDENTIFIER IDENTIFIER  */
+#line 468 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD_ARGUMENT, CleanQuotedString(std::string((yyvsp[-1].str))) + " " + CleanQuotedString(std::string((yyvsp[0].str)))});
+        free((yyvsp[-1].str));
+        free((yyvsp[0].str));
+    }
+#line 1887 "parser.tab.c"
+    break;
+
+  case 82: /* method_arguments: method_arguments COMMA IDENTIFIER  */
+#line 475 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD_ARGUMENT, CleanQuotedString(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1896 "parser.tab.c"
+    break;
+
+  case 83: /* method_arguments: IDENTIFIER IDENTIFIER  */
+#line 480 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD_ARGUMENT, CleanQuotedString(std::string((yyvsp[-1].str))) + " " + CleanQuotedString(std::string((yyvsp[0].str)))});
+        free((yyvsp[-1].str));
+        free((yyvsp[0].str));
+    }
+#line 1906 "parser.tab.c"
+    break;
+
+  case 84: /* method_arguments: IDENTIFIER  */
+#line 486 "parser.y"
+    {
+        logs.push(Token{TokenType::METHOD_ARGUMENT, CleanQuotedString(std::string((yyvsp[0].str)))});
+        free((yyvsp[0].str));
+    }
+#line 1915 "parser.tab.c"
+    break;
+
+  case 90: /* relationship: IDENTIFIER hyphen_with_direction HYPHEN LINE_LAST_IDENTIFIER  */
+#line 502 "parser.y"
+    {
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-3].str)))});
+        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
+        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        free((yyvsp[-3].str));
+        free((yyvsp[0].str));
+    }
+#line 1929 "parser.tab.c"
+    break;
+
+  case 91: /* relationship: IDENTIFIER hyphen_with_direction HYPHEN right_connection LINE_LAST_IDENTIFIER  */
+#line 512 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-4].str)))});
+        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
+        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        free((yyvsp[-4].str));
+        free((yyvsp[0].str));
+    }
+#line 1942 "parser.tab.c"
+    break;
+
+  case 92: /* relationship: IDENTIFIER left_connection hyphen_with_direction HYPHEN LINE_LAST_IDENTIFIER  */
+#line 521 "parser.y"
+    {
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-4].str)))});
+        logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
+        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
+        free((yyvsp[-4].str));
+        free((yyvsp[0].str));
+    }
+#line 1955 "parser.tab.c"
+    break;
+
+  case 93: /* relationship: IDENTIFIER left_connection hyphen_with_direction HYPHEN right_connection LINE_LAST_IDENTIFIER  */
+#line 530 "parser.y"
+    {
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-5].str)))});
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[0].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         free((yyvsp[-5].str));
         free((yyvsp[0].str));
     }
-#line 1633 "parser.tab.c"
+#line 1967 "parser.tab.c"
     break;
 
-  case 61: /* relationship: IDENTIFIER HYPHEN HYPHEN IDENTIFIER skip_layoutt  */
-#line 337 "parser.y"
+  case 94: /* relationship: IDENTIFIER hyphen_with_direction HYPHEN IDENTIFIER skip_layoutt  */
+#line 539 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-4].str))});
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-4].str)))});
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[-1].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         free((yyvsp[-4].str));
         free((yyvsp[-1].str));
     }
-#line 1647 "parser.tab.c"
+#line 1981 "parser.tab.c"
     break;
 
-  case 62: /* relationship: IDENTIFIER HYPHEN HYPHEN right_connection IDENTIFIER skip_layoutt  */
-#line 347 "parser.y"
+  case 95: /* relationship: IDENTIFIER hyphen_with_direction HYPHEN right_connection IDENTIFIER skip_layoutt  */
+#line 549 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-5].str))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-5].str)))});
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[-1].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         free((yyvsp[-5].str));
         free((yyvsp[-1].str));
     }
-#line 1660 "parser.tab.c"
+#line 1994 "parser.tab.c"
     break;
 
-  case 63: /* relationship: IDENTIFIER left_connection HYPHEN HYPHEN IDENTIFIER skip_layoutt  */
-#line 356 "parser.y"
+  case 96: /* relationship: IDENTIFIER left_connection hyphen_with_direction HYPHEN IDENTIFIER skip_layoutt  */
+#line 558 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-5].str))});
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-5].str)))});
         logs.push(Token{TokenType::NODE_NAME, RemoveLastChar(std::string((yyvsp[-1].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         free((yyvsp[-5].str));
         free((yyvsp[-1].str));
     }
-#line 1673 "parser.tab.c"
+#line 2007 "parser.tab.c"
     break;
 
-  case 64: /* relationship: IDENTIFIER left_connection HYPHEN HYPHEN right_connection IDENTIFIER skip_layoutt  */
-#line 365 "parser.y"
+  case 97: /* relationship: IDENTIFIER left_connection hyphen_with_direction HYPHEN right_connection IDENTIFIER skip_layoutt  */
+#line 567 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-6].str))});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-1].str))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-6].str)))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-1].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         free((yyvsp[-6].str));
         free((yyvsp[-1].str));
     }
-#line 1685 "parser.tab.c"
+#line 2019 "parser.tab.c"
     break;
 
-  case 65: /* relationship_with_label: IDENTIFIER HYPHEN HYPHEN IDENTIFIER COLON label  */
-#line 376 "parser.y"
+  case 98: /* relationship_with_label: IDENTIFIER hyphen_with_direction HYPHEN IDENTIFIER COLON label  */
+#line 578 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-5].str))});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-2].str))});
-        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::LABEL, std::string("")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-5].str)))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-2].str)))});
+        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         free((yyvsp[-5].str));
         free((yyvsp[-2].str));
     }
-#line 1699 "parser.tab.c"
+#line 2034 "parser.tab.c"
     break;
 
-  case 66: /* relationship_with_label: IDENTIFIER HYPHEN HYPHEN right_connection IDENTIFIER COLON label  */
-#line 386 "parser.y"
+  case 99: /* relationship_with_label: IDENTIFIER hyphen_with_direction HYPHEN right_connection IDENTIFIER COLON label  */
+#line 589 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-6].str))});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-2].str))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-6].str)))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-2].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
         free((yyvsp[-6].str));
         free((yyvsp[-2].str));
     }
-#line 1712 "parser.tab.c"
+#line 2047 "parser.tab.c"
     break;
 
-  case 67: /* relationship_with_label: IDENTIFIER left_connection HYPHEN HYPHEN IDENTIFIER COLON label  */
-#line 395 "parser.y"
+  case 100: /* relationship_with_label: IDENTIFIER left_connection hyphen_with_direction HYPHEN IDENTIFIER COLON label  */
+#line 598 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-6].str))});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-2].str))});
         logs.push(Token{TokenType::ARROW_HEAD, std::string("None")});
+        logs.push(Token{TokenType::LABEL, std::string("")});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-6].str)))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-2].str)))});
+        logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         free((yyvsp[-6].str));
         free((yyvsp[-2].str));
     }
-#line 1724 "parser.tab.c"
+#line 2061 "parser.tab.c"
     break;
 
-  case 68: /* relationship_with_label: IDENTIFIER left_connection HYPHEN HYPHEN right_connection IDENTIFIER COLON label  */
-#line 403 "parser.y"
+  case 101: /* relationship_with_label: IDENTIFIER left_connection hyphen_with_direction HYPHEN right_connection IDENTIFIER COLON label  */
+#line 608 "parser.y"
     {
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-7].str))});
-        logs.push(Token{TokenType::NODE_NAME, std::string((yyvsp[-2].str))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-7].str)))});
+        logs.push(Token{TokenType::NODE_NAME, CleanQuotedString(std::string((yyvsp[-2].str)))});
         logs.push(Token{TokenType::LINE, std::string("Hyphen")});
         free((yyvsp[-7].str));
         free((yyvsp[-2].str));
     }
-#line 1736 "parser.tab.c"
+#line 2073 "parser.tab.c"
     break;
 
-  case 69: /* left_connection: L_ANGLE_BRACE PIPE  */
-#line 415 "parser.y"
+  case 102: /* left_connection: L_ANGLE_BRACE PIPE  */
+#line 620 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("OpenArrow")});
     }
-#line 1744 "parser.tab.c"
+#line 2081 "parser.tab.c"
     break;
 
-  case 70: /* left_connection: L_ANGLE_BRACE  */
-#line 419 "parser.y"
+  case 103: /* left_connection: L_ANGLE_BRACE  */
+#line 624 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Arrow")});
     }
-#line 1752 "parser.tab.c"
+#line 2089 "parser.tab.c"
     break;
 
-  case 71: /* left_connection: R_CURLY_BRACE  */
-#line 423 "parser.y"
+  case 104: /* left_connection: R_CURLY_BRACE  */
+#line 628 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("ThreeLines")});
     }
-#line 1760 "parser.tab.c"
+#line 2097 "parser.tab.c"
     break;
 
-  case 73: /* right_connection: R_ANGLE_BRACE PIPE  */
-#line 431 "parser.y"
+  case 106: /* right_connection: R_ANGLE_BRACE PIPE  */
+#line 636 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Arrow")});
     }
-#line 1768 "parser.tab.c"
+#line 2105 "parser.tab.c"
     break;
 
-  case 74: /* right_connection: R_ANGLE_BRACE  */
-#line 435 "parser.y"
+  case 107: /* right_connection: R_ANGLE_BRACE  */
+#line 640 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Arrow")});
     }
-#line 1776 "parser.tab.c"
+#line 2113 "parser.tab.c"
     break;
 
-  case 75: /* right_connection: L_CURLY_BRACE  */
-#line 439 "parser.y"
+  case 108: /* right_connection: L_CURLY_BRACE  */
+#line 644 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("ThreeLines")});
     }
-#line 1784 "parser.tab.c"
+#line 2121 "parser.tab.c"
     break;
 
-  case 77: /* connection: STAR  */
-#line 447 "parser.y"
+  case 110: /* connection: STAR  */
+#line 652 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Rhomb")});
     }
-#line 1792 "parser.tab.c"
+#line 2129 "parser.tab.c"
     break;
 
-  case 78: /* connection: O  */
-#line 451 "parser.y"
+  case 111: /* connection: O  */
+#line 656 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("OpenRhomb")});
     }
-#line 1800 "parser.tab.c"
+#line 2137 "parser.tab.c"
     break;
 
-  case 79: /* connection: HASH  */
-#line 455 "parser.y"
+  case 112: /* connection: HASH  */
+#line 660 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Square")});
     }
-#line 1808 "parser.tab.c"
+#line 2145 "parser.tab.c"
     break;
 
-  case 80: /* connection: X  */
-#line 459 "parser.y"
+  case 113: /* connection: X  */
+#line 664 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("X")});
     }
-#line 1816 "parser.tab.c"
+#line 2153 "parser.tab.c"
     break;
 
-  case 81: /* connection: PLUS  */
-#line 463 "parser.y"
+  case 114: /* connection: PLUS  */
+#line 668 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("Circle")});
     }
-#line 1824 "parser.tab.c"
+#line 2161 "parser.tab.c"
     break;
 
-  case 82: /* connection: HAT  */
-#line 467 "parser.y"
+  case 115: /* connection: HAT  */
+#line 672 "parser.y"
     {
         logs.push(Token{TokenType::ARROW_HEAD, std::string("OpenArrow")});
     }
-#line 1832 "parser.tab.c"
+#line 2169 "parser.tab.c"
     break;
 
-  case 83: /* label: IDENTIFIER  */
-#line 474 "parser.y"
+  case 116: /* label: IDENTIFIER  */
+#line 679 "parser.y"
     {
-        logs.push(Token{TokenType::LABEL, std::string((yyvsp[0].str))});
+        logs.push(Token{TokenType::LABEL, CleanQuotedString(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1841 "parser.tab.c"
+#line 2178 "parser.tab.c"
     break;
 
-  case 84: /* label: IDENTIFIER QUOTE SKIP_LAYOUT  */
-#line 480 "parser.y"
+  case 117: /* label: IDENTIFIER QUOTE SKIP_LAYOUT  */
+#line 685 "parser.y"
     {
-        logs.push(Token{TokenType::LABEL, std::string((yyvsp[-2].str))});
+        logs.push(Token{TokenType::LABEL, CleanQuotedString(std::string((yyvsp[-2].str)))});
         logs.push(Token{TokenType::SKIP_LAYOUT, std::string("")});
         free((yyvsp[-2].str));
     }
-#line 1851 "parser.tab.c"
+#line 2188 "parser.tab.c"
     break;
 
-  case 85: /* label: IDENTIFIER QUOTE SPLIT_EDGE  */
-#line 487 "parser.y"
+  case 118: /* label: IDENTIFIER QUOTE SPLIT_EDGE  */
+#line 692 "parser.y"
     {
         logs.push(Token{TokenType::SPLIT_EDGE, "None"});
-        logs.push(Token{TokenType::LABEL, std::string((yyvsp[-2].str))});
+        logs.push(Token{TokenType::LABEL, CleanQuotedString(std::string((yyvsp[-2].str)))});
         free((yyvsp[-2].str));
     }
-#line 1861 "parser.tab.c"
+#line 2198 "parser.tab.c"
     break;
 
-  case 86: /* label: LINE_LAST_IDENTIFIER  */
-#line 493 "parser.y"
+  case 119: /* label: LINE_LAST_IDENTIFIER  */
+#line 698 "parser.y"
     {
         logs.push(Token{TokenType::LABEL, RemoveLastChar(std::string((yyvsp[0].str)))});
         free((yyvsp[0].str));
     }
-#line 1870 "parser.tab.c"
+#line 2207 "parser.tab.c"
     break;
 
-  case 87: /* label: LINE_LAST_IDENTIFIER QUOTE SKIP_LAYOUT  */
-#line 498 "parser.y"
+  case 120: /* label: LINE_LAST_IDENTIFIER QUOTE SKIP_LAYOUT  */
+#line 703 "parser.y"
     {
         logs.push(Token{TokenType::LABEL, RemoveLastChar(std::string((yyvsp[-2].str)))});
         logs.push(Token{TokenType::SKIP_LAYOUT, std::string("")});
         free((yyvsp[-2].str));
     }
-#line 1880 "parser.tab.c"
+#line 2217 "parser.tab.c"
     break;
 
 
-#line 1884 "parser.tab.c"
+#line 2221 "parser.tab.c"
 
       default: break;
     }
@@ -2073,10 +2410,12 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 505 "parser.y"
+#line 710 "parser.y"
 
 
 void yyerror(const char *s) {
+  class_diagram::generated_parser::FillLastError("Error: " + std::string(s) + " Field: " + std::string(yytext));
+fprintf(stderr, "Error: %s. Field: %s\n", s, yytext);
 }
 
 namespace class_diagram {
@@ -2087,18 +2426,20 @@ void clearLogs() {
    logs.swap(empty);
 }
 
-std::stack<Token> parse_class_diagram(const std::string& input) {
+
+std::pair<std::string, std::stack<Token>> parse_class_diagram(const std::string& input) {
     clearLogs();
 
-    // Konwertuj std::stringbuf na FILE*
+    // Convert std::stringbuf to FILE*
     FILE* file = fmemopen(const_cast<char*>(input.c_str()), input.size(), "r");
     if (!file) {
         perror("fmemopen");
         return {};
     }
 
-    // Ustaw bufor jako wejście dla Flex
-    yyin = file;
+    // Set buffer as input for Flex
+    yyrestart(file);
+    std::string result_string{};
 
     int result = yyparse();
     if (result == 0) {
@@ -2111,11 +2452,12 @@ std::stack<Token> parse_class_diagram(const std::string& input) {
           std::cerr << "Detected token: " << token.type << " " << token.name << std::endl;
           logs.pop();
         }
+        result_string += GetLastError() + "\n";
     }
 
     fclose(file); // Zamknij FILE*
 
-    return logs;
+    return std::make_pair(result_string, logs);
 }
 
 }}

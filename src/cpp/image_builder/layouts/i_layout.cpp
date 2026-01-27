@@ -39,11 +39,17 @@ ILayout::ILayout(Graph &graph)
   {
     const auto &abstract_node = pair.second;
 
-    if (abstract_node.ignore)
+    if (abstract_node.ignore && abstract_node.swimlane.has_value())
     {
       // skipped_nodes.push(abstract_node);
       graph.skipped_nodes_order.push_back(pair.first);
       GA.label(swimlane_placeholder_node.value()) = "SWIMLANE_PLACEHOLDER";
+    }
+    else if (abstract_node.ignore)
+    {
+      // skipped_nodes.push(abstract_node);
+      graph.skipped_nodes_order.push_back(pair.first);
+      continue;
     }
 
     ogdf::node v = G.newNode();
@@ -60,6 +66,7 @@ ILayout::ILayout(Graph &graph)
     {
       GA.width(v) = std::stod(abstract_node.graphics.at("w"));
     }
+
     if (abstract_node.graphics.find("h") != abstract_node.graphics.end())
     {
       GA.height(v) = std::stod(abstract_node.graphics.at("h"));
@@ -76,15 +83,23 @@ ILayout::ILayout(Graph &graph)
     case ActivityTypeEnum::Stop: GA.shape(v) = ogdf::Shape::Ellipse; break;
     case ActivityTypeEnum::Conditional:
       GA.shape(v) = ogdf::Shape::Hexagon;
+      GA.height(v) += 10;
       break;
-    case ActivityTypeEnum::EndMerge: GA.shape(v) = ogdf::Shape::Rhomb; break;
-    default: GA.shape(v) = ogdf::Shape::Rect; break;
+    case ActivityTypeEnum::EndMerge:
+    case ActivityTypeEnum::EndFork: GA.shape(v) = ogdf::Shape::Rhomb; break;
+    default:
+      GA.shape(v) = ogdf::Shape::Rect;
+      if (graph.activity &&
+          abstract_node.activity_enum_type != ActivityTypeEnum::Fork)
+      {
+
+        GA.width(v) -= 20;
+      }
+      break;
     }
 
-    if (abstract_node.activity_enum_type == ActivityTypeEnum::Fork ||
-        abstract_node.activity_enum_type == ActivityTypeEnum::EndFork)
+    if (abstract_node.activity_enum_type == ActivityTypeEnum::Fork)
     {
-      GA.width(v) = 400;
       GA.height(v) = 5;
     }
   }
@@ -140,17 +155,9 @@ std::string ILayout::GenerateSVG(const Config &config)
     case ActivityTypeEnum::Start:
     case ActivityTypeEnum::Stop: GA.shape(v) = ogdf::Shape::Ellipse; break;
     case ActivityTypeEnum::Conditional:
-      GA.shape(v) = ogdf::Shape::Hexagon;
-      break;
+    case ActivityTypeEnum::Repeat: GA.shape(v) = ogdf::Shape::Hexagon; break;
     case ActivityTypeEnum::EndMerge: GA.shape(v) = ogdf::Shape::Rhomb; break;
     default: GA.shape(v) = ogdf::Shape::Rect; break;
-    }
-
-    if (abstract_node.activity_enum_type == ActivityTypeEnum::Fork ||
-        abstract_node.activity_enum_type == ActivityTypeEnum::EndFork)
-    {
-      GA.width(v) = 400;
-      GA.height(v) = 5;
     }
   }
 

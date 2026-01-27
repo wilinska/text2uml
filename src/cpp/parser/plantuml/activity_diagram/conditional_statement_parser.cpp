@@ -47,14 +47,16 @@ void GeneratedParser::HandleConditionalStatement(
   if (logs.top().type == TokenType::IS)
   {
     logs.pop(TokenType::IS, enable_output);
-    then_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    then_label_opt = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
   // then
   logs.pop(TokenType::THEN, enable_output);
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    then_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    then_label_opt = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
 
   HandleNesting(logs,
@@ -86,7 +88,8 @@ void GeneratedParser::HandleConditionalStatement(
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    else_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    else_label_opt = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
 
   while (logs.top().type == TokenType::ELSEIF)
@@ -101,7 +104,8 @@ void GeneratedParser::HandleConditionalStatement(
 
     if (logs.top().type == TokenType::BRACE_CONTENT)
     {
-      else_label_opt = logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+      else_label_opt = removeOuterParentheses(
+          logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
     }
 
     HandleNewActivity(logs,
@@ -151,8 +155,8 @@ void GeneratedParser::HandleConditionalStatement(
 
   if (logs.top().type == TokenType::BRACE_CONTENT)
   {
-    else_final_label_opt =
-        logs.pop(TokenType::BRACE_CONTENT, enable_output).name;
+    else_final_label_opt = removeOuterParentheses(
+        logs.pop(TokenType::BRACE_CONTENT, enable_output).name);
   }
 
   HandleNesting(logs,

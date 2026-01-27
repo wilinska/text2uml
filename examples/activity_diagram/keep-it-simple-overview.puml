@@ -1,0 +1,8 @@
+@startuml
+' source: https://github.com/lusitania/keep-it-simple/blob/c1213a2e594410a1d0c4d143f2bda9d1fa9a10e6/online-sync/img/overview.md
+start
+:Init Phase;
+:Transfer Phase;
+:Termination Phase;
+stop
+@enduml

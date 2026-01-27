@@ -20,16 +20,18 @@ std::string RemoveLastChar(const std::string &str) {
 
 void activityerror(const char *s);
 extern int yylex();
+extern char* yytext;
 extern FILE *activityin;
+extern void activityrestart(FILE* input_file);
 %}
 
 %union {
 char *str;
 }
 
-%token STARTUML ENDUML START STOP END IF DETACH BREAK THEN ELSE ELSEIF ENDIF KILL MERGE FORK WHILE ENDWHILE IS EQUALS SWITCH CASE REPEAT_WHILE REPEAT NOT ENDSWITCH BACKWARD
+%token STARTUML ENDUML START STOP END IF DETACH BREAK THEN ELSE ELSEIF ENDIF KILL MERGE FORK WHILE ENDWHILE IS SWITCH CASE REPEAT_WHILE REPEAT NOT ENDSWITCH BACKWARD
 %token COLON SEMICOLON ARROW FORK_AGAIN END_FORK END_MERGE SPLIT SPLIT_AGAIN END_SPLIT
-%token GROUP END_GROUP PARTITION OPEN_CURLY_BRACKET CLOSE_CURLY_BRACKET SWIMLANE
+%token GROUP END_GROUP PARTITION OPEN_CURLY_BRACKET CLOSE_CURLY_BRACKET SWIMLANE END_REPEAT
 %token <str> ID ACTIVITY_CONTENT BRACE_CONTENT QUOTED_NAME
 
 %%
@@ -113,10 +115,14 @@ WHILE BRACE_CONTENT loop_statements_with_breaks endwhile_statement
 ;
 
 repeat_statement:
-REPEAT loop_statements_with_breaks REPEAT WHILE BRACE_CONTENT
-| REPEAT loop_statements_with_breaks BACKWARD statement REPEAT WHILE BRACE_CONTENT
-| REPEAT loop_statements_with_breaks REPEAT WHILE BRACE_CONTENT eq BRACE_CONTENT NOT BRACE_CONTENT
-| REPEAT loop_statements_with_breaks BACKWARD statement REPEAT WHILE BRACE_CONTENT eq BRACE_CONTENT NOT BRACE_CONTENT
+  REPEAT loop_statements_with_breaks repeat_while_footer
+;
+
+repeat_while_footer:
+END_REPEAT BRACE_CONTENT
+| BACKWARD statement END_REPEAT BRACE_CONTENT
+| END_REPEAT BRACE_CONTENT eq BRACE_CONTENT NOT BRACE_CONTENT
+| BACKWARD statement END_REPEAT BRACE_CONTENT eq BRACE_CONTENT NOT BRACE_CONTENT
 
 endwhile_statement:
 ENDWHILE BRACE_CONTENT
@@ -138,7 +144,6 @@ CASE BRACE_CONTENT statements
 
 eq:
 IS
-| EQUALS
 ;
 
 
@@ -183,14 +188,16 @@ PARTITION ID OPEN_CURLY_BRACKET statements CLOSE_CURLY_BRACKET
 
 
 %%
+//
 
 void activityerror(const char *s) {
-fprintf(stderr, "Error: %s\n", s);
+  generated_parser::FillLastError("Error: " + std::string(s) + " Field: " + std::string(yytext));
+fprintf(stderr, "Error: %s\nField: %s", s, yytext);
 }
 
 namespace generated_parser {
 
-std::queue<Token> parse(const std::string& input) {
+std::pair<std::string, std::queue<Token>> parse(const std::string& input) {
     ClearLogs();
 
     // Convert std::stringbuf to FILE*
@@ -201,9 +208,10 @@ std::queue<Token> parse(const std::string& input) {
     }
 
     // Set buffer as input for Flex
-    activityin = file;
+    activityrestart(file);
 
     int result = yyparse();
+    std::string result_string{};
     if (result == 0) {
         std::cout << "Parsing successful!" << std::endl;
     } else {
@@ -215,11 +223,12 @@ std::queue<Token> parse(const std::string& input) {
           std::cerr << "Parsed token: " <<  token.type << " *" << token.name << "*" << std::endl;
           logs.pop();
         }
+        result_string += GetLastError() + "\n";
     }
 
     fclose(file); // Zamknij FILE*
 
-    return GetLogs();
+    return std::make_pair(result_string, GetLogs());
 }
 
 }

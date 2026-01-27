@@ -73,6 +73,54 @@ void ActivityDiagramLayout::ApplyLayout(const Config &config)
   fastHierarchyLayout->nodeDistance(20);
   sugiyama.setLayout(fastHierarchyLayout);
   sugiyama.call(GA);
+
+  for (ogdf::node v : G.nodes)
+  {
+    if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
+    {
+      continue;
+    }
+    if (std::stoi(GA.label(v)))
+    {
+      if (graph.nodes_order.size() <= std::stoull(GA.label(v)))
+      {
+        std::cerr << "ActivityDiagramLayout::ApplyLayout: Node index "
+                  << GA.label(v) << " out of bounds." << std::endl;
+        continue;
+      }
+      const auto &graph_node =
+          graph.nodes.at(graph.nodes_order.at(std::stoi(GA.label(v))));
+      if (graph_node.activity_enum_type == ActivityTypeEnum::Fork)
+      {
+        double minX = std::numeric_limits<double>::max();
+        double maxX = std::numeric_limits<double>::lowest();
+        bool hasTargets = false;
+        // 1. Najpierw znajdź skrajne wartości X wierzchołków docelowych
+        for (ogdf::adjEntry adj : v->adjEntries)
+        {
+          if (adj->isSource())
+          {
+            ogdf::node target = adj->twinNode();
+            double tx = GA.x(target);
+            if (tx < minX)
+              minX = tx - GA.width(target) / 2;
+            if (tx > maxX)
+              maxX = tx + GA.width(target) / 2;
+            hasTargets = true;
+          }
+        }
+
+        if (hasTargets)
+        {
+          double padding = 20.0;
+          double newWidth = (maxX - minX) + padding;
+          GA.width(v) = std::max(newWidth, 40.0);
+        }
+      }
+    }
+  }
+  sugiyama.call(GA);
+
   double offset_y = 30.0;
   for (auto v : G.nodes)
   {
@@ -101,24 +149,49 @@ void ActivityDiagramLayout::ApplyLayout(const Config &config)
           graph.nodes.at(graph.nodes_order.at(std::stoi(GA.label(v))));
       if (graph_node.activity_enum_type == ActivityTypeEnum::Fork)
       {
+        double minX = std::numeric_limits<double>::max();
+        double maxX = std::numeric_limits<double>::lowest();
+        bool hasTargets = false;
         for (ogdf::adjEntry adj : v->adjEntries)
         {
           if (adj->isSource())
           {
-            std::ignore = graph_node;
-
             ogdf::node target = adj->twinNode();
-            ogdf::edge e = adj->theEdge();
-            // Ensure edge starts at fork node and ends at target with same
-            // x-coordinate
-            ogdf::DPolyline &bends = GA.bends(e);
-            bends.clear(); // Remove existing bends
-            // Add a single vertical segment
-            double x = GA.x(target); // Use fork node's x-coordinate
-            double y1 = GA.y(v) + GA.height(v) / 2; // Bottom of fork node
-            // target
-            bends.pushBack(ogdf::DPoint(x, y1));
+            double tx = GA.x(target);
+            if (tx < minX)
+              minX = tx - GA.width(target) / 2;
+            if (tx > maxX)
+              maxX = tx + GA.width(target) / 2;
+            hasTargets = true;
           }
+        }
+
+        if (hasTargets)
+        {
+          double padding = 20.0;
+          double newWidth = (maxX - minX) + padding;
+
+          GA.width(v) = std::max(newWidth, 40.0);
+
+          for (ogdf::adjEntry adj : v->adjEntries)
+          {
+            if (adj->isSource())
+            {
+              ogdf::node target = adj->twinNode();
+              ogdf::edge e = adj->theEdge();
+
+              ogdf::DPolyline &bends = GA.bends(e);
+              bends.clear();
+
+              double x = GA.x(target);
+              double yStart = GA.y(v) + GA.height(v) / 2;
+
+              bends.pushBack(ogdf::DPoint(x, yStart));
+            }
+          }
+        }
+        else
+        {
         }
       }
       else if (graph_node.activity_enum_type == ActivityTypeEnum::Conditional)
@@ -127,6 +200,7 @@ void ActivityDiagramLayout::ApplyLayout(const Config &config)
         {
           if (adj->isSource())
           {
+
             ogdf::node target = adj->twinNode();
             ogdf::edge e = adj->theEdge();
             // Ensure edge starts at fork node and ends at target with same
@@ -176,96 +250,99 @@ void ActivityDiagramLayout::CreateHorizontalSwimlaneLayout(
     ogdf::NodeArray<std::string> &swimlaneMap)
 {
   int maxSwimlane = 0;
+  // Przechowuje min i max X dla każdego swimlane'u ZANIM zaczniemy przesuwać
+  std::unordered_map<int, std::pair<double, double>> swimlane_bounds;
 
-  std::unordered_map<int, std::pair<double, double>> swimlane_min_max;
+  // 1. Grupowanie i znalezienie pierwotnych granic X dla każdego toru
   for (ogdf::node v : G.nodes)
   {
     if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
-    {
       continue;
-    }
-    if (graph.swimlanes_ids.find(swimlaneMap[v]) == graph.swimlanes_ids.end())
-    {
-      graph.swimlanes_ids[swimlaneMap[v]] = maxSwimlane++;
-      swimlane_min_max[maxSwimlane - 1] =
-          std::make_pair(GA.x(v) - GA.width(v) / 2, GA.x(v) + GA.width(v) / 2);
-      graph.swimlanes[maxSwimlane - 1].name = swimlaneMap[v];
-    }
 
-    const auto &swimlane_id = graph.swimlanes_ids[swimlaneMap[v]];
-    if (swimlane_min_max[swimlane_id].first > GA.x(v) - GA.width(v) / 2)
+    std::string name = swimlaneMap[v];
+    if (graph.swimlanes_ids.find(name) == graph.swimlanes_ids.end())
     {
-      swimlane_min_max[swimlane_id].first = GA.x(v) - GA.width(v) / 2;
+      int id = maxSwimlane++;
+      graph.swimlanes_ids[name] = id;
+      graph.swimlanes[id].name = name;
+      swimlane_bounds[id] = {GA.x(v) - GA.width(v) / 2,
+                             GA.x(v) + GA.width(v) / 2};
     }
-
-    if (swimlane_min_max[swimlane_id].second < GA.x(v) + GA.width(v) / 2)
+    else
     {
-      swimlane_min_max[swimlane_id].second = GA.x(v) + GA.width(v) / 2;
+      int id = graph.swimlanes_ids[name];
+      swimlane_bounds[id].first =
+          std::min(swimlane_bounds[id].first, GA.x(v) - GA.width(v) / 2);
+      swimlane_bounds[id].second =
+          std::max(swimlane_bounds[id].second, GA.x(v) + GA.width(v) / 2);
     }
   }
 
-  // Step 4: Adjust node positions for horizontal swimlanes
-  double swimlaneSpacing = 55.0; // Spacing between swimlanes
+  // 2. Obliczanie szerokości i nowych offsetów (gdzie dany tor się ZACZYNA)
+  double currentXStart = 0.0;
+  double swimlanePadding = 40.0; // Odstęp wewnątrz toru
+  double swimlaneSpacing = 20.0; // Odstęp między torami
 
-  std::unordered_map<int, int> swimlanes_offsets_map;
-  swimlanes_offsets_map[0] = 0;
-  graph.swimlanes[0].x = 0;
-  swimlane_min_max[0].second =
-      std::max(swimlane_min_max[0].second, Calculate(graph.swimlanes[0].name));
-  graph.swimlanes[0].width =
-      swimlane_min_max[0].second - swimlane_min_max[0].first;
-  ;
+  std::vector<double> laneOffsets(maxSwimlane);
+  std::vector<double> originalLaneMinX(maxSwimlane);
 
-  for (auto i = 1; i < maxSwimlane; i++)
+  for (int i = 0; i < maxSwimlane; i++)
   {
-    swimlanes_offsets_map[i] = swimlanes_offsets_map[i - 1];
-    swimlanes_offsets_map[i] += graph.swimlanes[i - 1].width;
-    // swimlane_min_max[i - 1].second - swimlane_min_max[i - 1].first;
-    // offset
+    double contentWidth = swimlane_bounds[i].second - swimlane_bounds[i].first;
+    double labelWidth = Calculate(graph.swimlanes[i].name);
 
-    graph.swimlanes[i].x =
-        graph.swimlanes[i - 1].x + graph.swimlanes[i - 1].width;
-    swimlane_min_max[i].second = std::max(swimlane_min_max[i].second,
-                                          Calculate(graph.swimlanes[i].name));
-    graph.swimlanes[i].width = swimlane_min_max[i].second -
-                               swimlane_min_max[i].first + swimlaneSpacing;
-    swimlanes_offsets_map[i] += swimlaneSpacing;
+    graph.swimlanes[i].width =
+        std::max(contentWidth, labelWidth) + (swimlanePadding * 2);
+    graph.swimlanes[i].x = currentXStart;
+
+    laneOffsets[i] = currentXStart;
+    originalLaneMinX[i] = swimlane_bounds[i].first;
+
+    currentXStart += graph.swimlanes[i].width + swimlaneSpacing;
   }
 
+  // 3. Przesunięcie węzłów: NowyX = StartToru + (StaryX - MinXToru) + Padding
   for (ogdf::node v : G.nodes)
   {
     if (GA.label(v) == "SWIMLANE_PLACEHOLDER_NODE")
-    {
       continue;
-    }
-    GA.x(v) += swimlanes_offsets_map[graph.swimlanes_ids[swimlaneMap[v]]];
+
+    int id = graph.swimlanes_ids[swimlaneMap[v]];
+    double relativeX =
+        GA.x(v) -
+        originalLaneMinX[id]; // Pozycja względem początku danych w torze
+    GA.x(v) = laneOffsets[id] + relativeX + swimlanePadding;
 
     graph.height = std::max(graph.height, GA.y(v) + GA.height(v));
   }
 
-  swimlanes_offsets_map[0] = 0;
-  graph.swimlanes[0].x = 1;
-  graph.swimlanes[0].width =
-      swimlane_min_max[0].second - swimlane_min_max[0].first + 90;
-
-  for (auto i = 1; i < maxSwimlane; i++)
-  {
-    graph.swimlanes[i].x =
-        graph.swimlanes[i - 1].x + graph.swimlanes[i - 1].width;
-    graph.swimlanes[i].width =
-        swimlane_min_max[i].second - swimlane_min_max[i].first + 90;
-  }
-
+  // 4. Przesunięcie krawędzi (Bends)
   for (ogdf::edge e : G.edges)
   {
+    ogdf::node source = e->source();
     ogdf::node target = e->target();
-    int swimlane_id = graph.swimlanes_ids[swimlaneMap[target]];
-    double offset = swimlanes_offsets_map[swimlane_id];
+
+    int srcId = graph.swimlanes_ids[swimlaneMap[source]];
+    int tgtId = graph.swimlanes_ids[swimlaneMap[target]];
 
     ogdf::DPolyline &bends = GA.bends(e);
     for (auto &point : bends)
     {
-      point.m_x += offset;
+      // Prosta heurystyka: przesuwamy bend o uśredniony offset obu torów,
+      // lub o offset toru źródłowego jeśli krawędź jest wewnętrzna.
+      if (srcId == tgtId)
+      {
+        // Krawędź wewnątrz jednego toru
+        point.m_x = laneOffsets[srcId] + (point.m_x - originalLaneMinX[srcId]) +
+                    swimlanePadding;
+      }
+      else
+      {
+        // Krawędź między torami - tu sprawa jest złożona, najlepiej wyczyścić
+        // bends lub przesunąć o offset proporcjonalny. Na początek:
+        point.m_x +=
+            (laneOffsets[srcId] - originalLaneMinX[srcId] + swimlanePadding);
+      }
     }
   }
 }

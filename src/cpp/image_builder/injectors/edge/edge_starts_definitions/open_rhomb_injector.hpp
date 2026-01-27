@@ -16,7 +16,7 @@ public:
     XMLElement *marker = doc_.NewElement("marker");
     XMLElement *path = doc_.NewElement("path");
 
-    marker->SetAttribute("id", "StartRhomb");
+    marker->SetAttribute("id", "StartOpenRhomb");
     marker->SetAttribute("markerWidth", "10");
     marker->SetAttribute("markerHeight", "10");
     marker->SetAttribute("refX", "2");
@@ -25,7 +25,9 @@ public:
     marker->SetAttribute("markerUnits", "strokeWidth");
 
     path->SetAttribute("d", "M8,5 L5,1 L2,5 L5,9 z");
-    path->SetAttribute("fill", "#000");
+    path->SetAttribute("fill", "#fff");
+    path->SetAttribute("stroke", "#000");
+    path->SetAttribute("transform", "rotate(90, 5, 5)");
 
     doc_.RootElement()->InsertEndChild(defs);
     defs->InsertEndChild(marker);
