@@ -113,7 +113,7 @@ void GeneratedParser::HandleNesting(
                         next_label,
                         node_id_ctr,
                         edge_id_ctr,
-                        "END",
+                        "",
                         ActivityTypeEnum::End,
                         false,
                         enable_output);

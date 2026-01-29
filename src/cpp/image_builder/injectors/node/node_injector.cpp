@@ -118,6 +118,7 @@ void NodeInjector::Inject(const Node &node)
   }
 
   if (node.activity_enum_type == ActivityTypeEnum::Start ||
+      node.activity_enum_type == ActivityTypeEnum::End ||
       node.activity_enum_type == ActivityTypeEnum::Stop)
   {
     svg_node.text->SetText("");
@@ -126,7 +127,7 @@ void NodeInjector::Inject(const Node &node)
     {
       svg_node.box->SetAttribute(ATTR_FILL, "#000000");
     }
-    else
+    else if (node.activity_enum_type == ActivityTypeEnum::Stop)
     {
       XMLElementPtr circle_element = doc_.NewElement("circle");
 
@@ -136,6 +137,47 @@ void NodeInjector::Inject(const Node &node)
       circle_element->SetAttribute(ATTR_FILL, "#000000");
 
       svg_node.parent->InsertEndChild(circle_element);
+    }
+    else if (node.activity_enum_type == ActivityTypeEnum::End)
+    {
+      const char *cx = svg_node.box->Attribute(ATTR_CX);
+      const char *cy = svg_node.box->Attribute(ATTR_CY);
+      float f_cx = std::stof(cx);
+      float f_cy = std::stof(cy);
+      float r = 9.0f;
+      float offset = 7.0f;
+
+      XMLElementPtr circle_element = doc_.NewElement("circle");
+      circle_element->SetAttribute(ATTR_CX, cx);
+      circle_element->SetAttribute(ATTR_CY, cy);
+      circle_element->SetAttribute(ATTR_R, std::to_string(r).c_str());
+      circle_element->SetAttribute(ATTR_FILL, "none");
+      circle_element->SetAttribute("stroke", "#000000");
+      circle_element->SetAttribute("stroke-width", "2");
+      svg_node.parent->InsertEndChild(circle_element);
+
+      XMLElementPtr line1 = doc_.NewElement("line");
+      line1->SetAttribute("x1", std::to_string(f_cx - offset).c_str());
+      line1->SetAttribute("y1", std::to_string(f_cy - offset).c_str());
+      line1->SetAttribute("x2", std::to_string(f_cx + offset).c_str());
+      line1->SetAttribute("y2", std::to_string(f_cy + offset).c_str());
+      line1->SetAttribute("stroke", "#000000");
+      line1->SetAttribute("stroke-width", "1");
+      svg_node.parent->InsertEndChild(line1);
+
+      XMLElementPtr line2 = doc_.NewElement("line");
+      line2->SetAttribute("x1", std::to_string(f_cx + offset).c_str());
+      line2->SetAttribute("y1",
+                          std::to_string(f_cy - offset)
+                              .c_str()); // Poprawione: y pozostaje górne
+      line2->SetAttribute("x2", std::to_string(f_cx - offset).c_str());
+      line2->SetAttribute("y2", std::to_string(f_cy + offset).c_str());
+      line2->SetAttribute("stroke", "#000000");
+      line2->SetAttribute("stroke-width", "1");
+      svg_node.parent->InsertEndChild(line2);
+
+      svg_node.text->SetText("");
+      svg_node.box->SetAttribute("visibility", "hidden");
     }
   }
 }

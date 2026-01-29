@@ -14,7 +14,7 @@ class SecurityGate {
     validateToken(token String)
     encrypt(raw String)
 }
-' komentarz
+
 class BaseService {
     int serviceId
     String status

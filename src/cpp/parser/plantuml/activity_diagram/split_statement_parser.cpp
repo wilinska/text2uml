@@ -24,7 +24,7 @@ void GeneratedParser::HandleSplitStatement(
                     node_id_ctr,
                     edge_id_ctr,
                     "",
-                    ActivityTypeEnum::Split,
+                    ActivityTypeEnum::Fork,
                     false,
                     enable_output);
 

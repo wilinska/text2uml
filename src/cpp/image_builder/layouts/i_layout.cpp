@@ -80,6 +80,7 @@ ILayout::ILayout(Graph &graph)
     switch (abstract_node.activity_enum_type)
     {
     case ActivityTypeEnum::Start:
+    case ActivityTypeEnum::End:
     case ActivityTypeEnum::Stop: GA.shape(v) = ogdf::Shape::Ellipse; break;
     case ActivityTypeEnum::Conditional:
       GA.shape(v) = ogdf::Shape::Hexagon;
@@ -153,6 +154,7 @@ std::string ILayout::GenerateSVG(const Config &config)
     switch (abstract_node.activity_enum_type)
     {
     case ActivityTypeEnum::Start:
+    case ActivityTypeEnum::End:
     case ActivityTypeEnum::Stop: GA.shape(v) = ogdf::Shape::Ellipse; break;
     case ActivityTypeEnum::Conditional:
     case ActivityTypeEnum::Repeat: GA.shape(v) = ogdf::Shape::Hexagon; break;

@@ -11,12 +11,10 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace
 {
-#include <regex>
-#include <string>
-#include <unordered_map>
 
 /**
  * Formats UML string:
@@ -41,25 +39,13 @@ std::string FormatUmlString(std::string text)
   static const std::regex space_regex("[ \t]+");
   text = std::regex_replace(text, space_regex, " ");
 
-  // 3. Define colored markers
-  // Note: ~ uses 🔼 (Up-button) as it's the closest blue triangle emoji
-  // static const std::unordered_map<char, std::string> colorMap = {
-  // {'-', "🟥"}, // Red Square
-  // {'#', "🔶"}, // Yellow Diamond
-  // {'~', "🔼"}, // Blue/Greyish Triangle
-  // {'+', "🟢"}  // Green Circle
-  static const std::unordered_map<char, std::string> hollowMap = {
-      {'-', "\u25A1"}, // □ Hollow Square
-      {'#', "\u25CA"}, // ◊ Hollow Diamond
-      {'~', "\u25B3"}, // △ Hollow Triangle
-      {'+', "\u25CB"}  // ○ Hollow Circle
-  };
+  static const std::unordered_set<char> visibility_map = {'-', '#', '~', '+'};
 
   // 4. Check for visibility marker at the beginning
-  auto it = hollowMap.find(text[0]);
-  if (it != hollowMap.end())
+  auto it = visibility_map.find(text[0]);
+  if (it != visibility_map.end())
   {
-    std::string symbol = it->second;
+    std::string symbol = std::string(1, *it);
 
     // Extract the rest of the string (after the marker)
     std::string rest = text.substr(1);
