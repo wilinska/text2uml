@@ -980,127 +980,127 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 15 "lexer.l"
-{ printf("TOKEN: STARTUML (%s)\n", yytext); return STARTUML; }
+{ return STARTUML; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 16 "lexer.l"
-{ printf("TOKEN: END_UML (%s)\n", yytext); return END_UML; }
+{ return END_UML; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 17 "lexer.l"
-{ printf("TOKEN: CLASS\n"); return CLASS; }
+{ return CLASS; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 18 "lexer.l"
-{ printf("TOKEN: ABSTRACT\n"); return ABSTRACT; }
+{ return ABSTRACT; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 19 "lexer.l"
-{ printf("TOKEN: ABSTRACT_CLASS\n"); return ABSTRACT_CLASS; }
+{ return ABSTRACT_CLASS; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 20 "lexer.l"
-{ printf("TOKEN: ANNOTATION\n"); return ANNOTATION; }
+{ return ANNOTATION; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 21 "lexer.l"
-{ printf("TOKEN: CIRCLE\n"); return CIRCLE; }
+{ return CIRCLE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 22 "lexer.l"
-{ printf("TOKEN: DIAMOND\n"); return DIAMOND; }
+{ return DIAMOND; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 23 "lexer.l"
-{ printf("TOKEN: ENTITY\n"); return ENTITY; }
+{ return ENTITY; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 24 "lexer.l"
-{ printf("TOKEN: ENUM\n"); return ENUM; }
+{ return ENUM; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 25 "lexer.l"
-{ printf("TOKEN: EXCEPTION\n"); return EXCEPTION; }
+{ return EXCEPTION; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 26 "lexer.l"
-{ printf("TOKEN: INTERFACE\n"); return INTERFACE; }
+{ return INTERFACE; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 27 "lexer.l"
-{ printf("TOKEN: METACLASS\n"); return METACLASS; }
+{ return METACLASS; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 28 "lexer.l"
-{ printf("TOKEN: PROTOCOL\n"); return PROTOCOL; }
+{ return PROTOCOL; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 29 "lexer.l"
-{ printf("TOKEN: STEREOTYPE\n"); return STEREOTYPE; }
+{ return STEREOTYPE; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 30 "lexer.l"
-{ printf("TOKEN: STRUCT\n"); return STRUCT; }
+{ return STRUCT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 31 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 32 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 33 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 34 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 35 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 36 "lexer.l"
-{ printf("TOKEN: DOWN recognized\n"); return DOWN; }
+{ return DOWN; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 37 "lexer.l"
-{ printf("TOKEN: UP recognized\n"); return UP; }
+{ return UP; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 38 "lexer.l"
-{ printf("TOKEN: LEFT recognized\n"); return LEFT; }
+{ return LEFT; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 39 "lexer.l"
-{ printf("TOKEN: RIGHT recognized\n"); return RIGHT; }
+{ return RIGHT; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
@@ -1127,170 +1127,170 @@ case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
 #line 46 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: ATTRIBUTE (%s)\n", yytext); return ATTRIBUTE; }
+{ yylval.str = strdup(yytext); return ATTRIBUTE; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 47 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: START_IDENTIFIER (%s)\n", yytext); return START_IDENTIFIER; }
+{ yylval.str = strdup(yytext); return START_IDENTIFIER; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 49 "lexer.l"
-{ printf("TOKEN: COMMA\n"); return COMMA; }
+{ return COMMA; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 50 "lexer.l"
-{ printf("TOKEN: COLON\n"); return COLON; }
+{ return COLON; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 51 "lexer.l"
-{ printf("TOKEN: PIPE\n"); return PIPE; }
+{ return PIPE; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 52 "lexer.l"
-{ printf("TOKEN: STAR\n"); return STAR; }
+{ return STAR; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 53 "lexer.l"
-{ printf("TOKEN: O\n"); return O; }
+{ return O; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 54 "lexer.l"
-{ printf("TOKEN: HASH\n"); return HASH; }
+{ return HASH; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 55 "lexer.l"
-{ printf("TOKEN: X\n"); return X; }
+{ return X; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 56 "lexer.l"
-{ printf("TOKEN: PLUS\n"); return PLUS; }
+{ return PLUS; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 57 "lexer.l"
-{ printf("TOKEN: HAT\n"); return HAT; }
+{ return HAT; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 58 "lexer.l"
-{ printf("TOKEN: HYPHEN\n"); return HYPHEN; }
+{ return HYPHEN; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 59 "lexer.l"
-{ printf("TOKEN: L_ANGLE_BRACE\n"); return L_ANGLE_BRACE; }
+{ return L_ANGLE_BRACE; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 60 "lexer.l"
-{ printf("TOKEN: R_ANGLE_BRACE\n"); return R_ANGLE_BRACE; }
+{ return R_ANGLE_BRACE; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 61 "lexer.l"
-{ printf("TOKEN: L_SQUARE_BRACE\n"); return L_SQUARE_BRACE; }
+{ return L_SQUARE_BRACE; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 62 "lexer.l"
-{ printf("TOKEN: R_SQUARE_BRACE\n"); return R_SQUARE_BRACE; }
+{ return R_SQUARE_BRACE; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 63 "lexer.l"
-{ printf("TOKEN: L_CURLY_BRACE\n"); return L_CURLY_BRACE; }
+{ return L_CURLY_BRACE; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 64 "lexer.l"
-{ printf("TOKEN: R_CURLY_BRACE\n"); return R_CURLY_BRACE; }
+{ return R_CURLY_BRACE; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 65 "lexer.l"
-{ printf("TOKEN: LBRACE\n"); return LBRACE; }
+{ return LBRACE; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 66 "lexer.l"
-{ printf("TOKEN: RBRACE\n"); return RBRACE; }
+{ return RBRACE; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
 #line 67 "lexer.l"
-{ printf("TOKEN: QUOTE\n"); return QUOTE; }
+{ return QUOTE; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
 #line 69 "lexer.l"
-{ printf("TOKEN: AT_POSITION\n"); return AT_POSITION; }
+{ return AT_POSITION; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
 #line 70 "lexer.l"
-{ printf("TOKEN: AT_POSITION_FIXED\n"); return AT_POSITION_FIXED; }
+{ return AT_POSITION_FIXED; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
 #line 71 "lexer.l"
-{ printf("TOKEN: SPLIT_EDGE\n"); return SPLIT_EDGE; }
+{ return SPLIT_EDGE; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
 #line 72 "lexer.l"
-{ printf("TOKEN: SKIP_LAYOUT\n"); return SKIP_LAYOUT; }
+{ return SKIP_LAYOUT; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
 #line 73 "lexer.l"
-{ printf("TOKEN: DIAGRAM_TYPE\n"); return DIAGRAM_TYPE; }
+{ return DIAGRAM_TYPE; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 74 "lexer.l"
-{ printf("TOKEN: LAYOUT_TYPE\n"); return LAYOUT_TYPE; }
+{ return LAYOUT_TYPE; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
 #line 75 "lexer.l"
-{ printf("TOKEN: EDGE_TYPE\n"); return EDGE_TYPE; }
+{ return EDGE_TYPE; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
 #line 77 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: POSITION_ARGS (%s)\n", yytext); return POSITION_ARGS; }
+{ yylval.str = strdup(yytext); return POSITION_ARGS; }
 	YY_BREAK
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
 #line 79 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: LINE_LAST_IDENTIFIER (%s)\n", yytext); return LINE_LAST_IDENTIFIER; }
+{ yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
 #line 80 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: IDENTIFIER (%s)\n", yytext); return IDENTIFIER; }
+{ yylval.str = strdup(yytext); return IDENTIFIER; }
 	YY_BREAK
 case 61:
 /* rule 61 can match eol */
 YY_RULE_SETUP
 #line 81 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: QUOTED_ID (%s)\n", yytext); return IDENTIFIER; }
+{ yylval.str = strdup(yytext); return IDENTIFIER; }
 	YY_BREAK
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
 #line 82 "lexer.l"
-{ yylval.str = strdup(yytext); printf("TOKEN: QUOTED_ID (%s)\n", yytext); return LINE_LAST_IDENTIFIER; }
+{ yylval.str = strdup(yytext); return LINE_LAST_IDENTIFIER; }
 	YY_BREAK
 case 63:
 /* rule 63 can match eol */
@@ -1301,7 +1301,7 @@ YY_RULE_SETUP
 case 64:
 YY_RULE_SETUP
 #line 85 "lexer.l"
-{ printf("UNKNOWN CHARACTER: *%s*\n", yytext); }
+{ }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
