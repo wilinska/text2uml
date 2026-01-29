@@ -632,9 +632,9 @@ left_connection:
     ;
 
 right_connection:
-    R_ANGLE_BRACE PIPE
+    PIPE R_ANGLE_BRACE
     {
-        logs.push(Token{TokenType::ARROW_HEAD, std::string("Arrow")});
+        logs.push(Token{TokenType::ARROW_HEAD, std::string("OpenArrow")});
     }
     | R_ANGLE_BRACE
     {
