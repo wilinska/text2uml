@@ -343,7 +343,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         for (const key in currentConfig) {
             cleanedConfig[key] = String(currentConfig[key]);
         }
-        console.log("Cleaned config before sending request:", cleanedConfig);
 
         const params = collectCurrentParams(
             cleanedConfig,

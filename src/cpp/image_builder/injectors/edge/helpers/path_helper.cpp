@@ -422,6 +422,65 @@ std::string UpdateToStartOnRectangleBorder(const std::string &path,
   return UpdateFirstPoint(path, new_starting_point);
 }
 
+Point GetPointAlongPath(const std::string &path, double percentage)
+{
+  // Parse all points from the path
+  std::regex point_pattern(R"([ML]\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?))");
+  std::smatch matches;
+  std::vector<Point> points;
+
+  std::string::const_iterator searchStart(path.cbegin());
+  while (std::regex_search(searchStart, path.cend(), matches, point_pattern))
+  {
+    Point point{0, 0};
+    point.x = std::stod(matches[1]);
+    point.y = std::stod(matches[3]);
+    points.push_back(point);
+    searchStart = matches.suffix().first;
+  }
+
+  if (points.size() < 2)
+  {
+    return {0, 0};
+  }
+
+  // Calculate total path length
+  double totalLength = 0.0;
+  std::vector<double> segmentLengths;
+
+  for (size_t i = 0; i < points.size() - 1; ++i)
+  {
+    double dx = points[i + 1].x - points[i].x;
+    double dy = points[i + 1].y - points[i].y;
+    double length = std::sqrt(dx * dx + dy * dy);
+    segmentLengths.push_back(length);
+    totalLength += length;
+  }
+
+  // Find target distance along path
+  double targetDistance = totalLength * percentage;
+  double currentDistance = 0.0;
+
+  // Find the segment containing the target point
+  for (size_t i = 0; i < segmentLengths.size(); ++i)
+  {
+    if (currentDistance + segmentLengths[i] >= targetDistance)
+    {
+      // Interpolate within this segment
+      double segmentRatio =
+          (targetDistance - currentDistance) / segmentLengths[i];
+      Point result;
+      result.x = points[i].x + segmentRatio * (points[i + 1].x - points[i].x);
+      result.y = points[i].y + segmentRatio * (points[i + 1].y - points[i].y);
+      return result;
+    }
+    currentDistance += segmentLengths[i];
+  }
+
+  // If we're beyond the path, return the last point
+  return points.back();
+}
+
 } // namespace path
 } // namespace svg
 } // namespace helpers

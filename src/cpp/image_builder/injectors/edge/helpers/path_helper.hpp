@@ -34,6 +34,8 @@ std::string UpdateToStartOnRectangleBorder(const std::string &path,
 std::string
 MovePath(const std::string &path_data, int dx, int dy, bool isSource);
 
+Point GetPointAlongPath(const std::string &path, double percentage);
+
 } // namespace path
 } // namespace svg
 } // namespace helpers

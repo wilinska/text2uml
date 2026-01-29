@@ -35,6 +35,9 @@ const configTemplates = {
         { label: "CrossMin algorithm type", id: "cross-type", name: "crossType", type: "select", options: ["MedianHeuristic", "BarycenterHeuristic", "GreedyInsertHeuristic"], defaultValue: "MedianHeuristic" }
     ],
     Tree: [],
+    Activity: [
+        { label: "edgeMinLength", id: "edgeMinLength", name: "edgeMinLength", type: "number", min: 0, step: 1, defaultValue: 55 }
+    ],
 };
 
 // ============================================================================
@@ -399,9 +402,12 @@ function addOrUpdateFixedPosition(lines, classStartIndex, x, y) {
 // FUNKCJE CONFIG MODAL
 // ============================================================================
 
-function collectConfigDataFromModal(layoutTypeSelect) {
+function collectConfigDataFromModal(layoutTypeSelect, diagramTypeSelect) {
     const config = {};
-    const layoutType = layoutTypeSelect.value;
+    let layoutType = layoutTypeSelect.value;
+    if (diagramTypeSelect.value === "activity") {
+        layoutType = "Activity";
+    }
     const fields = configTemplates[layoutType] || [];
 
     fields.forEach((field) => {
@@ -418,7 +424,10 @@ function collectConfigDataFromModal(layoutTypeSelect) {
 }
 
 function collectCurrentParams(currentConfig, textInput, diagramTypeSelect, layoutTypeSelect, edgeTypeSelect) {
-    const layoutType = layoutTypeSelect.value;
+    let layoutType = layoutTypeSelect.value;
+    if (diagramTypeSelect.value === "activity") {
+        layoutType = "Activity";
+    }
     const config = {};
     const fields = configTemplates[layoutType] || [];
 
@@ -435,10 +444,12 @@ function collectCurrentParams(currentConfig, textInput, diagramTypeSelect, layou
     };
 }
 
-function renderConfigFields(layoutType, currentConfig) {
+function renderConfigFields(layoutType, diagramType, currentConfig) {
     const modalTitle = document.getElementById("modal-title");
     const container = document.getElementById("modal-fields-container");
     container.innerHTML = "";
+
+    if (diagramType === "activity") { layoutType = "Activity"; }
 
     modalTitle.textContent = `Configuration for ${layoutType}`;
     const fields = configTemplates[layoutType] || [];
@@ -628,6 +639,11 @@ function generateDiagram(params, wasmModule, svgOutput, setupSvgInteractionsFunc
     if (params.text.length === 0) return;
 
     try {
+        // Override layoutType for activity diagrams
+        if (params.diagramType === "activity") {
+            params.layoutType = "Activity";
+        }
+
         const strConfig = {};
         for (const key in params.config) {
             strConfig[key] = String(params.config[key]);
@@ -652,10 +668,8 @@ function generateDiagram(params, wasmModule, svgOutput, setupSvgInteractionsFunc
                 const isActivity = diagram_type === 'activity';
                 const layoutSelect = document.getElementById('layout-type');
                 const edgeSelect = document.getElementById('edge-type');
-                const configBtn = document.getElementById('config-button');
                 if (layoutSelect) layoutSelect.disabled = isActivity;
                 if (edgeSelect) edgeSelect.disabled = isActivity;
-                if (configBtn) configBtn.disabled = isActivity;
             }
         }
 
@@ -771,7 +785,6 @@ function updateControlsState() {
     const isActivity = diagramTypeSelect.value === 'activity';
     layoutTypeSelect.disabled = isActivity;
     edgeTypeSelect.disabled = isActivity;
-    configButton.disabled = isActivity;
     if (isActivity) isSvgActive = false;
 }
 
@@ -923,13 +936,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     configButton.addEventListener("click", () => {
-        if (diagramTypeSelect.value === 'activity') return;
-        renderConfigFields(layoutTypeSelect.value, currentConfig);
+        renderConfigFields(layoutTypeSelect.value, diagramTypeSelect.value, currentConfig);
         configModal.style.display = "flex";
     });
 
     applyConfigButton.addEventListener("click", () => {
-        currentConfig = collectConfigDataFromModal(layoutTypeSelect);
+        currentConfig = collectConfigDataFromModal(layoutTypeSelect, diagramTypeSelect);
         configModal.style.display = "none";
         textMemento.saveState();
         renderDiagram();

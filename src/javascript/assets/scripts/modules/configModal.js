@@ -12,7 +12,6 @@
 function collectConfigDataFromModal(configTemplates, layoutTypeSelect, diagramTypeSelect) {
     const config = {};
     let layoutType = layoutTypeSelect.value;
-    console.log("Diagram type in collectConfigDataFromModal:", diagramTypeSelect.value);
     if (diagramTypeSelect.value === "activity") {
         layoutType = "Activity";
     }
@@ -28,7 +27,6 @@ function collectConfigDataFromModal(configTemplates, layoutTypeSelect, diagramTy
             config[field.name] = element.value;
         }
     });
-    console.log("Collected config from modal:", config);
     return config;
 }
 
@@ -50,7 +48,10 @@ function collectCurrentParams(
     layoutTypeSelect,
     edgeTypeSelect
 ) {
-    const layoutType = layoutTypeSelect.value;
+    let layoutType = layoutTypeSelect.value;
+    if (diagramTypeSelect.value === "activity") {
+        layoutType = "Activity";
+    }
     const config = {};
     const fields = configTemplates[layoutType] || [];
 

@@ -1,222 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Text2UML - Browser Version</title>
 
-    <style>
-      body {
-        background-color: #1e1e1e;
-        color: #c5c6c7;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100vw;
-        height: 100vh;
-        flex-direction: column;
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text2UML - Browser Version</title>
 
-      svg {
-        width: 100%;
-        height: 100%;
-      }
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #c5c6c7;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-      #container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        width: 100%;
-        flex-direction: column;
-      }
+    svg {
+      width: 100%;
+      height: 100%;
+    }
 
-      #top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #2d2d2d;
-        padding: 10px;
-        color: white;
-        width: 95%;
-        padding: 20px 10px 10px 10px;
-      }
+    #container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      flex-direction: column;
+    }
 
-      #top-bar select,
-      #top-bar button {
-        margin: 0 5px;
-        padding: 5px 10px;
-        font-size: 14px;
-        border: none;
-        border-radius: 4px;
-      }
+    #top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2d2d2d;
+      padding: 10px;
+      color: white;
+      width: 95%;
+      padding: 20px 10px 10px 10px;
+    }
 
-      #top-bar button {
-        background-color: #4caf50;
-        color: white;
-        cursor: pointer;
-      }
+    #top-bar select,
+    #top-bar button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+    }
 
-      #top-bar button:hover {
-        background-color: #45a049;
-      }
+    #top-bar button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
 
-      #editor {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-        width: 95%;
-        height: 80%;
-        margin: auto;
-      }
+    #top-bar button:hover {
+      background-color: #45a049;
+    }
 
-      #text-input {
-        width: 50%;
-        padding: 15px;
-        font-family: monospace;
-        font-size: 14px;
-        border: none;
-        border-right: 1px solid #ddd;
-        resize: none;
-        box-sizing: border-box;
-        background-color: #2e2e2e;
-        color: #c5c6c7;
-        border: 1px solid #444;
-        border-radius: 5px 0 0 5px;
-      }
+    #top-bar button:disabled {
+      background-color: #cccccc;
+      color: #666666;
+      border-color: #999999;
+      cursor: not-allowed;
+      pointer-events: none;
+      box-shadow: none;
+      opacity: 0.6;
+    }
 
-      #svg-output {
-        flex: 1;
-        width: 50%;
-        padding: 15px;
-        background-color: #f9f9f9;
-        color: #c5c6c7;
-        border: 1px solid #444;
-        box-sizing: border-box;
-        overflow-y: auto;
-        border-radius: 0 5px 5px 0;
-      }
+    #editor {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      width: 95%;
+      height: 80%;
+      margin: auto;
+    }
 
-      textarea:focus {
-        outline: none;
-      }
+    #text-input {
+      width: 50%;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 14px;
+      border: none;
+      border-right: 1px solid #ddd;
+      resize: none;
+      box-sizing: border-box;
+      background-color: #2e2e2e;
+      color: #c5c6c7;
+      border: 1px solid #444;
+      border-radius: 5px 0 0 5px;
+    }
 
-      rect.highlighted {
-        stroke: red;
-        stroke-width: 2;
-      }
+    #svg-output {
+      flex: 1;
+      width: 50%;
+      padding: 15px;
+      background-color: #f9f9f9;
+      color: #c5c6c7;
+      border: 1px solid #444;
+      box-sizing: border-box;
+      overflow-y: auto;
+      border-radius: 0 5px 5px 0;
+    }
 
-      g.highlighted > rect {
-        stroke: red;
-        stroke-width: 2;
-      }
+    textarea:focus {
+      outline: none;
+    }
 
-      /* Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
+    rect.highlighted {
+      stroke: red;
+      stroke-width: 2;
+    }
 
-      .modal-content {
-        background-color: white;
-        color: #1e1e1e;
-        padding: 20px;
-        border-radius: 5px;
-        width: 300px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
+    g.highlighted>rect {
+      stroke: red;
+      stroke-width: 2;
+    }
 
-      .modal-content h3 {
-        margin-top: 0;
-      }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
 
-      .modal-content label {
-        display: block;
-        margin: 10px 0 5px;
-      }
+    .modal-content {
+      background-color: white;
+      color: #1e1e1e;
+      padding: 20px;
+      border-radius: 5px;
+      width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-      .modal-content input[type="number"],
-      .modal-content select {
-        width: 100%;
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
+    .modal-content h3 {
+      margin-top: 0;
+    }
 
-      .modal-content input[type="checkbox"] {
-        margin-top: 5px;
-      }
+    .modal-content label {
+      display: block;
+      margin: 10px 0 5px;
+    }
 
-      .modal-content button {
-        margin-top: 15px;
-        padding: 5px 10px;
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: block;
-      }
+    .modal-content input[type="number"],
+    .modal-content select {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
 
-      .modal-content button:hover {
-        background-color: #45a049;
-      }
-    </style>
+    .modal-content input[type="checkbox"] {
+      margin-top: 5px;
+    }
 
-    <!-- Pako dla kompresji -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+    .modal-content button {
+      margin-top: 15px;
+      padding: 5px 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+    }
 
-    <!-- WASM -->
-    <script src="../src/javascript/bin/uml-wasm.js"></script>
-    <script src="../src/javascript/dist/wasm/umd/index.js"></script>
-  </head>
+    .modal-content button:hover {
+      background-color: #45a049;
+    }
+  </style>
 
-  <body>
-    <div id="container">
-      <div id="top-bar">
-        <div>
-          <button id="lan-button" type="button">PlantUML</button>
-          <select id="diagram-type">
-            <option value="auto">Auto</option>
-            <option value="class">Class Diagram</option>
-            <option value="activity">Activity Diagram</option>
-          </select>
-          <select id="layout-type">
-            <option value="OptimalHierarchy">Optimal Hierarchy</option>
-            <option value="Circular">Circular Layout</option>
-            <option value="FMMM">FMMM Layout</option>
-            <option value="Orthogonal">Orthogonal Layout</option>
-            <option value="Sugiyama">Sugiyama Layout</option>
-            <option value="Tree">Tree Layout</option>
-          </select>
-          <select id="edge-type">
-            <option value="Bends">Curved</option>
-            <option value="Polyline">Polyline</option>
-          </select>
-          <button type="button" id="config-button">Config</button>
-        </div>
-        <div>
-          <button type="submit" id="render-button">Render</button>
-          <button type="button" id="save-button" title="Save SVG">💾</button>
-          <button type="button" id="fix-position-button" title="Fix positions">
-            📌
-          </button>
-        </div>
+  <!-- Pako dla kompresji -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+
+  <!-- WASM -->
+  <script src="../src/javascript/bin/uml-wasm.js"></script>
+  <script src="../src/javascript/dist/wasm/umd/index.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div id="top-bar">
+      <div>
+        <button id="lan-button" type="button">PlantUML</button>
+        <select id="diagram-type">
+          <option value="auto">Auto</option>
+          <option value="class">Class Diagram</option>
+          <option value="activity">Activity Diagram</option>
+        </select>
+        <select id="layout-type">
+          <option value="OptimalHierarchy">Optimal Hierarchy</option>
+          <option value="Circular">Circular Layout</option>
+          <option value="FMMM">FMMM Layout</option>
+          <option value="Orthogonal">Orthogonal Layout</option>
+          <option value="Sugiyama">Sugiyama Layout</option>
+          <option value="Tree">Tree Layout</option>
+        </select>
+        <select id="edge-type">
+          <option value="Bends">Curved</option>
+          <option value="Polyline">Polyline</option>
+        </select>
+        <button type="button" id="config-button">Config</button>
       </div>
-      <div id="editor">
-        <textarea id="text-input" placeholder="Enter PlantUML here...">
+      <div>
+        <button type="submit" id="render-button">Render</button>
+        <button type="button" id="save-button" title="Save SVG">💾</button>
+        <button type="button" id="fix-position-button" title="Fix positions">
+          📌
+        </button>
+      </div>
+    </div>
+    <div id="editor">
+      <textarea id="text-input" placeholder="Enter PlantUML here...">
 @startuml
 class AppController {
     String route
@@ -233,22 +244,22 @@ class SecurityGate {
 
 AppController --> SecurityGate
 
-@enduml</textarea
-        >
-        <div id="svg-output"></div>
-      </div>
+@enduml</textarea>
+      <div id="svg-output"></div>
     </div>
+  </div>
 
-    <!-- Modal konfiguracji -->
-    <div id="config-modal" class="modal">
-      <div class="modal-content">
-        <h3 id="modal-title">Configuration</h3>
-        <div id="modal-fields-container"></div>
-        <button type="button" id="apply-config">Apply</button>
-      </div>
+  <!-- Modal konfiguracji -->
+  <div id="config-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Configuration</h3>
+      <div id="modal-fields-container"></div>
+      <button type="button" id="apply-config">Apply</button>
     </div>
+  </div>
 
-    <!-- Główny skrypt aplikacji -->
-    <script src="app.js"></script>
-  </body>
+  <!-- Główny skrypt aplikacji -->
+  <script src="app.js"></script>
+</body>
+
 </html>

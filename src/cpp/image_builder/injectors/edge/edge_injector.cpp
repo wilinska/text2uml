@@ -1,6 +1,7 @@
 #include "src/cpp/image_builder/injectors/edge/edge_injector.hpp"
 #include "src/cpp/image_builder/injectors/edge/helpers/bezier_helper.hpp"
 #include "src/cpp/image_builder/injectors/edge/helpers/path_helper.hpp"
+#include <cmath>
 
 namespace
 {
@@ -60,10 +61,6 @@ void EdgeInjector::Inject(const Edge &edge,
   svg_edge.parent->SetAttribute("data-source", edge.source.c_str());
   svg_edge.parent->SetAttribute("data-target", edge.target.c_str());
 
-  // TODO: future work
-  // std::string pathId = "path_" + std::to_string(edge.id);
-  // path->SetAttribute("id", pathId.c_str());
-
   if (!svg_graph_.graph_.activity)
   {
     InjectLineAdjustments(rect, path);
@@ -75,26 +72,19 @@ void EdgeInjector::Inject(const Edge &edge,
 
   if (edge.label.has_value() and !isInt(edge.label.value()))
   {
-    // TODO: future work
-    // svg_edge.text->DeleteAttribute("x");
-    // svg_edge.text->DeleteAttribute("y");
+    // Calculate position at 70% of path length
+    const std::string pathData = path->Attribute("d");
+    const auto labelPosition =
+        helpers::svg::path::GetPointAlongPath(pathData, 0.7);
 
-    // // 3. Skonfiguruj styl tekstu, by był wyśrodkowany względem linii
-    // svg_edge.text->SetAttribute("dominant-baseline", "middle");
-    // svg_edge.text->SetAttribute("dy", "-5"); // Lekkie odsunięcie nad linię
+    // Set position - text will be horizontally centered at this point
+    svg_edge.text->SetAttribute("x", std::to_string(labelPosition.x).c_str());
+    svg_edge.text->SetAttribute("y", std::to_string(labelPosition.y).c_str());
 
-    // // 4. Stwórz element <textPath> (zależnie od Twojej biblioteki XML, np.
-    // // tinyxml2) Zakładając, że Twoja struktura pozwala na dodawanie
-    // // podelementów:
-    // auto *textPath = svg_edge.text->GetDocument()->NewElement("textPath");
-    // textPath->SetAttribute("href", ("#" + pathId).c_str());
-    // textPath->SetAttribute("startOffset", "50%");
-    // textPath->SetAttribute("text-anchor", "middle");
-    // textPath->SetText(edge.label.value().c_str());
+    // Set text to be centered and baseline adjusted
+    svg_edge.text->SetAttribute("text-anchor", "middle");
+    svg_edge.text->SetAttribute("dominant-baseline", "middle");
 
-    // // Wyczyść stary tekst i dodaj textPath
-    // svg_edge.text->SetText("");
-    // svg_edge.text->InsertEndChild(textPath);
     svg_edge.text->SetText(edge.label.value().c_str());
   }
   else
@@ -106,14 +96,7 @@ void EdgeInjector::Inject(const Edge &edge,
                         EdgeBendingTypeStringToEnum(edge_bending_type_str));
 }
 
-void EdgeInjector::InjectLineType(const Edge &edge, const XMLElementPtr path)
-{
-  // if (edge.line_type == LineType::Dashed)
-  // {
-  //   const std::string line_pattern(SOLID_LENGTH + "," + GAP_LENGTH);
-  //   path->SetAttribute("stroke-dasharray", line_pattern.c_str());
-  // }
-}
+void EdgeInjector::InjectLineType(const Edge &edge, const XMLElementPtr path) {}
 
 void EdgeInjector::InjectLineAdjustments(const XMLElementPtr rect,
                                          const XMLElementPtr path)
