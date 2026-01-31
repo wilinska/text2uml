@@ -1,0 +1,41 @@
+@startuml
+
+|Author|
+start
+:Write Article Draft;
+  :Self-Correction & Formatting;
+if (Content Ready?) then (yes)
+    :Submit for Review;
+else (no)
+    :Fix Typos;
+endif
+
+
+|Editor|
+:Receive Draft;
+if (Meets Standards?) then (yes)
+  :Approve Article;
+else (no)
+  :Reject with Feedback;
+endif
+
+|System|
+:Run SEO & Plagiarism Check;
+if (Checks Passed?) then (yes)
+  fork
+    :Publish on Website;
+    :Generate PDF Version;
+  fork again
+    :Update Search Index;
+    :Archive in Database;
+  end fork
+  :Push Social Media API;
+else (no)
+  :Log Technical Error;
+endif
+:Send Status Notification;
+
+|Author|
+:View Confirmation;
+stop
+@enduml

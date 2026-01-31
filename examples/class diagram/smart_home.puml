@@ -1,0 +1,131 @@
+@startuml
+' @layout_type Sugiyama
+
+' INTERFACES
+interface IDeviceControl {
+    +void turnOn()
+    +void turnOff()
+}
+
+interface ISensor {
+    +float readData()
+}
+
+interface IConnectivity {
+    +void connect()
+    +void disconnect()
+}
+
+' CORE SYSTEM
+class CentralHub {
+    +String hubId
+    +String firmwareVersion
+    +void processRules()
+}
+
+class Room {
+    +String name
+    +int floor
+}
+
+class SmartDevice {
+    +String deviceId
+    +boolean status
+}
+
+' CONCRETE DEVICES
+class SmartLight {
+    +int brightness
+    +void setColor()
+}
+
+class SmartThermostat {
+    +float targetTemperature
+}
+
+class SmartLock {
+    +boolean isLocked
+    +void lock()
+    +void unlock()
+}
+
+' SENSORS
+class TemperatureSensor {
+    +float currentTemp
+}
+
+class MotionSensor {
+    +boolean isDetected
+}
+
+class SmokeDetector {
+    +boolean isAlarmActive
+}
+
+' USER & ACCESS
+class HomeOwner {
+    +String username
+}
+
+class MobileApp {
+    +String osVersion
+}
+
+class VoiceAssistant {
+    +String wakeWord
+}
+
+' LOGIC & DATA
+class AutomationScene {
+    +String sceneName
+    +Time activationTime
+}
+
+class EnergyMonitor {
+    +double totalUsage
+}
+
+class EventLog {
+    +DateTime timestamp
+    +String description
+}
+
+' CONNECTIVITY
+class WiFiModule
+class ZigbeeModule
+
+' RELATIONSHIPS
+
+' Inheritance & Implementation
+SmartDevice <|-- SmartLight : specializes
+SmartDevice <|-- SmartThermostat : specializes
+SmartDevice <|-- SmartLock : specializes
+SmartDevice --> IDeviceControl : implements
+
+TemperatureSensor --|> ISensor : fulfills
+MotionSensor --|> ISensor : fulfills
+SmokeDetector --|> ISensor : fulfills
+
+WiFiModule --|> IConnectivity : implements
+ZigbeeModule --|> IConnectivity : implements
+
+
+CentralHub *-- EventLog : "records to"
+Room *-- SmartDevice : contains
+Room *-- TemperatureSensor : monitors
+
+
+CentralHub o-- Room : manages
+CentralHub o-- AutomationScene : executes
+HomeOwner o-- MobileApp : uses
+HomeOwner o-- VoiceAssistant : "controls via"
+
+
+MobileApp --> CentralHub : "sends commands to"
+VoiceAssistant --> CentralHub : triggers
+CentralHub --> WiFiModule : "communicates via"
+CentralHub --> ZigbeeModule : "communicates via"
+SmartDevice --> EnergyMonitor : "reports usage to"
+AutomationScene --> SmartDevice : "modifies state of"
+
+@enduml

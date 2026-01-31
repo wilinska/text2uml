@@ -1,0 +1,52 @@
+@startuml
+
+start
+
+:Patient Arrives at Emergency Room;
+:Triage Assessment;
+
+if (Life Threatening Condition?) then (yes)
+  :Immediate Stabilization;
+  :Move to Intensive Care;
+else (no)
+  :Standard Registration;
+  :Wait for Available Doctor;
+endif
+
+:Initial Medical Examination;
+:Order Diagnostic Tests;
+
+fork
+  :Blood and Urine Samples;
+  :Laboratory Analysis;
+fork again
+  :Imaging (X-Ray/MRI/CT);
+  :Radiologist Report;
+end fork
+
+:Review Test Results;
+
+while (Inconclusive Results?)
+  :Consultation with Specialist;
+  if (Diagnosis Clear?) then (yes)
+    :Results Clear;
+  else (no)
+    :Order Additional Targeted Tests;
+  endif
+endwhile
+
+
+if (Treatment Type Required?) then (Surgical)
+  :Pre-surgery Preparation;
+  :Perform Surgical Procedure;
+  :Post-operative Recovery;
+else (Pharmacological)
+  :Administer Medication;
+  :Monitor Patient Reaction;
+endif
+
+:Final Health Assessment;
+
+
+stop
+@enduml

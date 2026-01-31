@@ -1,0 +1,122 @@
+@startuml
+' @layout_type Sugiyama
+
+
+' INTERFACES
+interface IMedicalRecord {
+    +updateHistory()
+    +getVitals()
+}
+
+interface IBilling {
+    +calculateCosts()
+    +generateInvoice()
+}
+
+' PERSONEL
+class Employee {
+    #String employeeId
+    #double salary
+}
+
+class Doctor {
+    +String specialization
+    +performSurgery()
+}
+
+class Nurse {
+    +String shiftType
+    +administerMedication()
+}
+
+class Receptionist {
+    +bookAppointment()
+}
+
+' PATIENTS & VISITS
+class Patient {
+    +String patientId
+    +String medicalHistory
+}
+
+class Appointment {
+    +DateTime dateTime
+    +String reason
+}
+
+class Ward {
+    +int wardNumber
+    +int capacity
+}
+
+' MEDICAL
+class Treatment {
+    +String description
+    +double cost
+}
+
+class Medication {
+    +String name
+    +String dosage
+}
+
+class Prescription {
+    +Date issuedDate
+}
+
+' INFRASTRUCTURE & TECH
+class Inventory {
+    +Date lastRestock
+}
+
+class Laboratory {
+    +String labName
+    +runTest()
+}
+
+class TestResult {
+    +String findings
+    +boolean isCritical
+}
+
+class InsuranceProvider {
+    +String policyName
+}
+
+class HospitalDatabase {
+    +backupData()
+}
+
+
+
+Employee <|-- Doctor : specializes
+Employee <|-- Nurse : specializes
+Employee <|-- Receptionist : specializes
+
+
+Ward *-- Patient : houses
+Treatment *-- Medication : requires
+Laboratory *-- TestResult : produces
+Prescription *-- Medication : lists
+
+
+Doctor o-- Patient : treats
+HospitalDatabase o-- Employee : "stores info of"
+Doctor o-- Appointment : attends
+Patient o-- InsuranceProvider : "covered by"
+
+
+Doctor --> IMedicalRecord : updates
+Patient --> IMedicalRecord : owns
+Receptionist --> Appointment : schedules
+Nurse --> Patient : monitors
+Treatment --> IBilling : triggers
+InsuranceProvider --> IBilling : settles
+Appointment --> Ward : "assigned to"
+Doctor --> Prescription : writes
+Laboratory --> Doctor : "sends results to"
+HospitalDatabase --> Inventory : tracks
+
+
+
+@enduml

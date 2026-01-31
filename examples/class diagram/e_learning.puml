@@ -1,0 +1,97 @@
+@startuml
+' @layout_type OptimalHierarchy
+' Interfaces
+interface IAuthentication {
+    +void login()
+    +void logout()
+}
+
+interface IPaymentProvider {
+    +void processPayment(double amount)
+}
+
+' Users
+class User {
+    +int userId
+    +String email
+}
+
+class Student {
+    +Date enrolledDate
+}
+
+class Instructor {
+    +String bio
+}
+
+class Admin
+
+' Educational Content
+class Course {
+    +String title
+    +double price
+}
+
+class Module {
+    +String title
+}
+
+class Lesson {
+    +String content
+}
+
+class VideoMaterial
+class Assignment
+
+' Progress & Logic
+class Enrollment {
+    +float progressPercentage
+}
+
+class Certificate {
+    +String serialNumber
+}
+
+class Review {
+    +int rating
+}
+
+' Commerce & Technical
+class Order
+class Cart
+class StripeGateway
+class PayPalGateway
+class Notification
+class DiscussionForum
+
+' RELATIONSHIPS
+
+
+User <|-- Student : specializes
+User <|-- Instructor : specializes
+User <|-- Admin : specializes
+
+
+Course *-- Module : owns
+Module *-- Lesson : "consists of"
+Lesson *-- VideoMaterial : contains
+Lesson *-- Assignment : contains
+
+
+Instructor o-- Course : manages
+Student o-- Cart : possesses
+Course o-- Review : includes
+Student o-- Certificate : holds
+
+
+User --> IAuthentication : "authenticates via"
+IPaymentProvider <|-- StripeGateway : implements
+IPaymentProvider <|-- PayPalGateway : implements
+Order --> IPaymentProvider : "delegated to"
+Student --> Order : initiates
+Student --> Enrollment : maintains
+Enrollment --> Course : references
+Course --> DiscussionForum : provides
+User <-- Notification : "sent to"
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+
+start
+
+:Browse Product Catalog;
+:Add Items to Cart;
+:Proceed to Checkout;
+
+if (User Logged In?) then (no)
+  :Redirect to Login/Register;
+  :Verify Credentials;
+else (yes)
+  :Proceed;
+endif
+
+:Enter Shipping Address;
+:Select Delivery Method;
+
+partition Payment-Subsystem {
+    while (Transaction not Authorized)
+        :Redirect to Payment Gateway;
+        :Enter Payment Details;
+        if (Payment Successful?) then (yes)
+            :Authorize Transaction;
+        else (no)
+            :Display Payment Error;
+            :Offer Alternative Method;
+        endif
+    endwhile
+}
+
+fork
+  :Generate Electronic Invoice;
+  :Send Confirmation Email;
+fork again
+  :Allocate Stock in Warehouse;
+  :Notify Logistics Department;
+end fork
+
+:Pick and Pack Items;
+
+if (Fragile Items Included?) then (yes)
+  :Apply Special Packaging;
+else (no)
+  :Standard Packaging;
+endif
+
+:Print Shipping Label;
+:Hand over to Courier;
+:Update Order Status to "Shipped";
+
+stop
+@enduml
